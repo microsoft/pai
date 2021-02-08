@@ -63,7 +63,9 @@ const protocolValidate = (protocolYAML) => {
     );
   }
   // convert prerequisites list to dict
+  // , and record all prerequisites in prerequisiteSet
   const prerequisites = {};
+  const prerequisiteSet = new Set();
   for (const type of prerequisiteTypes) {
     prerequisites[type] = {};
   }
@@ -82,6 +84,7 @@ const protocolValidate = (protocolYAML) => {
         );
       } else {
         prerequisites[item.type][item.name] = item;
+        prerequisiteSet.add(item.name);
       }
     }
   }
@@ -103,6 +106,20 @@ const protocolValidate = (protocolYAML) => {
   }
   protocolObj.deployments = deployments;
   // check prerequisites in taskRoles
+  for (const taskRole of Object.keys(protocolObj.taskRoles)) {
+    if ('prerequisites' in protocolObj.taskRoles[taskRole]) {
+      for (const prerequisite of protocolObj.taskRoles[taskRole]
+        .prerequisites) {
+        if (!prerequisiteSet.has(prerequisite)) {
+          throw createError(
+            'Bad Request',
+            'InvalidProtocolError',
+            `Prerequisite ${prerequisite} does not exist.`,
+          );
+        }
+      }
+    }
+  }
   for (const taskRole of Object.keys(protocolObj.taskRoles)) {
     for (const field of prerequisiteFields) {
       if (

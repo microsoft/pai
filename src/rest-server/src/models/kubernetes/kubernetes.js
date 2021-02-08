@@ -54,6 +54,8 @@ const getClient = (baseURL = '') => {
   return client;
 };
 
+// encode equality based selectors
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#equality-based-requirement
 const encodeSelector = (selector = {}, negativeSelector = {}) => {
   const builder = [];
   for (const [key, val] of Object.entries(selector)) {
