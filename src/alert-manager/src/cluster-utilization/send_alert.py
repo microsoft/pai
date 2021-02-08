@@ -5,7 +5,7 @@ import urllib
 import requests
 
 CLUSTER_QUERY_STRING = "avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))"
-JOB_QUERY_STRING = 'avg by (job_name) (avg_over_time(task_gpu_percent{username!="noves"}[7d]))'
+JOB_QUERY_STRING = 'avg by (job_name) (avg_over_time(task_gpu_percent[7d]))'
 # user used gpu hours / total gpu hours
 USER_QUERY_STRING = \
     "(sum by (username) (sum_over_time(task_gpu_percent[7d]))) / (sum by (username) (count_over_time(task_gpu_percent[7d])*100)) * 100"
@@ -30,6 +30,20 @@ def enable_request_debug_log(func):
             requests_log.propagate = False
 
     return wrapper
+
+
+def datetime_to_hours(dt):
+    """Converts datetime.timedelta to hours
+
+    Parameters:
+    -----------
+    dt: datetime.timedelta
+
+    Returns: 
+    --------
+    float
+    """
+    return dt.days * 24 + dt.seconds / 3600
 
 
 @enable_request_debug_log
@@ -76,13 +90,16 @@ def get_job_usage_info(job_usage_result, rest_url):
             job_info["gpu_number"] = matched_job[0]["totalGpuNumber"]
         else:
             job_info["gpu_number"] = 0
+        job_info["resources_occupied"] = job_info["gpu_number"] * datetime_to_hours(job_info["duration"])
     for job_name, job_info in job_infos.items():
         if "start_time" not in job_info:
             continue
         job_usage.append(
-            (job_name, job_info["usage"], str(job_info["duration"]),
+            (job_name, "{:.2f}".format(job_info["resources_occupied"]), job_info["usage"], str(job_info["duration"]),
              job_info["start_time"].strftime("%y-%m-%d %H:%M:%S"), job_info["status"],
              str(job_info["gpu_number"])))
+    # sort job usage info by resources occupied
+    job_usage.sort(key=lambda x: float(x[1]), reverse=True)
     return job_usage
 
 
@@ -99,7 +116,7 @@ def collect_metrics(url):
     cluster_usage = result["data"]["result"][0]["value"][1][:6] + "%"
 
     # user info
-    logging.info("Start to getting user average usage")
+    logging.info("Start to collect user average usage")
     resp = requests.get(query_url, params={"query": USER_QUERY_STRING})
     resp.raise_for_status()
     result = resp.json()
@@ -108,7 +125,7 @@ def collect_metrics(url):
         user_usage.append((v["metric"]["username"], v["value"][1][:6] + "%"))
 
     # job info
-    logging.info("Start to getting job usage")
+    logging.info("Start to collect job usage")
     resp = requests.get(query_url, params={"query": JOB_QUERY_STRING})
     resp.raise_for_status()
     result = resp.json()
@@ -142,11 +159,12 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "alertname": "usage",
                 "report_type": "cluster-usage",
                 "job_name": job[0],
-                "job_usage": job[1],
-                "job_duration": job[2],
-                "job_start_time": job[3],
-                "job_status": job[4],
-                "job_gpu_number": job[5],
+                "job_resources_occupied": job[1],
+                "job_gpu_number": job[2],
+                "job_usage": job[3],
+                "job_duration": job[4],
+                "job_start_time": job[5],
+                "job_status": job[6],
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"

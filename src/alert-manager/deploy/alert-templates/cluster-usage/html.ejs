@@ -49,17 +49,24 @@
   <table style="font-size: 16px; width: 100%; margin: 0; text-align:center;">
     <tr>
       <th>Job name</th>
+      <th>Resources occupied (GPU*hour)</th>
+      <th>GPU number</th>
       <th>GPU utilization</th>
       <th>Job duration</th>
       <th>Job start time</th>
       <th>Job status</th>
-      <th>GPU number</th>
     </tr>
     <% alerts.filter( element=> typeof element.labels.job_name !== 'undefined' && typeof element.labels.job_usage !==
       'undefined').forEach(function(alert){ %>
       <tr>
         <td>
           <%= alert.labels.job_name %>
+        </td>
+        <td>
+          <%= alert.labels.job_resources_occupied %>
+        </td>
+        <td>
+          <%= alert.labels.job_gpu_number %>
         </td>
         <td>
           <%= alert.labels.job_usage %>
@@ -72,9 +79,6 @@
         </td>
         <td>
           <%= alert.labels.job_status %>
-        </td>
-        <td>
-          <%= alert.labels.job_gpu_number %>
         </td>
       </tr>
       <% }); %>
