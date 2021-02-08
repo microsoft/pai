@@ -144,6 +144,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
         "labels": {
             "alertname": "usage",
             "report_type": "cluster-usage",
+            "severity": "info",
             "cluster_usage": cluster_usage,
             "trigger_time": trigger_time,
         },
@@ -158,6 +159,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "labels": {
                 "alertname": "usage",
                 "report_type": "cluster-usage",
+                "severity": "info",
                 "job_name": job[0],
                 "job_resources_occupied": job[1],
                 "job_gpu_number": job[2],
@@ -178,6 +180,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "labels": {
                 "alertname": "usage",
                 "report_type": "cluster-usage",
+                "severity": "info",
                 "user_name": user[0],
                 "user_usage": user[1],
                 "trigger_time": trigger_time,
