@@ -1,8 +1,8 @@
 import { SIDEBAR_PARAM, SIDEBAR_CONFIG } from '../utils/constants';
 
 const initialState = {
-  advanceFlag: false,
   currentTabKey: 'ui',
+  expandedFlag: false,
   currentSideKey: SIDEBAR_PARAM,
   currentSideList: SIDEBAR_CONFIG.map(item => ({
     ...item,
@@ -22,10 +22,10 @@ export const global = (state = initialState, action) => {
         ...state,
         currentSideKey: action.payload || SIDEBAR_PARAM,
       };
-    case 'TOGGLE_ADVANCE_FLAG':
+    case 'TOGGLE_EXPANDED_FLAG':
       return {
         ...state,
-        advanceFlag: action.payload || false,
+        expandedFlag: action.payload || false,
       };
     case 'UPDATE_SIDEBAR_CONFIG':
       const currentSideList = action.payload || [];

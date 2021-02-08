@@ -2,6 +2,7 @@ import { JobProtocol } from '../models/job-protocol';
 
 const initialState = {
   jobProtocol: new JobProtocol({}),
+  currentTaskRole: 'taskrole',
   availableVirtualClusters: [],
   availableHivedSkuTypes: [],
 };
@@ -12,8 +13,13 @@ export const jobInformation = (state = initialState, action) => {
       return {
         ...state,
         jobProtocol:
-          new JobProtocol({ ...state.jobProtocol, ...action.payload }) ||
+          new JobProtocol({ ...action.payload }) ||
           new JobProtocol({ ...state.jobProtocol }),
+      };
+    case 'SAVE_CURRENT_TASKROLE':
+      return {
+        ...state,
+        currentTaskRole: action.payload || 'taskRole',
       };
     case 'SAVE_VIRTUAL_CLUSTERS':
       return {

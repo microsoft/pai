@@ -31,6 +31,7 @@ const SidebarItem = styled(Box)(
 const SidebarContent = styled(Box)(
   {
     background: '#fff',
+    borderLeft: '1px solid #f0f0f0',
     overflow: 'hidden',
     transition: 'width 0.2s',
   },
@@ -48,8 +49,12 @@ const SidebarContent = styled(Box)(
   }),
 );
 
-const UnwrapperedSidebar = ({ dispatch, currentSideList, currentSideKey }) => {
-  const [expandedFlag, setExpandedFlag] = useState(false);
+const UnwrapperedSidebar = ({
+  dispatch,
+  expandedFlag,
+  currentSideList,
+  currentSideKey,
+}) => {
   const [isModalOpen, toggleModalOpen] = useState(false);
 
   const getCurrentSideComponent = currentKey => {
@@ -63,7 +68,12 @@ const UnwrapperedSidebar = ({ dispatch, currentSideList, currentSideKey }) => {
     }
   };
 
-  const toggleExpandedKey = () => setExpandedFlag(!expandedFlag);
+  const toggleExpandedKey = () => {
+    dispatch({
+      type: 'TOGGLE_EXPANDED_FLAG',
+      payload: !expandedFlag,
+    });
+  };
 
   const onSidebarSelect = key => {
     dispatch({
@@ -77,7 +87,7 @@ const UnwrapperedSidebar = ({ dispatch, currentSideList, currentSideKey }) => {
       <SidebarContent expandable={expandedFlag}>
         {getCurrentSideComponent(currentSideKey)}
       </SidebarContent>
-      <Flex p='m' flexDirection='column' bg='white'>
+      <Flex p='m' flexDirection='column' bg='near-white'>
         <Link onClick={toggleExpandedKey}>
           <Icon iconName={expandedFlag ? 'ChevronLeft' : 'ChevronRight'} />
         </Link>
@@ -109,6 +119,7 @@ const UnwrapperedSidebar = ({ dispatch, currentSideList, currentSideKey }) => {
 };
 
 export const Sidebar = connect(({ global }) => ({
-  currentSideList: global.currentSideList,
+  expandedFlag: global.expandedFlag,
   currentSideKey: global.currentSideKey,
+  currentSideList: global.currentSideList,
 }))(UnwrapperedSidebar);

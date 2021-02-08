@@ -65,7 +65,7 @@ const theme = {
     'light-silver': '#aaa',
     'moon-gray': '#ccc',
     'light-gray': '#eee',
-    'near-white': '#f4f4f4',
+    'near-white': '#f8f8f8',
     white: '#fff',
     'black-90': 'rgba(0,0,0,.9)',
     'black-80': 'rgba(0,0,0,.8)',
@@ -93,6 +93,10 @@ const theme = {
     'white-0125': 'rgba(255,255,255,.0125)',
   },
 };
+
+theme.breakpoints.sm = theme.breakpoints[0];
+theme.breakpoints.md = theme.breakpoints[1];
+theme.breakpoints.lg = theme.breakpoints[2];
 
 theme.space.s2 = theme.space[1];
 theme.space.s1 = theme.space[2];

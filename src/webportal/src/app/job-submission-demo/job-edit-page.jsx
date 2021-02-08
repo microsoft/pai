@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { isNil, get } from 'lodash';
-import { Flex, Box } from './elements';
+import { isNil, get, set } from 'lodash';
+import { JobInformation } from './components/job-information';
+import { TaskRole } from './components/task-role';
 import { Sidebar } from './components/sidebar';
+import { SubmissionSection } from './components/submission-section';
+import styled from 'styled-components';
+import { Flex, Box, Row, Col } from './elements';
 import { fetchJobConfig } from './utils/conn';
 
 const loginUser = cookies.get('user');
@@ -69,14 +73,16 @@ const UnwrapperedJobEditPage = props => {
     });
   }, []);
 
-  console.log(props);
-
   return (
-    <Flex padding={20} height='100%'>
-      <Box flex='1 1 auto' bg='black-10'></Box>
-      {/* <Box bg='red'>red</Box> */}
-      <Sidebar />
-    </Flex>
+    <>
+      {/* left */}
+      <Flex flexDirection='column' flex={1}>
+        <JobInformation />
+        <TaskRole />
+      </Flex>
+      {/* right */}
+        <Sidebar />
+    </>
   );
 };
 

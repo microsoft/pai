@@ -25,8 +25,6 @@ const PureConfigPanel = ({ dispatch, currentSideList, isOpen, onDismiss }) => {
     onDismiss();
   };
 
-  console.log(getTheme());
-
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
       <Box pl='l1' pr='l1'>
