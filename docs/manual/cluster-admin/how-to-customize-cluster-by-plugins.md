@@ -2,7 +2,7 @@
 
 ## How to Install a Webportal Plugin
 
-Webportal plugin provides a way to add custom web pages to the OpenPAI web portal. It can communicate with other PAI services, like the rest-server. It could provide customized solutions to different requirements.
+Webportal plugin provides a way to add custom web pages to the OpenPAI webportal. It can communicate with other PAI services, like the rest-server. It could provide customized solutions to different requirements.
 
 As an administrator, you can configure the webportal plugins in the `webportal.plugins` field of `services-configuration.yaml` (If you don't know what `services-configuration.yaml` is, please refer to [PAI Service Management and Paictl](./basic-management-operations.md#pai-service-management-and-paictl)):
 
@@ -32,9 +32,9 @@ After modifying the configuration, push it to the cluster and restart webportal 
 
 ## Deploy Openpaimarketplace as Webportal Plugin
 
-[Openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a place that stores examples and job templates of OpenPAI. Users could use Openpaimarketplace to share their jobs or run-and-learn others' sharing jobs.
+[Openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a place that stores examples and job templates of OpenPAI. Users could use openpaimarketplace to share their jobs or run-and-learn others' sharing jobs.
 
-To deploy Openpaimarketplace, please refer to [the project doc](https://github.com/microsoft/openpaimarketplace) about how to deploy the marketplace service and webportal plugin.
+To deploy openpaimarketplace, please refer to [the project doc](https://github.com/microsoft/openpaimarketplace) about how to deploy the marketplace service and webportal plugin.
 
 After deployment, follow the [previous part](#how-to-install-a-webportal-plugin) to change the webportal configuration with marketplace plugin URL and restart webportal. Then you could use marketplace from the sidebar.
 
