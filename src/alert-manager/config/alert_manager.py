@@ -82,6 +82,10 @@ class AlertManager(object):
         else:
             result["alert-handler"]["configured"] = False
 
+        if result.get("cluster-utilization") is not None and \
+            result["cluster-utilization"].get("schedule") is not None:
+            result["cluster-utilization"]["configured"] = True
+
         result["host"] = self.get_master_ip()
         result["url"] = "http://{0}:{1}".format(self.get_master_ip(), result["port"])
 

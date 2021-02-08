@@ -1,12 +1,12 @@
 ## An Open AI Platform for R&D and Education
-One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components:
+One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different modules can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components:
 
 * Scheduling mechanism for deep learning workload
-* Deep neural network application that requires evaluation under realistic platform environment
+* Deep neural network application that requires evaluation under a realistic platform environment
 * New deep learning framework
 * AutoML
 * Compiler technique for AI
-* High performance networking for AI
+* High-performance networking for AI
 * Profiling tool, including network, platform, and AI job profiling
 * AI Benchmark suite
 * New hardware for AI, including FPGA, ASIC, Neural Processor

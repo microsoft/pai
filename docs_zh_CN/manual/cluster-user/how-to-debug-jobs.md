@@ -24,7 +24,7 @@ OpenPAI提供SSH插件来帮助您连接到任务容器。 要使用SSH，您可
 
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
-在SSH Info中，您应该参考`Use a pre-downloaded SSH private key`部分。如果您使用的是Windows，则以下命令适用于您：
+在SSH Info中，您应该参考`Use a pre-downloaded SSH private key`部分。如果您使用的是Windows，则可使用以下命令：
 
 ```bash
 ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
@@ -38,9 +38,9 @@ chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key
 
 **选项2.使用您自己的密钥**
 
-如果您熟悉SSH身份验证机制，那么您可能已经在文件夹`C:\Users\<your-user-name>\.ssh`中生成了一个公共密钥和一个私有密钥（在类Unix的系统上，对应的文件夹是`~/.ssh/`）。该文件夹中有一个id_rsa.pub文件和一个id_rsa文件，分别是公钥和私钥。
+如果您熟悉SSH身份验证机制，那么您可能已经在个人文件夹（Windows系统中为`C:\Users\<your-user-name>`，类Unix的系统中为`~`）下的`.ssh`子文件夹中生成了一个公共密钥和一个私有密钥。该文件夹中有一个id_rsa.pub文件和一个id_rsa文件，分别包含公钥和私钥。
 
-要使用它们，请打开 `id_rsa.pub`并将其内容复制到SSH插件，然后提交任务。不要使用上述密钥生成器。
+要使用它们，请打开 `id_rsa.pub`并将其内容复制到SSH插件，然后提交任务。无需使用上述密钥生成器。
 
    <img src="./imgs/copy-ssh-public-key.png" width="60%" height="60%" />
 
@@ -65,11 +65,11 @@ sleep 30m
 
    <img src="./imgs/enable-tensorboard.png" width="100%" height="100%" />
 
-提交后，您将在任务页面上看到一个`Go To TensorBoard Page`按钮。
+提交后，您将在任务详情页面上看到一个`Go To TensorBoard Page`按钮。
 
    <img src="./imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
 
-点击该按钮可转到TensorBoard页面。 您可能需要等待几分钟，直到日志准备就绪：
+点击该按钮可转到TensorBoard页面。 在日志准备就绪前，您可能需要等待几分钟。
 
    <img src="./imgs/tensorboard-ok.png" width="100%" height="100%" />
 

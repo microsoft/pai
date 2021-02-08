@@ -22,7 +22,6 @@ const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
-const WEBPORTAL_URL = process.env.WEBPORTAL_URL;
 
 const constrcutLogManagerPrefix = (nodeIp) => {
   return `http://${nodeIp}:${LOG_MANAGER_PORT}/api/v1`;
@@ -93,7 +92,7 @@ const getLogListFromLogManager = async (
   const logList = res.data;
 
   const ret = { locations: [] };
-  const urlPrefix = `${WEBPORTAL_URL}/log-manager/${nodeIp}:${LOG_MANAGER_PORT}`;
+  const urlPrefix = `/log-manager/${nodeIp}:${LOG_MANAGER_PORT}`;
   const urlSuffix = tailMode === 'true' ? '&tail-mode=true' : '';
   for (const key in logList) {
     ret.locations.push({

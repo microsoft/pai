@@ -49,6 +49,7 @@ export class JobTaskRole {
       containerSize,
       isContainerSizeEnabled,
       taskRetryCount,
+      prerequisites,
       extraOptions,
     } = props;
     this.name = name || '';
@@ -62,6 +63,7 @@ export class JobTaskRole {
     this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
     this.taskRetryCount = taskRetryCount || 0;
+    this.prerequisites = prerequisites || [];
     this.extraOptions = extraOptions || {};
   }
 
@@ -122,6 +124,7 @@ export class JobTaskRole {
     const jobTaskRole = new JobTaskRole({
       name: name,
       instances: instances,
+      prerequisites: get(taskRoleProtocol, 'prerequisites', []),
       completion: Completion.fromProtocol(completion),
       commands: isNil(commands) ? '' : commands.join('\n'),
       containerSize: resourcePerInstance,
@@ -178,6 +181,7 @@ export class JobTaskRole {
       instances: this.instances,
       completion: this.completion,
       taskRetryCount: this.taskRetryCount,
+      prerequisites: this.prerequisites,
       dockerImage: this.dockerInfo.name,
       data: this.extraOptions.data,
       output: this.extraOptions.output,

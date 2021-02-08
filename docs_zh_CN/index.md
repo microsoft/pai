@@ -1,6 +1,6 @@
 # OpenPAI手册
 
-[![Build Status](https://travis-ci.org/microsoft/pai.svg?branch=master)](https://travis-ci.org/microsoft/pai)
+[![Build Status](https://github.com/microsoft/pai/workflows/CI/badge.svg)](https://github.com/microsoft/pai/actions)
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
@@ -14,4 +14,4 @@ OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开�
 
 如果您想阅读关于OpenPAI的简单介绍，请访问[Github](https://github.com/microsoft/pai/blob/master/README.md)。
 
-如果您想反馈问题/Bug/要求新Feature，请提交至[GitHub](https://github.com/microsoft/pai)。
+如果您想反馈问题/Bug或提供新Feature，请提交至[GitHub](https://github.com/microsoft/pai)。

@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const { userProperty } = require('@pai/config/token');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const authnConfig = require('@pai/config/authn');
@@ -30,8 +31,9 @@ const router = new express.Router();
 
 /** GET /api/v1/token - Get list of tokens */
 router.get('/', tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  const jobSpecific = req.query.jobSpecific || false;
   try {
-    const list = await tokenModel.list(req.user.username);
+    const list = await tokenModel.list(req.user.username, jobSpecific);
     res.status(200).json({
       tokens: list,
     });
@@ -92,6 +94,15 @@ router.delete(
     }
   },
 );
+
+/** GET /api/v2/tokens/check - Check a token */
+router.get('/check', tokenMiddleware.check, async (req, res, next) => {
+  try {
+    res.status(200).json(req[userProperty]);
+  } catch (err) {
+    next(createError.unknown(err));
+  }
+});
 
 // module exports
 module.exports = router;

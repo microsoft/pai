@@ -2,11 +2,11 @@
 
 [logo]: ./pailogo.jpg "OpenPAI"
 
-[![Build Status](https://travis-ci.org/microsoft/pai.svg?branch=master)](https://travis-ci.org/microsoft/pai)
+[![Build Status](https://github.com/microsoft/pai/workflows/CI/badge.svg)](https://github.com/microsoft/pai/actions)
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-**OpenPAI [v1.4.1](./RELEASE_NOTE.md#Dec-2020-version-141) has been released!**
+**OpenPAI [v1.5.0](./RELEASE_NOTE.md#Jan-2021-version-150) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
 
@@ -58,16 +58,23 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
 
 ## Table of Contents
 
-1. [When to consider OpenPAI](#when-to-consider-openpai)
-2. [Why choose OpenPAI](#why-choose-openpai)
-3. [Get started](#get-started)
-   - [For cluster administrators](#for-cluster-administrators)
-   - [For cluster users](#for-cluster-users)
-4. [Standalone Components](#standalone-components)
-5. [Reference](#reference)
-6. [Related Projects](#related-projects)
-7. [Get involved](#get-involved)
-8. [How to contribute](#how-to-contribute)
+  - [When to consider OpenPAI](#when-to-consider-openpai)
+  - [Why choose OpenPAI](#why-choose-openpai)
+      - [Support on-premises and easy to deploy](#support-on-premises-and-easy-to-deploy)
+      - [Support popular AI frameworks and heterogeneous hardware](#support-popular-ai-frameworks-and-heterogeneous-hardware)
+      - [Most complete solution and easy to extend](#most-complete-solution-and-easy-to-extend)
+  - [Get started](#get-started)
+    - [For cluster administrators](#for-cluster-administrators)
+    - [For cluster users](#for-cluster-users)
+  - [Standalone Components](#standalone-components)
+  - [Reference](#reference)
+  - [Related Projects](#related-projects)
+  - [Get involved](#get-involved)
+  - [How to contribute](#how-to-contribute)
+    - [Contributor License Agreement](#contributor-license-agreement)
+    - [Call for contribution](#call-for-contribution)
+    - [Who should consider contributing to OpenPAI](#who-should-consider-contributing-to-openpai)
+    - [Contributors](#contributors)
 
 ## When to consider OpenPAI
 
@@ -109,19 +116,19 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 - **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation.
 
-    If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the upcoming `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
+  If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
 
-    |                   | `v0.14.0`               | `v1.0.0`               |
-    | ----------------- | ----------------------- | ---------------------- |
-    | Architecture      | Kubernetes + Hadoop YARN| Kubernetes             |
-    | Scheduler         | YARN Scheduler          | HiveD / K8S default    |
-    | Job Orchestrating | YARN Framework Launcher | Framework Controller   |
-    | RESTful API       | v1 + v2                 | pure v2                |
-    | Storage           | Team-wise storage plugin| PV/PVC storage sharing |
-    | Marketplace       | Marketplace v2          | openpaimarketplace     |
-    | SDK               | Python                  | JavaScript / TypeScript|
+  |                   | `v0.14.0`                | `v1.0.0`                |
+  | ----------------- | ------------------------ | ----------------------- |
+  | Architecture      | Kubernetes + Hadoop YARN | Kubernetes              |
+  | Scheduler         | YARN Scheduler           | HiveD / K8S default     |
+  | Job Orchestrating | YARN Framework Launcher  | Framework Controller    |
+  | RESTful API       | v1 + v2                  | pure v2                 |
+  | Storage           | Team-wise storage plugin | PV/PVC storage sharing  |
+  | Marketplace       | Marketplace v2           | openpaimarketplace      |
+  | SDK               | Python                   | JavaScript / TypeScript |
 
-    *If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
+  _If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue._
 
 - **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-add-and-remove-nodes.html), [monitoring nodes and services](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html).
 

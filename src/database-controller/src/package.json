@@ -30,6 +30,7 @@
     "openpaidbsdk": "file:../sdk",
     "p-queue": "^6.6.1",
     "statuses": "^2.0.0",
+    "uuid": "^8.3.2",
     "winston": "2"
   },
   "_moduleAliases": {
