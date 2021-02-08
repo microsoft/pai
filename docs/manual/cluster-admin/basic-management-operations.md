@@ -2,7 +2,7 @@
 
 ## Management on Webportal
 
-The web portal provides some basic administration functions. If you log in to it as an administrator, you will find several buttons about the administration on the left sidebar, as shown in the following image.
+The webportal provides some basic administration functions. If you log in to it as an administrator, you will find several buttons about the administration on the left sidebar, as shown in the following image.
 
    <img src="./imgs/administration.png" width="100%" height="100%" /> 
 
@@ -36,7 +36,7 @@ On the homepage, there is an `abnormal jobs` section for administrators. A job i
 
 ### Access Kubernetes Dashboard
 
-There is a shortcut to the k8s dashboard on the web portal. However, it needs special authentication for security issues.
+There is a shortcut to the k8s dashboard on the webportal. However, it needs special authentication for security issues.
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
@@ -142,7 +142,7 @@ Here are some basic usage examples of `paictl`:
 
 If you want to change configuration of some services, please follow the steps of `service stop`, `config push` and `service start`.
 
-For example, if you want to customize web portal, you should modify the `webportal` section in `services-configuration.yaml`. Then use the following command to push the configuration and restart the web portal:
+For example, if you want to customize webportal, you should modify the `webportal` section in `services-configuration.yaml`. Then use the following command to push the configuration and restart the webportal:
 
 ```bash
 ./paictl.py service stop -n webportal

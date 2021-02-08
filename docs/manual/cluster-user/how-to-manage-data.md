@@ -46,7 +46,7 @@ You could access `NFS` data by `Windows File Explorer` directly if:
 
 To access it, use the file location `\\NFS_SERVER_ADDRESS` in `Window File Explorer`. It will prompt you to type in a username and a password:
 
-  - If OpenPAI is in basic authentication mode (this mode means you use a basic username/password to log in to OpenPAI web portal), you can access NFS data through its configured username and password. Please note it is different from the one you use to log in to OpenPAI. If the administrator uses `storage-manager`, the default username/password for NFS is `smbuser` and `smbpwd`.
+  - If OpenPAI is in basic authentication mode (this mode means you use a basic username/password to log in to OpenPAI webportal), you can access NFS data through its configured username and password. Please note it is different from the one you use to log in to OpenPAI. If the administrator uses `storage-manager`, the default username/password for NFS is `smbuser` and `smbpwd`.
 
   - If OpenPAI is in AAD authentication mode, you can access NFS data through the user domain name and password.
 

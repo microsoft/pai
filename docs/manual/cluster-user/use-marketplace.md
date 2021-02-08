@@ -4,7 +4,7 @@
 
 ## Entrance
 
-If your administrator enables marketplace plugin, you will find a link in the `Plugin` section on the web portal, like:
+If your administrator enables marketplace plugin, you will find a link in the `Plugin` section on the webportal, like:
 
 > If you are PAI admin, you could check [deployment doc](https://github.com/microsoft/openpaimarketplace/blob/master/docs/deployment.md) to see how to deploy and enable marketplace plugin.
 

@@ -178,7 +178,7 @@ After start the rest-server, please ensure that the following task is successful
 <img src="./imgs/aad/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- Please login through OpenPAI's web portal, then please check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
+- Please login through OpenPAI's webportal, then please check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
 
 <div  align="center">
 <img src="./imgs/aad/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />

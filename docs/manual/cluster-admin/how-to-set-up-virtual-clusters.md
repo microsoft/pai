@@ -2,7 +2,7 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-OpenPAI supports two kinds of schedulers: the Kubernetes scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler). [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning. It supports virtual cluster division, topology-aware resource guarantee, and optimized gang scheduling, which are not supported in the k8s default scheduler. If you didn't specify `enable_hived_scheduler: false` during installation, the hived scheduler is enabled by default. Please notice the only hived scheduler supports virtual cluster setup, k8s default scheduler doesn't support it.
+OpenPAI supports two kinds of schedulers: the Kubernetes scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler). [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning. It supports virtual cluster division, topology-aware resource guarantee, and optimized gang scheduling, which are not supported in the k8s default scheduler. If you didn't specify `enable_hived_scheduler: false` during installation, hived scheduler is enabled by default. Please notice the only hived scheduler supports virtual cluster setup, k8s default scheduler doesn't support it.
 
 ## Set Up Virtual Clusters
 
@@ -251,7 +251,7 @@ hivedscheduler:
           cellNumber: 3
 ```
 
-In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 node has 4 V100 GPUs.
+In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and every V100 node has 4 V100 GPUs.
 
 ## Configure CPU and GPU SKU on the Same Node
 

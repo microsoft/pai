@@ -250,7 +250,7 @@ Please read the document about [service management and paictl](./basic-managemen
 ./paictl config pull -o /cluster-configuration
 ```
 
-To use a storage manager, you should first decide on a machine in the PAI system to be the storage server. The machine **must** be one of PAI workers, not PAI master. Please open `/cluster-configuration/layout.yaml`, choose a worker machine, then add a `pai-storage: "true"` field to it. Here is an example of the edited `layout.yaml`:
+To use storage manager, you should first decide on a machine in the PAI system to be the storage server. The machine **must** be one of PAI workers, not PAI master. Please open `/cluster-configuration/layout.yaml`, choose a worker machine, then add a `pai-storage: "true"` field to it. Here is an example of the edited `layout.yaml`:
 
 ```yaml
 ......
