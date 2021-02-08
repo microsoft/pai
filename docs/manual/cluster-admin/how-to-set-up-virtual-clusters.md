@@ -2,7 +2,7 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-OpenPAI supports two kinds of scheduler: the Kubernetes scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler). [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning. It supports virtual cluster division, topology-aware resource guarantee and optimized gang scheduling, which are not supported in k8s default scheduler. If you didn't specify `enable_hived_scheduler: false` during installation, hived scheduler is enabled by default. Please notice only hivedscheduler supports virtual cluster setup, k8s default scheduler doesn't support it.
+OpenPAI supports two kinds of schedulers: the Kubernetes scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler). [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning. It supports virtual cluster division, topology-aware resource guarantee, and optimized gang scheduling, which are not supported in the k8s default scheduler. If you didn't specify `enable_hived_scheduler: false` during installation, hived scheduler is enabled by default. Please notice the only hived scheduler supports virtual cluster setup, k8s default scheduler doesn't support it.
 
 ## Set Up Virtual Clusters
 
@@ -45,7 +45,7 @@ hivedscheduler:
 ...
 ```
 
-If you have followed the [installation guide](./installation-guide.md), you would find similar setting in your [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl). The detailed explanation of these fields are in the [hived scheduler document](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md). You can update the configuration and set up virtual clusters. For example, in the above settings, we have 3 nodes, `worker1`, `worker2` and `worker3`. They are all in the `default` virtual cluster. If we want to create two VCs, one is called `default` and has 2 nodes, the other is called `new` and has 1 node, we can first modify `services-configuration.yaml`:
+If you have followed the [installation guide](./installation-guide.md), you would find similar setting in your [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl). The detailed explanation of these fields are in the [hived scheduler document](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md). You can update the configuration and set up virtual clusters. For example, in the above settings, we have 3 nodes, `worker1`, `worker2`, and `worker3`. They are all in the `default` virtual cluster. If we want to create two VCs, one is called `default` and has 2 nodes, the other is called `new` and has 1 node, we can first modify `services-configuration.yaml`:
 
 ```yaml
 # services-configuration.yaml
@@ -198,7 +198,7 @@ This should be self-explanatory. The `virtualClusters` field is used to manage V
 ./paictl.py service start -n rest-server
 ```
 
-## Different Hardwares in Worker Nodes
+## Different Hardware in Worker Nodes
 
 We recommend one VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
 
@@ -251,7 +251,7 @@ hivedscheduler:
           cellNumber: 3
 ```
 
-In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 nodes has 4 V100 GPUs.
+In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and every V100 node has 4 V100 GPUs.
 
 ## Configure CPU and GPU SKU on the Same Node
 
@@ -305,14 +305,14 @@ hivedscheduler:
           cellNumber: 2
 ```
 
-Currently we only support mixing CPU and GPU types on one NVIDIA GPU node or one AMD GPU node,
+Currently, we only support mixing CPU and GPU types on one NVIDIA GPU node or one AMD GPU node,
 rare cases including NVIDIA cards and AMD cards on one node are not supported.
 
 ## Use Pinned Cell to Reserve Certain Node in a Virtual Cluster
 
-In some cases, you might want to reserve a certain node in a virtual cluster, and submit job to this node explicitly for debugging or quick testing. OpenPAI provides you with a way to "pin" a node to a virtual cluster.
+In some cases, you might want to reserve a certain node in a virtual cluster, and submit jobs to this node explicitly for debugging or quick testing. OpenPAI provides you with a way to "pin" a node to a virtual cluster.
 
-For example, assuming you have three worker nodes: `worker1`, `worker2`, and `worker3`, and 2 virtual clusters: `default` and `new`. The `default` VC has 2 workers, and `new` VC only has one worker. The following is an example for the configuration:
+For example, assuming you have three worker nodes: `worker1`, `worker2`, and `worker3`, and 2 virtual clusters: `default` and `new`. The `default` VC has 2 workers, and the `new` VC only has one worker. The following is an example of the configuration:
 
 ```yaml
 # services-configuration.yaml

@@ -66,17 +66,17 @@ We recommend you to use CPU-only machines for dev box and master. The detailed r
 
 The worker machines are used to run jobs. You can use multiple workers during installation.
 
-We support various types of workers: CPU worker, GPU worker, and workers with other computing device (e.g. TPU, NPU). 
+We support various types of workers: CPU workers, GPU workers, and workers with other computing devices (e.g. TPU, NPU). 
 
-In the same time, we also support two schedulers: the Kubernetes default scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler).
+At the same time, we also support two schedulers: the Kubernetes default scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler).
 
-Hivedscheduler is the default for OpenPAI. It supports virtual cluster division, topology-aware resource guarantee and optimized gang scheduling, which are not supported in k8s default scheduler. 
+Hivedscheduler is the default for OpenPAI. It supports virtual cluster division, topology-aware resource guarantee, and optimized gang scheduling, which are not supported in the k8s default scheduler. 
 
 
 For now, the support for CPU/Nvidia GPU workers and workers with other computing device is different:
 
-  - For CPU worker and NVIDIA GPU worker, both k8s default scheduler and hived scheduler can be used. 
-  - For workers with other types of computing device (e.g. TPU, NPU), currently we only support the usage of k8s default scheduler. You can only include workers with the same computing device in the cluster. For example, you can use TPU workers, but all workers should be TPU workers. You cannot use TPU workers together with GPU workers in one cluster.
+  - For CPU workers and NVIDIA GPU workers, both k8s default scheduler and hived scheduler can be used. 
+  - For workers with other types of computing devices (e.g. TPU, NPU), currently, we only support the usage of the k8s default scheduler. You can only include workers with the same computing device in the cluster. For example, you can use TPU workers, but all workers should be TPU workers. You cannot use TPU workers together with GPU workers in one cluster.
 
 Please check the following requirements for different types of worker machines:
 
@@ -167,10 +167,10 @@ git checkout v1.5.0
 ```
 
 Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib/kubespray/config` folder.
-These two files spedify the cluster layout and the customized configuration, respectively.
+These two files specify the cluster layout and the customized configuration, respectively.
 The following is the format and example of these 2 files.
 
-**Tips for China Users**: If you are a China user, before you edit these files, please refer to [here](./configuration-for-china.md) first.
+**Tips for China Users**: If you are in China, please refer to [here](./configuration-for-china.md) first before you edit these files.
 
 #### `layout.yaml` format
 
@@ -189,7 +189,7 @@ machine-sku:
       vcore: 24
   gpu-machine:
     computing-device:
-      # For `type`, please follow the same format specified in device plugin.
+      # For `type`, please follow the same format specified in the device plugin.
       # For example, `nvidia.com/gpu` is for NVIDIA GPU, `amd.com/gpu` is for AMD GPU,
       # and `enflame.com/dtu` is for Enflame DTU.
       # Reference: https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/
@@ -306,9 +306,9 @@ The `user` and `password` is the SSH username and password from dev box machine 
 
 **For Azure Users**: If you are deploying OpenPAI in Azure, please uncomment `openpai_kube_network_plugin: calico` in the config file above, and change it to `openpai_kube_network_plugin: weave`. It is because Azure doesn't support calico. See [here](https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking) for details.
 
-**For those who use workers other than CPU workers and NVIDIA GPU workers**: Now we only support Kubernetes default scheduler (not Hivedscheduler) for device other than NVIDIA GPU and CPU. Please uncomment `# enable_hived_scheduler: true` and set it to `enable_hived_scheduler: false`.
+**For those who use workers other than CPU workers and NVIDIA GPU workers**: Now we only support Kubernetes default scheduler (not Hivedscheduler) for devices other than NVIDIA GPU and CPU. Please uncomment `# enable_hived_scheduler: true` and set it to `enable_hived_scheduler: false`.
 
-**If qos-switch is enabled**: OpenPAI daemons will request additional resources in each node. Please check following table and reserve sufficient resources for OpenPAI daemons.
+**If qos-switch is enabled**: OpenPAI daemons will request additional resources in each node. Please check the following table and reserve sufficient resources for OpenPAI daemons.
 
 | Service Name  | Memory Request | CPU Request |
 | :-----------: | :------------: | :---------: |
@@ -331,7 +331,7 @@ Please run the following script to deploy Kubernetes first. As the name explains
 /bin/bash quick-start-kubespray.sh
 ```
 
-If there is any problem, please double check the environment requirements first. Here we provide a requirement checker to help you verify:
+If there is any problem, please double-check the environment requirements first. Here we provide a requirement checker to help you verify:
 
 ``` bash
 /bin/bash requirement.sh -l config/layout.yaml -c config/config.yaml
@@ -342,16 +342,16 @@ You can also refer to [the installation troubleshooting](./installation-faqs-and
 The `quick-start-kubespray.sh` will output the following information if k8s is successfully installed:
 
 ```
-You can run the following commands to setup kubectl on you local host:
+You can run the following commands to set up kubectl on your localhost:
 ansible-playbook -i ${HOME}/pai-deploy/kubespray/inventory/pai/hosts.yml set-kubectl.yml --ask-become-pass
 ```
 
-By default, we don't setup `kubeconfig` or install `kubectl` client on the dev box machine, but we put the Kubernetes config file in `~/pai-deploy/kube/config`. You can use the config with any Kubernetes client to verify the installation. 
+By default, we don't set up `kubeconfig` or install `kubectl` client on the dev box machine, but we put the Kubernetes config file in `~/pai-deploy/kube/config`. You can use the config with any Kubernetes client to verify the installation. 
 
 Also, you can use the command `ansible-playbook -i ${HOME}/pai-deploy/kubespray/inventory/pai/hosts.yml set-kubectl.yml --ask-become-pass` to set up `kubeconfig` and `kubectl` on the dev box machine. It will copy the config to `~/.kube/config` and set up the `kubectl` client. After it is executed, you can use `kubectl` on the dev box machine directly.
 
 #### Tips for Network-related Issues
-If you are facing network issues such as the machine cannot download some file, or cannot connect to some docker registry, please combine the prompted error log and kubespray as a keyword, and search for solution. You can also refer to the [installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) and [this issue](https://github.com/microsoft/pai/issues/4516).
+If you are facing network issues such as the machine cannot download some file, or cannot connect to some docker registry, please combine the prompted error log and kubespray as a keyword, and search for a solution. You can also refer to the [installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) and [this issue](https://github.com/microsoft/pai/issues/4516).
 
 ## Start OpenPAI Services
 
@@ -373,18 +373,18 @@ Default password          :     admin-password
 You can go to http://<your-master-ip>, then use the default username and password to log in.
 ```
 
-As the message says, you can use `admin` and `admin-password` to login to the webportal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
+As the message says, you can use `admin` and `admin-password` to login to the web portal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
 
-**For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manually deploy the device's device plugin in Kubernetes. Otherwise the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
+**For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manually deploy the device's device plugin in Kubernetes. Otherwise, the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
 
 ## Keep a Folder
 
-We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintenance, and uninstallation. The most important contents in this folder are:
+We highly recommend you keep the folder `~/pai-deploy` for future operations such as upgrade, maintenance, and uninstallation. The most important contents in this folder are:
 
-  + Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): Kubernetes config file. It is used by `kubectl` to connect to k8s api server.
+  + Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): Kubernetes config file. It is used by `kubectl` to connect to the k8s API server.
   + OpenPAI cluster config (the default is  `~/pai-deploy/cluster-cfg`): It is a folder containing machine layout and OpenPAI service configurations.
 
 If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted unexpectedly.
 
-Apart from the folder, you should remember your OpenPAI cluster ID, which is used to indicate your OpenPAI cluster.
-The default value is `pai`. Some management operation needs a confirmation of this cluster ID.
+Apart from the folder, you should remember your OpenPAI cluster-ID, which is used to indicate your OpenPAI cluster.
+The default value is `pai`. Some management operation needs a confirmation of this cluster-ID.
