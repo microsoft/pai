@@ -32,17 +32,17 @@
       <th>Resources occupied (GPU*hour)</th>
       <th>GPU utilization</th>
     </tr>
-    <% alerts.filter( element=> typeof element.labels.user_name !== 'undefined' && typeof element.labels.user_usage !==
+    <% alerts.filter( element=> typeof element.labels.username !== 'undefined' && typeof element.labels.usage !==
       'undefined').forEach(function(alert){ %>
       <tr>
         <td>
-          <%= alert.labels.user_name %>
+          <%= alert.labels.username %>
         </td>
         <td>
-          <%= alert.labels.user_resources_occupied %>
+          <%= alert.labels.resources_occupied %>
         </td>
         <td>
-          <%= alert.labels.user_usage %>
+          <%= alert.labels.usage %>
         </td>
       </tr>
       <% }); %>
@@ -60,29 +60,29 @@
       <th>Job start time</th>
       <th>Job status</th>
     </tr>
-    <% alerts.filter( element=> typeof element.labels.job_name !== 'undefined' && typeof element.labels.job_usage !==
+    <% alerts.filter( element=> typeof element.labels.job_name !== 'undefined' && typeof element.labels.usage !==
       'undefined').forEach(function(alert){ %>
       <tr>
         <td>
           <%= alert.labels.job_name %>
         </td>
         <td>
-          <%= alert.labels.job_resources_occupied %>
+          <%= alert.labels.resources_occupied %>
         </td>
         <td>
-          <%= alert.labels.job_gpu_number %>
+          <%= alert.labels.gpu_number %>
         </td>
         <td>
-          <%= alert.labels.job_usage %>
+          <%= alert.labels.usage %>
         </td>
         <td>
-          <%= alert.labels.job_duration %>
+          <%= alert.labels.duration %>
         </td>
         <td>
-          <%= alert.labels.job_start_time %>
+          <%= alert.labels.start_time %>
         </td>
         <td>
-          <%= alert.labels.job_status %>
+          <%= alert.labels.status %>
         </td>
       </tr>
       <% }); %>

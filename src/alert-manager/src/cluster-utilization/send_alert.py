@@ -39,7 +39,7 @@ def datetime_to_hours(dt):
     -----------
     dt: datetime.timedelta
 
-    Returns: 
+    Returns:
     --------
     float
     """
@@ -50,8 +50,6 @@ def datetime_to_hours(dt):
 def get_usage_info(job_usage_result, user_usage_result, rest_url):
     job_infos = {}
     user_infos = {}
-    job_usage = []
-    user_usage = []
     job_list = []
     # get all jobs
     headers = {'Authorization': "Bearer {}".format(TOKEN)}
@@ -60,58 +58,65 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
     job_list = resp.json()
 
     for v in job_usage_result["data"]["result"]:
-        job_infos[v["metric"]["job_name"]] = {"usage": v["value"][1][:6] + "%"}
+        job_infos[v["metric"]["job_name"]] = {
+            "job_name": v["metric"]["job_name"],
+            "usage": v["value"][1][:6] + "%"
+        }
     for v in user_usage_result["data"]["result"]:
-        user_infos[v["metric"]["username"]] = {"usage": v["value"][1][:6] + "%", "resources_occupied": 0}
-    print(user_infos)
+        user_infos[v["metric"]["username"]] = {
+            "username": v["metric"]["username"],
+            "usage": v["value"][1][:6] + "%", "resources_occupied": 0
+        }
     for job_name, job_info in job_infos.items():
         url = urllib.parse.urljoin(rest_url + "/", job_name)
         resp = requests.get(url, headers=headers)
         if not resp.ok:
             logging.warning("request failed %s", resp.text)
+            del job_infos[job_name]
             continue
         resp_json = resp.json()
+        username = resp_json["jobStatus"]["username"]
         # get job duration
         if not resp_json["jobStatus"]["appLaunchedTime"]:
             logging.warning("job not start, ignore it")
+            del job_infos[job_name]
             continue
-        job_info["start_time"] = datetime.fromtimestamp(
+        job_infos[job_name]["start_time"] = datetime.fromtimestamp(
             int(resp_json["jobStatus"]["appLaunchedTime"]) / 1000,
             timezone.utc)
-        if job_info["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
-            job_info["start_time"] = datetime.now(timezone.utc) - timedelta(days = 7)
+        if job_infos[job_name]["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
+            job_infos[job_name]["start_time"] = datetime.now(timezone.utc) - timedelta(days = 7)
         # job has not finished
         if not resp_json["jobStatus"]["appCompletedTime"]:
-            job_info["duration"] = datetime.now(timezone.utc) - job_info["start_time"]
+            job_infos[job_name]["duration"] = datetime.now(timezone.utc) - job_infos[job_name]["start_time"]
         # job has finished
         else:
-            job_info["duration"] = datetime.fromtimestamp(
+            job_infos[job_name]["duration"] = datetime.fromtimestamp(
                 int(resp_json["jobStatus"]["appCompletedTime"]) / 1000,
-                timezone.utc) - job_info["start_time"]
-        job_info["status"] = resp_json["jobStatus"]["state"]
+                timezone.utc) - job_infos[job_name]["start_time"]
+        job_infos[job_name]["status"] = resp_json["jobStatus"]["state"]
         matched_job = list(
             filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
             job_list))
         if matched_job:
-            job_info["gpu_number"] = matched_job[0]["totalGpuNumber"]
+            job_infos[job_name]["gpu_number"] = matched_job[0]["totalGpuNumber"]
         else:
-            job_info["gpu_number"] = 0
-        job_info["resources_occupied"] = job_info["gpu_number"] * datetime_to_hours(job_info["duration"])
-        user_infos[resp_json["jobStatus"]["username"]]["resources_occupied"] += job_info["resources_occupied"]
+            job_infos[job_name]["gpu_number"] = 0
+        job_infos[job_name]["resources_occupied"] = job_infos[job_name]["gpu_number"] * datetime_to_hours(job_infos[job_name]["duration"])
+        user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
+
+    # format
     for job_name, job_info in job_infos.items():
-        if "start_time" not in job_info:
-            continue
-        job_usage.append(
-            (job_name, "{:.2f}".format(job_info["resources_occupied"]), job_info["usage"], str(job_info["duration"]),
-             job_info["start_time"].strftime("%y-%m-%d %H:%M:%S"), job_info["status"],
-             str(job_info["gpu_number"])))
+        job_infos[job_name]["gpu_number"] = str(job_info["gpu_number"])
+        job_infos[job_name]["duration"] = str(job_info["duration"])
+        job_infos[job_name]["start_time"] = job_info["start_time"].strftime("%y-%m-%d %H:%M:%S")
+        job_infos[job_name]["resources_occupied"] = "{:.2f}".format(job_info["resources_occupied"])
     for username, user_info in user_infos.items():
-        user_usage.append(
-            (username, "{:.2f}".format(user_info["resources_occupied"]), user_info["usage"]))
+        user_infos[username]["resources_occupied"] = "{:.2f}".format(user_info["resources_occupied"])
 
     # sort usage info by resources occupied
-    job_usage.sort(key=lambda x: float(x[1]), reverse=True)
-    user_usage.sort(key=lambda x: float(x[1]), reverse=True)
+    job_usage = sorted(job_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
+    user_usage = sorted(user_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
 
     return job_usage, user_usage
 
@@ -170,13 +175,13 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "alertname": "usage",
                 "report_type": "cluster-usage",
                 "severity": "info",
-                "job_name": job[0],
-                "job_resources_occupied": job[1],
-                "job_gpu_number": job[2],
-                "job_usage": job[3],
-                "job_duration": job[4],
-                "job_start_time": job[5],
-                "job_status": job[6],
+                "job_name": job["job_name"],
+                "resources_occupied": job["resources_occupied"],
+                "gpu_number": job["gpu_number"],
+                "usage": job["usage"],
+                "duration": job["duration"],
+                "start_time": job["start_time"],
+                "status": job["status"],
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"
@@ -191,9 +196,9 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "alertname": "usage",
                 "report_type": "cluster-usage",
                 "severity": "info",
-                "user_name": user[0],
-                "user_resources_occupied": user[1],
-                "user_usage": user[2],
+                "username": user["username"],
+                "resources_occupied": user["resources_occupied"],
+                "usage": user["usage"],
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"
