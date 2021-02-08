@@ -6,7 +6,7 @@ The upgrade process is mainly about modifying `services-configuration.yaml` and 
 
 ## Stop All Services and Previous Dev Box Container
 
-First, launch a dev box container of current PAI version, stop all services by:
+First, launch a dev box container of the current PAI version, stop all services by:
 
 ```bash
 ./paictl.py service stop
@@ -28,7 +28,7 @@ sudo docker rm dev-box
 
 ## Modify `services-configuration.yaml`
 
-Now, launch a dev box container of new version. For example, if you want to upgrade to `v1.1.0`, you should use docker `openpai/dev-box:v1.1.0`.
+Now, launch a dev box container of the new version. For example, if you want to upgrade to `v1.1.0`, you should use docker `openpai/dev-box:v1.1.0`.
 
 Then, retrieve your configuration by:
 
@@ -41,7 +41,7 @@ Find the following section in `<config-folder>/services-configuration.yaml`:
 ```yaml
 cluster:
 
-  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
+  # the docker registry to store docker images that contain system services like Frameworklauncher, Hadoop, etc.
   docker-registry:
 
     ......
@@ -72,4 +72,4 @@ If you didn't stop `storage-manager`, start other services by:
 ./paictl.py service start --skip-service-list storage-manager
 ```
 
-After all services is started, your OpenPAI cluster is successfully upgraded.
+After all the services are started, your OpenPAI cluster is successfully upgraded.

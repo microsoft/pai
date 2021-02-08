@@ -2,7 +2,7 @@
 
 ## Management on Webportal
 
-The webportal provides some basic administration functions. If you log in to it as an administrator, you will find several buttons about administration on the left sidebar, as shown in the following image.
+The web portal provides some basic administration functions. If you log in to it as an administrator, you will find several buttons about the administration on the left sidebar, as shown in the following image.
 
    <img src="./imgs/administration.png" width="100%" height="100%" /> 
 
@@ -10,7 +10,7 @@ Most of these functions are easy to understand. We will go through them quickly 
 
 ### Hardware Utilization Page
 
-The hardware page shows the CPU, GPU, memory, disk, network utilization of each node in your cluster. The utilization is shown in different color basically. If you hover your mouse on these colored circles, exact utilization percentage will be shown.
+The hardware page shows the CPU, GPU, memory, disk, network utilization of each node in your cluster. The utilization is shown in different colors. If you hover your mouse on these colored circles, the exact utilization percentage will be shown.
 
    <img src="./imgs/hardware.png" width="100%" height="100%" />
 
@@ -36,7 +36,7 @@ On the homepage, there is an `abnormal jobs` section for administrators. A job i
 
 ### Access Kubernetes Dashboard
 
-There is a shortcut to k8s dashboard on the webportal. However, it needs special authentication for security issues.
+There is a shortcut to the k8s dashboard on the web portal. However, it needs special authentication for security issues.
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
@@ -67,11 +67,11 @@ subjects:
 
 **Step 2.** Run `kubectl apply -f admin-user.yaml`
 
-**Step 3.** Run `kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')`. It will print the token which can be used to login k8s-dashboard.
+**Step 3.** Run `kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')`. It will print the token which can be used to login to k8s-dashboard.
 
 ## PAI Service Management and Paictl
 
-Generally speaking, PAI services are daemon sets, deployments or stateful sets created by PAI system, running on Kubernetes. You can find them on the [k8s dashboard](#access-kubernetes-dashboard) and [services page](#services-page). For example, `webportal` is a PAI service which provides front-end interface, and `rest-server` is another one for back-end APIs. These services are all configurable. If you have followed the [installation-guide](./installation-guide.md), you can find two files, `layout.yaml` and `services-configuration.yaml`, in folder `~/pai-deploy/cluster-cfg` on the dev box machine. These two files are the default service configuration.
+Generally speaking, PAI services are daemon sets, deployments, or stateful sets created by PAI system, running on Kubernetes. You can find them on the [k8s dashboard](#access-kubernetes-dashboard) and [services page](#services-page). For example, `webportal` is a PAI service which provides front-end interface, and `rest-server` is another one for back-end APIs. These services are all configurable. If you have followed the [installation-guide](./installation-guide.md), you can find two files, `layout.yaml` and `services-configuration.yaml`, in folder `~/pai-deploy/cluster-cfg` on the dev box machine. These two files are the default service configuration.
 
 `paictl` is a CLI tool which helps you manage cluster configuration and PAI services. To use it, we recommend you to leverage our dev box docker image to avoid environment-related problems. First, go to the dev box machine, launch the dev box docker by:
 
@@ -103,7 +103,7 @@ mkdir -p ~/.kube
 vim ~/.kube/config
 ```
 
-Go to folder `/pai`, try to retrieve your cluster id:
+Go to folder `/pai`, try to retrieve your cluster-id:
 
 ```bash
 cd /pai
@@ -120,7 +120,7 @@ Here are some basic usage examples of `paictl`:
 
 # pull service config to a certain folder
 # the configuration containers two files: layout.yaml and services-configuration.yaml
-# if <config-folder> already has these files, they will be overrided
+# if <config-folder> already has these files, they will be overridden
 ./paictl.py config pull -o <config-folder>
 
 # push service config to the cluster
@@ -142,7 +142,7 @@ Here are some basic usage examples of `paictl`:
 
 If you want to change configuration of some services, please follow the steps of `service stop`, `config push` and `service start`.
 
-For example, if you want to customize webportal, you should modify the `webportal` section in `services-configuration.yaml`. Then use the following command to push the configuration and restart webportal:
+For example, if you want to customize web portal, you should modify the `webportal` section in `services-configuration.yaml`. Then use the following command to push the configuration and restart the web portal:
 
 ```bash
 ./paictl.py service stop -n webportal
@@ -158,7 +158,7 @@ Another example is to restart the whole cluster:
 ./paictl.py service start
 ```
 
-You can use `exit` to leave the dev-box container, and use `sudo docker exec -it dev-box bash` to re-enter it if you desire so. If you don't need it any more, use `sudo docker stop dev-box` and `sudo docker rm dev-box` to delete the docker container.
+You can use `exit` to leave the dev-box container, and use `sudo docker exec -it dev-box bash` to re-enter it if you desire so. If you don't need it anymore, use `sudo docker stop dev-box` and `sudo docker rm dev-box` to delete the docker container.
 
 ## How To Set Up HTTPS
 

@@ -2,11 +2,11 @@
 
 ## Users and Groups in Basic Authentication Mode
 
-OpenPAI is deployed in basic authentication mode by default. Groups in basic authentication mode are bound to virtual clusters (please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) to configure virtual clusters). Two groups, `default` and `admingroup` will be created once OpenPAI is deployed. All users belong to `default` group, and have access to the `default` virtual cluster. All administrators belong to `admingroup`, and have access to all virtual clusters. If there is another virtual cluster named `test-vc`, and an administrator grants it to a user, the user will be in group `test-vc` and have access to the corresponding virtual cluster.
+OpenPAI is deployed in basic authentication mode by default. Groups in basic authentication mode are bound to virtual clusters (please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) to configure virtual clusters). Two groups, `default` and `admingroup` will be created once OpenPAI is deployed. All users belong to `default` group and have access to the `default` virtual cluster. All administrators belong to `admingroup`, and have access to all virtual clusters. If there is another virtual cluster named `test-vc`, and an administrator grants it to a user, the user will be in group `test-vc` and have access to the corresponding virtual cluster.
 
 For example, if you create an admin user [on the webportal](./basic-management-operations.md#user-management), he will be in `default` and `admingroup`. A non-admin user will be only in `default` group once created. If administrator gives the non-admin user access to `new-vc`, he will be in `default` and `new-vc` group.
 
-A user can see his groups in the profile page. First click `View my profile` in the right-top corner.
+A user can see his groups on the profile page. First click `View my profile` in the right-top corner.
 
    <img src="./imgs/view-profile.png" width="100%" height="100%" />
 
@@ -25,7 +25,7 @@ In this section, we will cover how to set up the integration step by step.
 
 #### Note
 
-Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as user authentication mechanism. To set up AAD, please follow the instructions [here](./basic-management-operations.md#how-to-set-up-https) to set up HTTPS access for OpenPAI first.
+Previous user data in Webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as the user authentication mechanism. To set up AAD, please follow the instructions [here](./basic-management-operations.md#how-to-set-up-https) to set up HTTPS access for OpenPAI first.
 
 
 #### [Rest-server] Configuration AAD
@@ -108,7 +108,7 @@ authentication:
 
     # Admin group name and its user list
     admin-group:
-      # The group named showed in OpenPAI system.
+      # The group named showed in the OpenPAI system.
       groupname: admingroup
       description: "admin's group"
       # The group alias (groupname) in Azure Active directory
@@ -117,15 +117,15 @@ authentication:
     # Group for default vc.
     # For yarn default queue hack.
     default-group:
-      # The group named showed in OpenPAI system.
+      # The group named showed in the OpenPAI system.
       groupname: default
       description: "group for default vc"
       # The group alias (groupname) in Azure Active directory
       externalName: "team_alias_b"
 
-    # If you cluster you have configured several yarn vc, except default vc (it has been created in the default-group), you should configure group for each vc in the following list
+    # If you cluster you have configured several yarn VC, except default VC (it has been created in the default-group), you should configure group for each VC in the following list
     grouplist:
-    # The group named showed in OpenPAI system.
+    # The group named showed in the OpenPAI system.
     - groupname: forexample1
       description: forexample1
     # The group alias (groupname) in Azure Active directory
@@ -139,13 +139,13 @@ authentication:
 
 ##### Clean Previous Data
 
-Please clean all users' data. Because in this mode, user's permission will be managed by azure active directory. The local data is useless.
+Please clean all users' data. Because in this mode, the user's permission will be managed by the Azure active directory. The local data is useless.
 
 ```bash 
 ./paictl.py service delete -n rest-server
 ```
 
-##### After all the steps above, push the configuration, and restart all OpenPAI services.
+##### After all the steps above, push the configuration and restart all OpenPAI services.
 
 ```bash
 ./paictl.py service stop
@@ -157,7 +157,7 @@ Please clean all users' data. Because in this mode, user's permission will be ma
 
 ##### Start Service stage
 
-After start rest-server, please ensure that the following task is successfully executed.
+After start the rest-server, please ensure that the following task is successfully executed.
 
 - namespace named ```pai-group``` and ```pai-user-v2```are created
 
@@ -171,34 +171,34 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="./imgs/aad/group-created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- Every group have an `acls` in extension field.
+- Every group has an `acls` in the extension field.
 
 <div  align="center">
 <img src="./imgs/aad/admin_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 <img src="./imgs/aad/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- Please Login through OpenPAI's webportal, then please check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
+- Please login through OpenPAI's web portal, then please check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
 
 <div  align="center">
 <img src="./imgs/aad/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please check the created user data. There should be an empty extension and a non-empty grouplist.
+- please check the created user data. There should be an empty extension and a non-empty group list.
 
 <div  align="center">
 <img src="./imgs/aad/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please submit a test job in default vc, and then submit the same job to another vc.
+- please submit a test job in default VC, and then submit the same job to another VC.
 
-- please check whether admin user can access to the administration tab.
+- please check whether the admin user can access the administration tab.
 
 <div  align="center">
 <img src="./imgs/aad/admin_view.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please create a vc, then check whether a corresponding group is created.
+- please create a VC, then check whether a corresponding group is created.
 
 <div  align="center">
 <img src="./imgs/aad/add_vc.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
@@ -208,19 +208,19 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="./imgs/aad/test_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After creating the new vc, please check whether the new vc is available for admin at home page.
+- After creating the new VC, please check whether the new VC is available for the admin on the home page.
 
 <div  align="center">
 <img src="./imgs/aad/admin_home.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- Delete the test vc, then please check whether the corresponding group is deleted.
+- Delete the test VC, then please check whether the corresponding group is deleted.
 
 <div  align="center">
 <img src="./imgs/aad/vc_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- After deleting the vc, please check whether the group is removed from `pai-group` secrets.
+- After deleting the VC, please check whether the group is removed from `pai-group` secrets.
 
 <div  align="center">
 <img src="./imgs/aad/group_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
@@ -228,4 +228,4 @@ After start rest-server, please ensure that the following task is successfully e
 
 ##### If test failed
 
-Please try to delete the rest-server, and then try to start it again. If fail again, please provide detail information and create issue ticket in github.
+Please try to delete the rest-server, and then try to start it again. If it fails again, please provide detailed information and create an issue ticket in Github.
