@@ -1,4 +1,4 @@
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 import logging
 import os
 import urllib
@@ -47,9 +47,11 @@ def datetime_to_hours(dt):
 
 
 @enable_request_debug_log
-def get_job_usage_info(job_usage_result, rest_url):
+def get_usage_info(job_usage_result, user_usage_result, rest_url):
     job_infos = {}
+    user_infos = {}
     job_usage = []
+    user_usage = []
     job_list = []
     # get all jobs
     headers = {'Authorization': "Bearer {}".format(TOKEN)}
@@ -59,6 +61,9 @@ def get_job_usage_info(job_usage_result, rest_url):
 
     for v in job_usage_result["data"]["result"]:
         job_infos[v["metric"]["job_name"]] = {"usage": v["value"][1][:6] + "%"}
+    for v in user_usage_result["data"]["result"]:
+        user_infos[v["metric"]["username"]] = {"usage": v["value"][1][:6] + "%", "resources_occupied": 0}
+    print(user_infos)
     for job_name, job_info in job_infos.items():
         url = urllib.parse.urljoin(rest_url + "/", job_name)
         resp = requests.get(url, headers=headers)
@@ -73,10 +78,11 @@ def get_job_usage_info(job_usage_result, rest_url):
         job_info["start_time"] = datetime.fromtimestamp(
             int(resp_json["jobStatus"]["appLaunchedTime"]) / 1000,
             timezone.utc)
+        if job_info["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
+            job_info["start_time"] = datetime.now(timezone.utc) - timedelta(days = 7)
         # job has not finished
         if not resp_json["jobStatus"]["appCompletedTime"]:
-            job_info["duration"] = datetime.now(
-                timezone.utc) - job_info["start_time"]
+            job_info["duration"] = datetime.now(timezone.utc) - job_info["start_time"]
         # job has finished
         else:
             job_info["duration"] = datetime.fromtimestamp(
@@ -91,6 +97,7 @@ def get_job_usage_info(job_usage_result, rest_url):
         else:
             job_info["gpu_number"] = 0
         job_info["resources_occupied"] = job_info["gpu_number"] * datetime_to_hours(job_info["duration"])
+        user_infos[resp_json["jobStatus"]["username"]]["resources_occupied"] += job_info["resources_occupied"]
     for job_name, job_info in job_infos.items():
         if "start_time" not in job_info:
             continue
@@ -98,38 +105,41 @@ def get_job_usage_info(job_usage_result, rest_url):
             (job_name, "{:.2f}".format(job_info["resources_occupied"]), job_info["usage"], str(job_info["duration"]),
              job_info["start_time"].strftime("%y-%m-%d %H:%M:%S"), job_info["status"],
              str(job_info["gpu_number"])))
-    # sort job usage info by resources occupied
+    for username, user_info in user_infos.items():
+        user_usage.append(
+            (username, "{:.2f}".format(user_info["resources_occupied"]), user_info["usage"]))
+
+    # sort usage info by resources occupied
     job_usage.sort(key=lambda x: float(x[1]), reverse=True)
-    return job_usage
+    user_usage.sort(key=lambda x: float(x[1]), reverse=True)
+
+    return job_usage, user_usage
 
 
 @enable_request_debug_log
 def collect_metrics(url):
-    logging.info("Start to collect usage info")
     query_url = url.rstrip("/") + QUERY_PREFIX
     rest_url = url.rstrip("/") + REST_JOB_API_PREFIX
 
     # cluster info
+    logging.info("Collecting cluster usage info...")
     resp = requests.get(query_url, params={"query": CLUSTER_QUERY_STRING})
     resp.raise_for_status()
     result = resp.json()
     cluster_usage = result["data"]["result"][0]["value"][1][:6] + "%"
 
     # user info
-    logging.info("Start to collect user average usage")
+    logging.info("Collecting user usage info...")
     resp = requests.get(query_url, params={"query": USER_QUERY_STRING})
     resp.raise_for_status()
-    result = resp.json()
-    user_usage = []
-    for v in result["data"]["result"]:
-        user_usage.append((v["metric"]["username"], v["value"][1][:6] + "%"))
+    user_usage_result = resp.json()
 
     # job info
-    logging.info("Start to collect job usage")
+    logging.info("Collecting job usage info...")
     resp = requests.get(query_url, params={"query": JOB_QUERY_STRING})
     resp.raise_for_status()
-    result = resp.json()
-    job_usage = get_job_usage_info(result, rest_url)
+    job_usage_result = resp.json()
+    job_usage, user_usage = get_usage_info(job_usage_result, user_usage_result, rest_url)
 
     return cluster_usage, job_usage, user_usage
 
@@ -182,7 +192,8 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "report_type": "cluster-usage",
                 "severity": "info",
                 "user_name": user[0],
-                "user_usage": user[1],
+                "user_resources_occupied": user[1],
+                "user_usage": user[2],
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"

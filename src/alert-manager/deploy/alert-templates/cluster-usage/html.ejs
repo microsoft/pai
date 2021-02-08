@@ -29,6 +29,7 @@
   <table style="font-size: 16px; width: 100%;margin: 0;text-align:center;">
     <tr>
       <th>User name</th>
+      <th>Resources occupied (GPU*hour)</th>
       <th>GPU utilization</th>
     </tr>
     <% alerts.filter( element=> typeof element.labels.user_name !== 'undefined' && typeof element.labels.user_usage !==
@@ -36,6 +37,9 @@
       <tr>
         <td>
           <%= alert.labels.user_name %>
+        </td>
+        <td>
+          <%= alert.labels.user_resources_occupied %>
         </td>
         <td>
           <%= alert.labels.user_usage %>
