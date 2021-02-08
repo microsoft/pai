@@ -1,16 +1,16 @@
 # How to Set Up Storage
 
-This document describes how to use Kubernetes Persistent Volumes (PV) as storage on PAI. To set up existing storage (nfs, samba, Azure blob, etc.), you need:
+This document describes how to use Kubernetes Persistent Volumes (PV) as storage on PAI. To set up existing storage (NFS, Samba, Azure blob, etc.), you need:
 
   1. Create PV and PVC as PAI storage on Kubernetes.
-  2. Confirm the worker nodes have proper package to mount the PVC. For example, the `NFS` PVC requires package `nfs-common` to work on Ubuntu.
+  2. Confirm the worker nodes have the proper package to mount the PVC. For example, the `NFS` PVC requires package `nfs-common` to work on Ubuntu.
   3. Assign PVC to specific user groups.
 
 Users could mount those PV/PVC into their jobs after you set up the storage properly. The name of PVC is used to onboard on PAI.
 
 ## Create PV/PVC on Kubernetes
 
-There're many approches to create PV/PVC, you could refer to [Kubernetes docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) if you are not familiar yet. Followings are some commonly used PV/PVC examples.
+There're many approaches to create PV/PVC, you could refer to [Kubernetes docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) if you are not familiar yet. The followings are some commonly used PV/PVC examples.
 
 ### NFS
 
@@ -56,9 +56,9 @@ spec:
 
 Save the above file as `nfs-storage.yaml` and run `kubectl apply -f nfs-storage.yaml` to create a PV named `nfs-storage-pv` and a PVC named `nfs-storage` for nfs server `nfs://10.0.0.1:/data`. The PVC will be bound to specific PV through label selector, using label `name: nfs-storage`.
 
-Users could use PVC name `nfs-storage` as storage name to mount this nfs storage in their jobs.
+Users could use the PVC name `nfs-storage` as the storage name to mount this NFS storage in their jobs.
 
-If you want to configure the above nfs as personal storage so that each user could only visit their own directory on PAI like Linux home directory, for example, Alice can only mount `/data/Alice` while Bob can only mount `/data/Bob`, you could add a `share: "false"` label to PVC. In this case, PAI will use `${PAI_USER_NAME}` as sub path when mounting to job containers.
+If you want to configure the above NFS as personal storage so that each user could only visit their directory on PAI like Linux home directory, for example, Alice can only mount `/data/Alice` while Bob can only mount `/data/Bob`, you could add a `share: "false"` label to PVC. In this case, PAI will use `${PAI_USER_NAME}` as the subpath when mounting to job containers.
 
 ### Samba
 
@@ -70,7 +70,7 @@ Please refer to [this document](https://github.com/Azure/kubernetes-volume-drive
 
 #### Tips
 
-If you cannot mount blobfuse PVC into containers and the corresponding job in OpenPAI sticks in `WAITING` status, please double check the following requirements:
+If you cannot mount blobfuse PVC into containers and the corresponding job in OpenPAI sticks in `WAITING` status, please double-check the following requirements:
 
 **requirement 1.** Every worker node should have `blobfuse` installed. Try the following commands to ensure:
 
@@ -90,13 +90,13 @@ curl -s https://raw.githubusercontent.com/Azure/kubernetes-volume-drivers/master
   | kubectl apply -f -
 ```
 
-> NOTE: There is a known issue [#4637](https://github.com/microsoft/pai/issues/4637) to mount same PV multiple times on same node, please either:
+> NOTE: There is a known issue [#4637](https://github.com/microsoft/pai/issues/4637) to mount the same PV multiple times on the same node, please either:
 >   * use the [patched blobfuse flexvolume installer](https://github.com/microsoft/pai/issues/4637#issuecomment-647434815) instead.
 >   * use the [earlier version 1.1.1](https://github.com/Azure/kubernetes-volume-drivers/issues/66#issuecomment-649188681) instead.
 
 ### Azure File
 
-First create a Kubernetes secret to access the Azure file share.
+First, create a Kubernetes secret to access the Azure file share.
 
 ```sh
 kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$AKS_PERS_STORAGE_ACCOUNT_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY
@@ -185,17 +185,17 @@ spec:
     .......
 ```
 
-Please notice, `PersistentVolume.Spec.AccessModes` and `PersistentVolumeClaim.Spec.AccessModes` doesn't affect whether a storage is writable in PAI. They only take effect during binding time between PV and PVC.
+Please notice, `PersistentVolume.Spec.AccessModes` and `PersistentVolumeClaim.Spec.AccessModes` doesn't affect whether a storage is writable in PAI. They only take effect during the binding time between PV and PVC.
 
 ## Confirm Environment on Worker Nodes
 
-The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume certain type of PersistentVolume. For example, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. You can confirm it using the command `apt install nfs-common` on every worker node.
+The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume a certain type of PersistentVolume. For example, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. You can confirm it using the command `apt install nfs-common` on every worker node.
 
-Since different PVs have different requirements, you should check the environment according to document of the PV.
+Since different PVs have different requirements, you should check the environment according to the document of the PV.
 
 ## Assign Storage to PAI Groups
 
-The PVC name is used as storage name in OpenPAI. After you have set up the PV/PVC and checked the environment, you need to assign storage to users. In OpenPAI, the name of the PVC is used as the storage name, and the access of different storages is managed by [user groups](./how-to-manage-users-and-groups.md). To assign storage to a user, please use RESTful API to assign storage to the groups of the user.
+The PVC name is used as the storage name in OpenPAI. After you have set up the PV/PVC and checked the environment, you need to assign storage to users. In OpenPAI, the name of the PVC is used as the storage name, and the access of different storage is managed by [user groups](./how-to-manage-users-and-groups.md). To assign storage to a user, please use RESTful API to assign storage to the groups of the user.
 
 Before querying the API, you should get an access token for the API. Go to your profile page and copy one:
 
@@ -208,7 +208,7 @@ For example, if you want to assign `nfs-storage` PVC to `default` group. First, 
 ```json
 {
   "groupname": "default",
-  "description": "group for default vc",
+  "description": "group for default vc",
   "externalName": "",
   "extension": {
     "acls": {
@@ -220,7 +220,7 @@ For example, if you want to assign `nfs-storage` PVC to `default` group. First, 
 }
 ```
 
-The GET request must use header `Authorization: Bearer <token>` for authorization. This remains the same for all API calls. You may notice the `storageConfigs` in the return body. In fact it controls which storage a group can use. To add a `nfs-storage` to it, PUT `http(s)://<pai-master-ip>/rest-server/api/v2/groups`. Request body is:
+The GET request must use the header `Authorization: Bearer <token>` for authorization. This remains the same for all API calls. You may notice the `storageConfigs` in the return body. It controls which storage a group can use. To add a `nfs-storage` to it, PUT `http(s)://<pai-master-ip>/rest-server/api/v2/groups`. The request body is:
 
 ```json
 {
@@ -242,7 +242,7 @@ Do not omit any fields in `extension` or it will change the `virtualClusters` se
 
 ## Example: Use Storage Manager to Create an NFS + SAMBA Server
 
-To help you set up the storage, OpenPAI provides a storage manager, which can set up an NFS + SAMBA server. In the cluster, the NFS storage can be accessed in OpenPAI containers. Out of the cluster, users can mount the storage on Unix-like system, or access it in File Explorer on Windows.
+To help you set up the storage, OpenPAI provides a storage manager, which can set up an NFS + SAMBA server. In the cluster, the NFS storage can be accessed in OpenPAI containers. Out of the cluster, users can mount the storage on a Unix-like system, or access it in File Explorer on Windows.
 
 Please read the document about [service management and paictl](./basic-management-operations.md#pai-service-management-and-paictl) first, and start a dev box container. Then, in the dev box container, pull the configuration by:
 
@@ -250,7 +250,7 @@ Please read the document about [service management and paictl](./basic-managemen
 ./paictl config pull -o /cluster-configuration
 ```
 
-To use storage manager, you should first decide a machine in PAI system to be the storage server. The machine **must** be one of PAI workers, not PAI master. Please open `/cluster-configuration/layout.yaml`, choose a worker machine, then add a `pai-storage: "true"` field to it. Here is an example of the edited `layout.yaml`:
+To use a storage manager, you should first decide on a machine in the PAI system to be the storage server. The machine **must** be one of PAI workers, not PAI master. Please open `/cluster-configuration/layout.yaml`, choose a worker machine, then add a `pai-storage: "true"` field to it. Here is an example of the edited `layout.yaml`:
 
 ```yaml
 ......
@@ -287,7 +287,7 @@ storage-manager:
   smbpwd: smbpwd
 ```
 
-The `localpath` determines the root data dir for NFS on the storage server. The `smbuser` and `smbpwd` determines the username and password when you access the storage in File Explorer on Windows.
+The `localpath` determines the root data dir for NFS on the storage server. The `smbuser` and `smbpwd` determine the username and password when you access the storage in File Explorer on Windows.
 
 Follow these commands to start the storage manager:
 
@@ -352,11 +352,11 @@ spec:
 
 Use `kubectl create -f nfs-storage.yaml` to create the PV and PVC. 
 
-Since the Kuberentes PV requires the node using it has the corresponding driver, we should use `apt install nfs-common` to install the `nfs-common` package on every worker node.
+Since the Kubernetes PV requires the node using it has the corresponding driver, we should use `apt install nfs-common` to install the `nfs-common` package on every worker node.
 
 Finally, [assign storage to PAI groups](#assign-storage-to-pai-groups) by rest-server API. Then you can mount it into job containers.
 
-How to upload data to the storage server? On Windows, open the File Explorer, type in `\\10.0.0.1` (please change `10.0.0.1` to your storage server IP), and press ENTER. The File Explorer will ask you for authorization. Please use `smbuser` and `smbpwd` as username and password to login. On a Unix-like system, you can mount the NFS folder to the file system. For example, on Ubuntu, use the following command to mount it:
+How to upload data to the storage server? On Windows, open the File Explorer, type in `\\10.0.0.1` (please change `10.0.0.1` to your storage server IP), and press ENTER. The File Explorer will ask you for authorization. Please use `smbuser` and `smbpwd` as the username and password to log in. On a Unix-like system, you can mount the NFS folder to the file system. For example, on Ubuntu, use the following command to mount it:
 
 ```bash 
 # replace 10.0.0.1 with your storage server IP

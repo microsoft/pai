@@ -1,6 +1,6 @@
 # How to Add and Remove Nodes
 
-OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing device (e.g. TPU, NPU) into the cluster.
+OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing devices (e.g. TPU, NPU) into the cluster.
 
 ## How to Add Nodes
 
@@ -119,7 +119,7 @@ machine-list:
     pai-worker: "true"
 ```
 
-- If you are using hived scheduler, you should modify its setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
+- If you are using a hived scheduler, you should modify its setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
 
 - Stop the service, push the latest configuration, and then start related services:
 
@@ -133,7 +133,7 @@ If you have configured any PV/PVC storage, please confirm the added worker node 
 
 ## How to Remove Nodes
 
-Please refer to the operation of add nodes. They are very similar.
+Please refer to the operation of adding nodes. They are very similar.
 
 To remove nodes from the cluster, there is no need to modify `hosts.yml`. 
 Go into `~/pai-deploy/kubespray/`, run

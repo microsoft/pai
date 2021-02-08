@@ -2,7 +2,7 @@
 
 ## <div id="gte100-uninstallation">Uninstallation Guide for OpenPAI >= v1.0.0</div>
 
-The uninstallation of OpenPAI >= `v1.0.0` is irreversible: all the data will be removed and you cannot find them back. If you need a backup, do it before uninstallation.
+The uninstallation of OpenPAI >= `v1.0.0` is irreversible: all the data will be removed and you cannot find them back. If you need a backup, do it before the uninstallation.
 
 First, log in to the dev box machine and delete all PAI services with [dev box container](./basic-management-operations.md#pai-service-management-and-paictl).:
 
@@ -16,17 +16,17 @@ Now all PAI services and data are deleted. If you want to destroy the Kubernetes
 ansible-playbook -i inventory/pai/hosts.yml reset.yml --become --become-user=root -e "@inventory/pai/openpai.yml"
 ```
 
-We recommend you to keep the folder `~/pai-deploy` for re-installation.
+We recommend you keep the folder `~/pai-deploy` for re-installation.
 
 ## <div id="lt100-uninstallation">Uninstallation Guide for OpenPAI < v1.0.0<div>
 
 ### Save your Data to a Different Place
 
-During the uninstallation of OpenPAI < `v1.0.0`, you cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
+During the uninstallation of OpenPAI < `v1.0.0`, you cannot preserve any useful data: all jobs, user information, the dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in the previous deployment, please make sure you have saved them to a different place.
 
 #### HDFS Data
 
-Before `v1.0.0`, PAI will deploy an HDFS server for you. After `v1.0.0`, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
+Before `v1.0.0`, PAI will deploy an HDFS server for you. After `v1.0.0`, the HDFS server won't be deployed and previous data will be removed in the upgrade. The following commands could be used to transfer your HDFS data:
 
 ``` bash
 # check data structure
@@ -35,11 +35,11 @@ hdfs dfs -ls hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/
 hdfs dfs -copyToLocal hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/ <local-folder>
 ```
 
-`<hdfs-namenode-ip>` and `<hdfs-namenode-port>` is the ip of PAI master and `9000` if you did't modify the default setting. Please make sure your local folder has enough capacity to hold the data you want to save.
+`<hdfs-namenode-ip>` and `<hdfs-namenode-port>` are the IP of PAI master and `9000` if you didn't modify the default setting. Please make sure your local folder has enough capacity to hold the data you want to save.
 
 #### Metadata of Jobs and Users
 
-Metadata of jobs and users will also be lost, including job records, job log, user name, user password, etc. We do not have an automatical tool for you to backup these data. Please transfer the data manually if you find some are valuable.
+Metadata of jobs and users will also be lost, including job records, job log, user name, user password, etc. We do not have an automatic tool for you to backup these data. Please transfer the data manually if you find some are valuable.
 
 #### Other Resources on Kubernetes
 
@@ -55,7 +55,7 @@ cd pai
 #  checkout to a different branch if you have a different version
 git checkout pai-0.14.y
 
-# delete all pai service and remove all service data
+# delete all PAI service and remove all service data
 ./paictl.py service delete
 
 # delete k8s cluster
@@ -86,7 +86,7 @@ lsmod | grep -qE "^nvidia" &&
     done
     rmmod nvidia ||
     {
-        echo "The driver nvidia is still in use, can't unload it."
+        echo "The driver Nvidia is still in use, can't unload it."
         exit 1
     }
 }
