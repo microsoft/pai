@@ -373,7 +373,7 @@ Default password          :     admin-password
 You can go to http://<your-master-ip>, then use the default username and password to log in.
 ```
 
-As the message says, you can use `admin` and `admin-password` to login to the webportal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
+As the message says, you can use `admin` and `admin-password` to login to the web portal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
 
 **For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manually deploy the device's device plugin in Kubernetes. Otherwise, the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
 

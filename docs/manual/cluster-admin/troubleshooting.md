@@ -83,7 +83,7 @@ If you cannot use GPU in your job, please check the following items on the corre
  1. The NVIDIA drivers should be installed correctly. Use `nvidia-smi` to confirm.
  2. [nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) is installed, and configured as the default runtime of docker. Use `docker info -f "{{json .DefaultRuntime}}"` to confirm.
 
-If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
+If the GPU number shown in web portal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
 
 ### NvidiaSmiDoubleEccError
 This is a kind of alert from the alert manager.

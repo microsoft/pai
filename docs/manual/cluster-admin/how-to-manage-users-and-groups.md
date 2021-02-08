@@ -25,7 +25,7 @@ In this section, we will cover how to set up the integration step by step.
 
 #### Note
 
-Previous user data in Webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as the user authentication mechanism. To set up AAD, please follow the instructions [here](./basic-management-operations.md#how-to-set-up-https) to set up HTTPS access for OpenPAI first.
+Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as the user authentication mechanism. To set up AAD, please follow the instructions [here](./basic-management-operations.md#how-to-set-up-https) to set up HTTPS access for OpenPAI first.
 
 
 #### [Rest-server] Configuration AAD

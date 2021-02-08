@@ -34,6 +34,7 @@ If there are multiple OpenPAI clusters, you can follow the above steps again to 
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
+
 4. If the `authn_type` of the cluster is `OIDC`, a website will be open and ask you to log in. If your login was successful, the username and token fields are auto-filled, and you can change them if needed. Once it completes, click the *Finish* button at the bottom right corner. Notice, the settings will not take effect if you save and close the file directly.
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_aad_cluster.gif)
@@ -52,6 +53,7 @@ To submit a job config YAML file, please follow the steps below:
 1. Double-click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed.
 3. Right-click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will then upload files to OpenPAI and create a job. Once it's done, there is a notification at the bottom right corner, you can click to open the job detail page.
+
 
     If there are multiple OpenPAI clusters, you need to choose one.
 

@@ -18,7 +18,7 @@ annotations:
 
 For the detailed syntax of alert rules, please refer to [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
 
-All alerts fired by the alert rules, including the pre-defined rules and the customized rules, will be shown on the home page of Webportal (on the top-right corner).
+All alerts fired by the alert rules, including the pre-defined rules and the customized rules, will be shown on the home page of webportal (on the top-right corner).
 
 ### Existing Alert Rules
 
