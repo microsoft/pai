@@ -93,6 +93,10 @@ async function postWatchEvents(req, res, next) {
           if (snapshot.getState() === 'Completed') {
             // if event is DELETED and the state is Completed, mark apiServerDeleted = true
             internalUpdate.apiServerDeleted = true;
+            // If the job is completed and deleted, we could reset its sensitive fields.
+            internalUpdate.configSecretDef = '';
+            internalUpdate.dockerSecretDef = '';
+            internalUpdate.tokenSecretDef = '';
           } else {
             // Event is DELETED and the state is not Completed.
             // This case could occur when someone deletes the framework in API server directly.

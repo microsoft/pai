@@ -46,6 +46,8 @@ export const taskRoleSchema = Joi.object().keys({
   data: Joi.string(),
   output: Joi.string(),
   script: Joi.string(),
+  // allow referencing prerequisites directly
+  prerequisites: Joi.array().items(Joi.string()),
   extraContainerOptions: Joi.object().keys({
     shmMB: Joi.number(),
     infiniband: Joi.boolean(),
@@ -69,30 +71,34 @@ export const taskRolesSchema = Joi.object().pattern(
   taskRoleSchema.required(),
 );
 
-export const prerequisitesSchema = Joi.object().keys({
-  protocolVersion: [Joi.string(), Joi.number()],
-  name: Joi.string()
-    .required()
-    .regex(/^[a-zA-Z0-9_-]+$/),
-  type: Joi.string()
-    .valid(['data', 'script', 'dockerimage', 'output'])
-    .required(),
-  contributor: Joi.string(),
-  description: Joi.string(),
-  auth: Joi.object().keys({
-    username: Joi.string(),
-    password: Joi.string(),
-    registryuri: Joi.string(),
-  }),
-  uri: Joi.when('type', {
-    is: 'data',
-    then: Joi.array()
-      .items(Joi.string())
+export const prerequisitesSchema = Joi.object()
+  .keys({
+    protocolVersion: [Joi.string(), Joi.number()],
+    name: Joi.string()
+      .required()
+      .regex(/^[a-zA-Z0-9_-]+$/),
+    type: Joi.string()
+      .valid(['data', 'script', 'dockerimage', 'output'])
       .required(),
-    otherwise: Joi.string(),
-  }).required(),
-  version: [Joi.string(), Joi.number()],
-});
+    plugin: Joi.string(),
+    require: Joi.array().items(Joi.string()),
+    contributor: Joi.string(),
+    description: Joi.string(),
+    auth: Joi.object().keys({
+      username: Joi.string(),
+      password: Joi.string(),
+      registryuri: Joi.string(),
+    }),
+    uri: Joi.when('type', {
+      is: 'data',
+      then: Joi.array()
+        .items(Joi.string())
+        .required(),
+      otherwise: Joi.string(),
+    }),
+    version: [Joi.string(), Joi.number()],
+  })
+  .unknown();
 
 const deploymentSchema = Joi.object().keys({
   name: Joi.string()

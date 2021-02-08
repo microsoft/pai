@@ -92,6 +92,12 @@ paths:
       operationId: getTokens
       security:
         - bearerAuth: []
+      parameters:
+        - name: jobSpecific
+          in: query
+          description: If true, return job-specific tokens only, else return user tokens.
+          schema:
+            type: boolean
       responses:
         "200":
           description: Succeeded
