@@ -7,5 +7,7 @@
 - name: run add_docker_cache_config.py script to add docker cache config
   become: yes
   become_user: root
-  ansible.builtin.command: python3 /tmp/add_docker_cache_config.py
+  ansible.builtin.command: python3
+  args:
+    /tmp/add_docker_cache_config.py
    
