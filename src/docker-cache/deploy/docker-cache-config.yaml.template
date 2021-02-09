@@ -17,7 +17,7 @@ data:
         blobdescriptor: inmemory
       delete:
         enabled: true
-      {% if cluster_cfg["docker-cache"][storage_backend"] == "azure" %}
+      {% if cluster_cfg["docker-cache"]["storage_backend"] == "azure" %}
       azure:
         accountname: {{ cluster_cfg["docker-cache"]["azure_account_name"] }}
         accountkey: {{ cluster_cfg["docker-cache"]["azure_account_key"] }}

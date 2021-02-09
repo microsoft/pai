@@ -38,11 +38,11 @@ cluster:
 docker-cache:
   enabled: {{ env["cfg"]["enable_docker_cache"] }}
   storage_backend: {{ env["docker_cache"]["storage_backend"]}}
-  {% if env["docker_cache"]["storage_backend] == "azure" %}
+  {% if env["docker_cache"]["storage_backend"] == "azure" %}
   azure_account_name: {{ env["docker_cache"]["azure_account_name"] }}
   azure_account_key: {{ env["docker_cache"]["azure_account_key"] }}
   azure_container_name: {{ env["docker_cache"]["azure_container_name"] }}
-  {% elif env["docker_cache"]["storage_backend] == "filesystem" %}
+  {% elif env["docker_cache"]["storage_backend"] == "filesystem" %}
   fs_mount_path: {{ env["docker_cache"]["fs_mount_path"]}}
   {% else %}
   {% endif %}
