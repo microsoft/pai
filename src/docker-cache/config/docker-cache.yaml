@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-enableed: false
+enabled: false
 storage_backend: "azure"
 azure_account_name: ""
 azure_account_key: ""
