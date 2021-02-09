@@ -268,14 +268,18 @@ def get_docker_cache_config_and_mirrors(layout, cluster_config):
         cluster_config['docker_cache_azure_container_name'] = "dockerregistry"
     if "docker_cache_remote_url" not in cluster_config:
         cluster_config['docker_cache_remote_url'] = "https://registry-1.docker.io"
-    if "docker_cache_htpasswd" in cluster_config:
+    if "docker_cache_htpasswd" not in cluster_config:
         cluster_config["docker_cache_htpasswd"] = ""
+    if "docker_cache_storage_backend" not in cluster_config:
+        cluster_config["docker_cache_storage_backend"] = "/var/lib/registry"
     docker_cache_config = {
+        "storage_backend": cluster_config["docker_cache_storage_backend"],
         "azure_account_name": cluster_config['docker_cache_azure_account_name'],
         "azure_account_key": cluster_config['docker_cache_azure_account_key'],
         "azure_container_name": cluster_config['docker_cache_azure_container_name'],
         "remote_url": cluster_config['docker_cache_remote_url'],
         "registry_htpasswd": cluster_config['docker_cache_htpasswd'],
+        "fs_mount_path": cluster_config['docker_cache_fs_mount_path'],
     }
 
     return docker_cache_config, docker_cache_mirrors

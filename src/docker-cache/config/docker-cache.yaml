@@ -2,9 +2,11 @@
 # Licensed under the MIT License.
 
 enableed: false
+storage_backend: "azure"
 azure_account_name: ""
 azure_account_key: ""
 azure_container_name: dockerregistry
+fs_mount_path: "/var/lib/registry"
 registry_listener: ":5000"
 container_port: 5000
 service_port: 5000

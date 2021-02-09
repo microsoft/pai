@@ -17,11 +17,17 @@ data:
         blobdescriptor: inmemory
       delete:
         enabled: true
+      {% if cluster_cfg["docker-cache"][storage_backend"] == "azure" %}
       azure:
         accountname: {{ cluster_cfg["docker-cache"]["azure_account_name"] }}
         accountkey: {{ cluster_cfg["docker-cache"]["azure_account_key"] }}
         container: {{ cluster_cfg["docker-cache"]["azure_container_name"] }}
         # realm:  core.windows.net
+      {% elif cluster_cfg["docker-cache"]["storage_backend"] == "filesystem" %}
+      filesystem:
+        rootdirectory: {{ cluster_cfg["docker-cache"]["fs_mount_path"] }}
+      {% else %}
+      {% endif %}
     http:
       addr: {{ cluster_cfg["docker-cache"]["registry_listener"] }}
       headers:
