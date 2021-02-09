@@ -86,7 +86,7 @@ lsmod | grep -qE "^nvidia" &&
     done
     rmmod nvidia ||
     {
-        echo "The driver Nvidia is still in use, can't unload it."
+        echo "The driver NVIDIA is still in use, can't unload it."
         exit 1
     }
 }

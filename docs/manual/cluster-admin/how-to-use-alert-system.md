@@ -13,7 +13,7 @@ alert: GpuUsedByExternalProcess
 expr: gpu_used_by_external_process_count > 0
 for: 5m
 annotations:
-  summary: found nvidia used by external process in {{$labels.instance}}
+  summary: found NVIDIA used by external process in {{$labels.instance}}
 ```
 
 For the detailed syntax of alert rules, please refer to [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).

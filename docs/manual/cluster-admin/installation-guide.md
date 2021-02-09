@@ -73,7 +73,7 @@ At the same time, we also support two schedulers: the Kubernetes default schedul
 Hivedscheduler is the default for OpenPAI. It supports virtual cluster division, topology-aware resource guarantee, and optimized gang scheduling, which are not supported in the k8s default scheduler. 
 
 
-For now, the support for CPU/Nvidia GPU workers and workers with other computing device is different:
+For now, the support for CPU/NVIDIA GPU workers and workers with other computing device is different:
 
   - For CPU workers and NVIDIA GPU workers, both k8s default scheduler and hived scheduler can be used. 
   - For workers with other types of computing devices (e.g. TPU, NPU), currently, we only support the usage of the k8s default scheduler. You can only include workers with the same computing device in the cluster. For example, you can use TPU workers, but all workers should be TPU workers. You cannot use TPU workers together with GPU workers in one cluster.
@@ -170,7 +170,7 @@ Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib
 These two files specify the cluster layout and the customized configuration, respectively.
 The following is the format and example of these 2 files.
 
-**Tips for China Users**: If you are in China, please refer to [here](./configuration-for-china.md) first before you edit these files.
+**Tips for Chinese Users**: If you are in Mainland China, please refer to [here](./configuration-for-china.md) first before you edit these files.
 
 #### `layout.yaml` format
 
@@ -373,7 +373,7 @@ Default password          :     admin-password
 You can go to http://<your-master-ip>, then use the default username and password to log in.
 ```
 
-As the message says, you can use `admin` and `admin-password` to login to the web portal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
+As the message says, you can use `admin` and `admin-password` to login to the webportal, then submit a job to validate your installation. We have generated the configuration files of OpenPAI in the folder `~/pai-deploy/cluster-cfg`. If you need further customization, they will be used in the future.
 
 **For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manually deploy the device's device plugin in Kubernetes. Otherwise, the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
 

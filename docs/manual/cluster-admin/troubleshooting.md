@@ -83,11 +83,11 @@ If you cannot use GPU in your job, please check the following items on the corre
  1. The NVIDIA drivers should be installed correctly. Use `nvidia-smi` to confirm.
  2. [nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) is installed, and configured as the default runtime of docker. Use `docker info -f "{{json .DefaultRuntime}}"` to confirm.
 
-If the GPU number shown in web portal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
+If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
 
 ### NvidiaSmiDoubleEccError
 This is a kind of alert from the alert manager.
-It means that Nvidia cards from the related nodes have double ecc errors.
+It means that NVIDIA cards from the related nodes have double ecc errors.
 When this alert occurs, the nodes related will be automatically cordoned by the alert manager. 
 After the problem is resolved, you can uncordon the node manually with the following command:
 ```bash
@@ -96,7 +96,7 @@ kubectl uncordon <node name>
 
 ### NodeGpuLowPerfState
 This is a kind of alert from the alert manager.
-It means the Nvidia cards from related node downgrade into low performance state unexpectedly.
+It means the NVIDIA cards from related node downgrade into low performance state unexpectedly.
 To fix this, please run following commands:
 ```bash
 sudo nvidia-smi -pm ENABLED -i <gpu-card-id>

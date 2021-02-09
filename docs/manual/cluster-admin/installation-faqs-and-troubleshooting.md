@@ -78,11 +78,11 @@ Please run `kubectl edit deployment coredns -n kube-system`, change `containerPo
 
 #### How to check whether the GPU driver is installed?
 
-For Nvidia GPU, use the command `nvidia-smi` to check.
+For NVIDIA GPU, use the command `nvidia-smi` to check.
 
 #### How to install GPU driver?
 
-For Nvidia GPU, please first determine which version of the driver you want to install (see [this question](#which-version-of-nvidia-driver-should-i-install) for details). Then follow these commands:
+For NVIDIA GPU, please first determine which version of the driver you want to install (see [this question](#which-version-of-nvidia-driver-should-i-install) for details). Then follow these commands:
 
 ```bash
 sudo add-apt-repository ppa:graphics-drivers/ppa
@@ -91,9 +91,9 @@ sudo apt install nvidia-418
 sudo reboot
 ```
 
-Here we use Nvidia driver version 418 as an example. Please modify `nvidia-418` if you want to install a different version, and refer to the Nvidia community for help if encounter any problem.
+Here we use NVIDIA driver version 418 as an example. Please modify `nvidia-418` if you want to install a different version, and refer to the NVIDIA community for help if encounter any problem.
 
-#### How to install nvidia-container-runtime?
+#### How to install NVIDIA-container-runtime?
 
 Please refer to the [official document](https://github.com/NVIDIA/nvidia-container-runtime#installation). Don't forget to set it as docker' default runtime in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon). Here is an example of `/etc/docker/daemon.json`:
 
