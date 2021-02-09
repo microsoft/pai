@@ -46,8 +46,8 @@ def get_docker_cache_config_and_mirrors(layout, cluster_config):
         cluster_config['docker_cache_remote_url'] = "https://registry-1.docker.io"
     if "docker_cache_htpasswd" not in cluster_config:
         cluster_config["docker_cache_htpasswd"] = ""
-    if "docker_cache_storage_backend" not in cluster_config:
-        cluster_config["docker_cache_storage_backend"] = "/var/lib/registry"
+    if "docker_cache_fs_mount_path" not in cluster_config:
+        cluster_config["docker_cache_fs_mount_path"] = "/var/lib/registry"
     docker_cache_config = {
         "storage_backend": cluster_config["docker_cache_storage_backend"] ,
         "azure_account_name": "",
