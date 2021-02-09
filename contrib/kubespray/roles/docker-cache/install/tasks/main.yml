@@ -1,5 +1,5 @@
 ---
 - name: "Add docker cache config"
-  include_tasks: add_docker_cache_config.yml
+  include_tasks: add-docker-cache-config.yml
   when:
     - enable_docker_cache
