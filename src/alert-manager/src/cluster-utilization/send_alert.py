@@ -152,10 +152,10 @@ def collect_metrics(url):
 @enable_request_debug_log
 def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
     trigger_time = str(datetime.now(timezone.utc).date())
-    logging.info("Starting to send alerts")
     post_url = pai_url.rstrip("/") + ALERT_PREFIX
+    alerts = []
     # for cluster
-    payload = [{
+    alert = {
         "labels": {
             "alertname": "usage",
             "report_type": "cluster-usage",
@@ -164,13 +164,12 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "trigger_time": trigger_time,
         },
         "generatorURL": "alert/script"
-    }]
-    resp = requests.post(post_url, json=payload)
-    resp.raise_for_status()
+    }
+    alerts.append(alert)
 
     # for job
     for job in job_usage:
-        payload = [{
+        alert = {
             "labels": {
                 "alertname": "usage",
                 "report_type": "cluster-usage",
@@ -185,13 +184,12 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"
-        }]
-        resp = requests.post(post_url, json=payload)
-        resp.raise_for_status()
+        }
+        alerts.append(alert)
 
     # for user
     for user in user_usage:
-        payload = [{
+        alert = {
             "labels": {
                 "alertname": "usage",
                 "report_type": "cluster-usage",
@@ -202,10 +200,12 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "trigger_time": trigger_time,
             },
             "generatorURL": "alert/script"
-        }]
-        resp = requests.post(post_url, json=payload)
-        resp.raise_for_status()
-    logging.info("Finished sending alerts")
+        }
+        alerts.append(alert)
+    logging.info("Starting to send alerts...")
+    resp = requests.post(post_url, json=alerts)
+    resp.raise_for_status()
+    logging.info("Finished sending alerts.")
 
 
 def main():
