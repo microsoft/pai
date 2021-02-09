@@ -21,6 +21,7 @@
 kubectl delete --ignore-not-found --now configmap/alert-templates
 kubectl delete --ignore-not-found --now configmap/alertmanager
 kubectl delete --ignore-not-found --now deployment/alertmanager
+kubectl delete --ignore-not-found --now cronjob/cluster-utilization
 
 if kubectl get clusterrolebinding | grep -q "alert-manager-role-binding"; then
     kubectl delete clusterrolebinding alert-manager-role-binding || exit $?

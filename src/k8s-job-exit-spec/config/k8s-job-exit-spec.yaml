@@ -47,6 +47,7 @@ schema:
       - PAI_DOCKER
       - PAI_K8S
       - PAI_FC
+      - PAI_DB_CONTROLLER
   - field: causer
     description: "Who root caused this ExitCode in details"
     required: False
@@ -339,7 +340,7 @@ spec:
   - "Contact Cluster Admin"
 
 ###########################################################################
-# Range: [-1199, -1000]
+# Range: [-1099, -1000]
 # Owner: PAI_FC
 # Description: PAI_K8S issued failures
 ###########################################################################
@@ -481,6 +482,26 @@ spec:
       messageRegex: '(?ms).*'
     - reasonRegex: '(?i)^UnexpectedPredicateFailureType$'
       messageRegex: '(?ms).*'
+
+
+###########################################################################
+# Range: [-1199, -1100]
+# Owner: PAI_DB_CONTROLLER
+# Description: PAI_K8S issued failures
+###########################################################################
+- code: -1100
+  phrase: CreateFrameworkPermanentFailed
+  issuer: PAI_DB_CONTROLLER
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Job is submitted to database, but cannot be created in ApiServer due to permanent failures"
+  repro:
+  - "Submit a job with a very large job config"
+  solution:
+  - "Check job events and fix your job config"
 
 
 ###########################################################################

@@ -14,7 +14,7 @@ docker_image_tag: v1.5.0
 # docker_cache_azure_container_name: "dockerregistry"
 # docker_cache_remote_url: "https://registry-1.docker.io"
 # docker_cache_htpasswd: ""
-# enable_marketplace: false
+# enable_marketplace: "false"
 
 #############################################
 # Ansible-playbooks' inventory hosts' vars. #

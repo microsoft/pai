@@ -39,10 +39,10 @@ sudo docker run -itd \
         openpai/dev-box:${OPENPAI_IMAGE_TAG}
 
 echo "Checking k8s installation..."
-sudo docker exec -it dev-box-quick-start kubectl get node
+sudo docker exec dev-box-quick-start kubectl get node
 
 echo "Starting OpenPAI service with dev-box..."
-sudo docker exec -it -w /mnt/pai dev-box-quick-start /bin/bash ./contrib/kubespray/script/start-service-in-dev-box.sh
+sudo docker exec -w /mnt/pai dev-box-quick-start /bin/bash ./contrib/kubespray/script/start-service-in-dev-box.sh
 
 # print cluster info
 WEBPORTAL_URL=http:$(kubectl config view -o jsonpath='{.clusters[].cluster.server}' | cut -d ":" -f 2)
