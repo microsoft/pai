@@ -1,8 +1,13 @@
 ---
+- name: copy add_docker_cache_config.py script into /tmp
+  copy:
+    src: add_docker_cache_config.py
+    dest: /tmp/add_docker_cache_config.py
+
 - name: run add_docker_cache_config.py script to add docker cache config
-  become: yes
-  become_user: root
-  ansible.builtin.script: add_docker_cache_config.py
-  args:
-    executable: python3
+  ansible.builtin.command:
+    argv:
+      - sudo
+      - python3
+      - /tmp/add_docker_cache_config.py
    
