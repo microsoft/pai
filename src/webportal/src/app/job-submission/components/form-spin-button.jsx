@@ -75,6 +75,10 @@ export const FormSpinButton = props => {
 FormSpinButton.propTypes = {
   sectionLabel: PropTypes.string.isRequired,
   sectionOptional: PropTypes.bool,
+  sectionTooltip: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   onChange: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   shortStyle: PropTypes.bool,

@@ -15,26 +15,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   DefaultButton,
   Dialog,
   DialogType,
-  FontClassNames,
   FontSizes,
-  Label,
-  Separator,
   Stack,
-  TextField,
+  DialogFooter,
+  PrimaryButton,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import c from 'classnames';
 
 export default function SaveTemplate({ hideDialog, toggleHideDialog }) {
   return (
     <Dialog
-      hidden={!isOpen}
-      onDismiss={handleCancel}
       dialogContentProps={{
         type: DialogType.normal,
         title: (
