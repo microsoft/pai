@@ -1,21 +1,22 @@
 import React from 'react';
-import { TooltipIcon } from './controls/tooltip-icon';
-import { Box, Flex, Heading, Text } from '../elements';
 import { Label } from 'office-ui-fabric-react';
+import { TooltipIcon } from './controls/tooltip-icon';
+import { Box, Flex, Text } from '../elements';
 import { isString } from 'lodash';
 
-export const FormSection = ({ title, children, ...props }) => {
+export const FormSection = ({ title, children, tooltip, ...props }) => {
   return (
     <Flex flexDirection='column' bg='white' {...props}>
-      <Box pl='l1' borderBottom='1px solid #f0f0f0'>
+      <Flex alignItems='center' pl='m' borderBottom='1px solid #f0f0f0'>
         {isString(title) ? (
-          <Box pt='m' pb='m'>
+          <Box pt='m' pb='m' fontSize='m'>
             {title}
           </Box>
         ) : (
           title
         )}
-      </Box>
+        {tooltip && <TooltipIcon content={tooltip} />}
+      </Flex>
       <Box p='l1'>{children}</Box>
     </Flex>
   );

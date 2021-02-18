@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { color, typography } from 'styled-system';
+import { color, layout, typography } from 'styled-system';
 
 const Code = styled('code')(
   {
@@ -11,6 +11,7 @@ const Code = styled('code')(
   },
   color,
   typography,
+  layout,
 );
 
 export default Code;

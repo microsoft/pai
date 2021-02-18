@@ -6,8 +6,8 @@ import { Box, Flex } from './elements';
 
 const UnwrapperedJobSubmissionPage = ({ currentTabKey }) => {
   return (
-    <Flex flexDirection='column' height='100%' p='l1'>
-      <Flex flex={1} mb='l1'>
+    <Flex flexDirection='column' p='l1'>
+      <Flex mb='l1' minHeight={0}>
         <JobEditPage />
       </Flex>
       <Flex justifyContent='flex-end'>

@@ -1,14 +1,13 @@
 import React from 'react';
-import { IconButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import { Icon } from 'office-ui-fabric-react';
+import { Link } from '../../elements';
 
 export const TooltipIcon = ({ content }) => {
   return (
-    <IconButton
-      target='_blank'
-      iconProps={{ iconName: 'Info' }}
-      href={content}
-    />
+    <Link href={content} target='_blank' ml='s1'>
+      <Icon iconName='Info' />
+    </Link>
   );
 };
 

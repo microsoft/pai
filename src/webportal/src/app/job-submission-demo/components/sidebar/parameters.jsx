@@ -4,6 +4,7 @@ import { KeyValueList, getItemsWithError } from '../controls/key-value-list';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import { Box, Code } from '../../elements';
 import { SidebarCard } from './sidebar-card';
+import { FormSection } from '../form-page';
 
 const PureParameters = ({ dispatch, parameters }) => {
   const [items, setItems] = useState([]);
@@ -21,10 +22,10 @@ const PureParameters = ({ dispatch, parameters }) => {
     // setErrorMessage(ERROR_ID, null);
   }, [parameters]);
 
-  const onListChange = newItems => {
+  const onListChange = (newItems) => {
     const itemsWithError = getItemsWithError(newItems);
     const idx = itemsWithError.findIndex(
-      item => item.keyError || item.valueError,
+      (item) => item.keyError || item.valueError,
     );
     if (idx === -1) {
       const newParameters = {};
@@ -46,20 +47,20 @@ const PureParameters = ({ dispatch, parameters }) => {
   };
 
   return (
-    <SidebarCard title='Parameters' tooltip={PROTOCOL_TOOLTIPS.parameters}>
+    <FormSection title='Parameters' tooltip={PROTOCOL_TOOLTIPS.parameters}>
       <Box>
         <Box fontSize='s2'>
           You could reference these parameters in command by
+          <Code color='dark-red' bg='black-05'>
+            {'<% $parameters.paramKey %>'}
+          </Code>
+          .
         </Box>
-        <Code fontSize='s2' color='dark-red' bg='black-05'>
-          {'<% $parameters.paramKey %>'}
-        </Code>
-        .
       </Box>
       <Box>
         <KeyValueList items={items} onChange={onListChange} />
       </Box>
-    </SidebarCard>
+    </FormSection>
   );
 };
 

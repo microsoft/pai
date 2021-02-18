@@ -38,7 +38,7 @@ import t from '../components/tachyons.scss';
 initTheme();
 initializeIcons();
 
-const BREAKPOINT = 600;
+const BREAKPOINT = 1200;
 
 const Layout = () => {
   const [mobileShowSidebar, setMobileShowSidebar] = useState(false);
@@ -47,7 +47,7 @@ const Layout = () => {
   // check token && get email
   useEffect(() => {
     const username = cookies.get('user');
-    getUserRequest(username).then(res => {
+    getUserRequest(username).then((res) => {
       setUserInfo(res);
     });
   }, []);

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { space, color, layout, flexbox, border } from 'styled-system';
 
 const Link = styled('a')(
-  { cursor: 'pointer', userSelect: 'none' },
+  { cursor: 'pointer', userSelect: 'none', color: '#000000' },
   space,
   color,
   layout,
