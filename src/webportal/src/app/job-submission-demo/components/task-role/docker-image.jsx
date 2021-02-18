@@ -6,7 +6,7 @@ import { DEFAULT_DOCKER_URI, DOCKER_OPTIONS } from '../../utils/constants';
 
 const getDockerImageUri = (prerequisites, dockerImage) => {
   const prerequisite = prerequisites.find(
-    prerequisite => prerequisite.name === dockerImage,
+    (prerequisite) => prerequisite.name === dockerImage,
   );
   if (isEmpty(prerequisite)) {
     return DEFAULT_DOCKER_URI;
@@ -14,9 +14,9 @@ const getDockerImageUri = (prerequisites, dockerImage) => {
   return prerequisite.uri;
 };
 
-const getDockerImageOptionKey = uri => {
+const getDockerImageOptionKey = (uri) => {
   const dockerOption = DOCKER_OPTIONS.find(
-    dockerOption => dockerOption.image === uri,
+    (dockerOption) => dockerOption.image === uri,
   );
   if (isEmpty(dockerOption)) {
     return 'customize-image';
@@ -30,7 +30,7 @@ const PureDockerImage = ({ dispatch, jobProtocol, currentTaskRole }) => {
   const uri = getDockerImageUri(prerequisites, dockerImage);
 
   const onChange = (_, item) => {
-    const _prerequisites = prerequisites.map(prerequisite => {
+    const _prerequisites = prerequisites.map((prerequisite) => {
       if (prerequisite.name === dockerImage) {
         prerequisite.uri = item.image;
       }

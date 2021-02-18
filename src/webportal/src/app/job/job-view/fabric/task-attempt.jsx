@@ -62,7 +62,7 @@ const TaskAttemptPage = () => {
       jobAttemptIndex,
       taskRoleName,
       taskIndex,
-    ).then(data => {
+    ).then((data) => {
       setTaskStatus(data);
       setLoading(false);
     });

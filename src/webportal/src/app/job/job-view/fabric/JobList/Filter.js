@@ -66,9 +66,7 @@ class Filter {
       query.vc = Array.from(virtualClusters).join(',');
     }
     if (statuses && statuses.size > 0) {
-      query.state = Array.from(statuses)
-        .join(',')
-        .toUpperCase();
+      query.state = Array.from(statuses).join(',').toUpperCase();
     }
 
     return query;

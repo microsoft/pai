@@ -39,11 +39,11 @@ const SidebarContent = styled(Box)(
     prop: 'expandable',
     variants: {
       true: {
-        // width: 480,
-        padding: 'm',
+        width: 360,
       },
       false: {
         width: 0,
+        height: 0,
       },
     },
   }),
@@ -57,7 +57,7 @@ const UnwrapperedSidebar = ({
 }) => {
   const [isModalOpen, toggleModalOpen] = useState(false);
 
-  const getCurrentSideComponent = currentKey => {
+  const getCurrentSideComponent = (currentKey) => {
     switch (currentKey) {
       case SIDEBAR_PARAM:
         return <Parameters />;
@@ -75,7 +75,7 @@ const UnwrapperedSidebar = ({
     });
   };
 
-  const onSidebarSelect = key => {
+  const onSidebarSelect = (key) => {
     dispatch({
       type: 'TOGGLE_CURRENT_SIDEBAR',
       payload: key,
@@ -93,7 +93,7 @@ const UnwrapperedSidebar = ({
         </Link>
         <Box flex={1}>
           {currentSideList.map(
-            item =>
+            (item) =>
               item.checked && (
                 <SidebarItem
                   mt='m'

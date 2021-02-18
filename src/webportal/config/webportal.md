@@ -17,7 +17,7 @@ For example, if you want to use different port than the default 9286, add follow
 
 ```yaml
 webportal:
-    server-port: new-value
+  server-port: new-value
 ```
 
 About config the web portal plugin, see [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html)
@@ -28,8 +28,8 @@ After parsing, object model looks like:
 
 ```yaml
 webportal:
-    server-port: 9286
-    uri: "http://master_ip:9286"
+  server-port: 9286
+  uri: 'http://master_ip:9286'
 ```
 
 ## Table <a name="T_Config"></a>

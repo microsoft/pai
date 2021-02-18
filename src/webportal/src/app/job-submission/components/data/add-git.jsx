@@ -7,7 +7,7 @@ import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
 import { InputData } from '../../models/data/input-data';
 import { validateMountPath, validateGitUrl } from '../../utils/validation';
 
-export const AddGit = props => {
+export const AddGit = (props) => {
   const { dataList, setDataList, setDataType } = props;
   const [mountPath, setMountPath] = useState();
   const [gitUrl, setGitUrl] = useState();

@@ -45,8 +45,8 @@ const FilterButton = ({
 
   // filter by keyword
   let menuItems = items
-    .filter(name => name.startsWith(keyword || ''))
-    .map(name => ({
+    .filter((name) => name.startsWith(keyword || ''))
+    .map((name) => ({
       key: name,
       text: name,
       canCheck: true,
@@ -80,7 +80,7 @@ const FilterButton = ({
       styles={styles}
       iconProps={iconProps}
       menuProps={{
-        onDismiss: e => {
+        onDismiss: (e) => {
           if (e.type !== 'resize') {
             if (buttonRef.current) {
               buttonRef.current.dismissMenu();
@@ -112,7 +112,7 @@ const FilterButton = ({
                       }}
                       placeholder={searchBoxText || 'Filter'}
                       value={keyword}
-                      onChanged={val => setKeyword(val)}
+                      onChanged={(val) => setKeyword(val)}
                     />
                   </div>
                   <hr
@@ -140,7 +140,7 @@ const FilterButton = ({
                       {
                         key: 'clear-button',
                         text: 'Clear',
-                        onClick: e => {
+                        onClick: (e) => {
                           e.preventDefault();
                           onSelect([]);
                         },

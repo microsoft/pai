@@ -45,7 +45,7 @@ function CustomPassword(props) {
   const randomPasswordButtonRef = useRef(null);
 
   const [showRandomPassword, setShowRandomPassword] = useState(false);
-  const handleOnFocusPassword = event => {
+  const handleOnFocusPassword = (event) => {
     if (!passwordInputRef.current.value) {
       setShowRandomPassword(true);
     }
@@ -54,7 +54,7 @@ function CustomPassword(props) {
       onChange(event);
     }
   };
-  const handleOnLostFocusPassword = event => {
+  const handleOnLostFocusPassword = (event) => {
     if (
       !event.relatedTarget ||
       !randomPasswordButtonRef.current ||
@@ -83,7 +83,7 @@ function CustomPassword(props) {
   const generateRandomPassword = () => {
     return Array(8)
       .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
-      .map(x => x[Math.floor(Math.random() * x.length)])
+      .map((x) => x[Math.floor(Math.random() * x.length)])
       .join('');
   };
 

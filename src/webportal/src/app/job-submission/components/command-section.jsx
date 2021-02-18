@@ -31,10 +31,10 @@ import { FormShortSection } from './form-page';
 import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../utils/constants';
 import { isEmpty } from 'lodash';
 
-export const CommandSection = props => {
+export const CommandSection = (props) => {
   const { onChange, value } = props;
 
-  const _onChange = newValue => {
+  const _onChange = (newValue) => {
     if (onChange !== undefined) {
       onChange(newValue);
     }
@@ -48,7 +48,7 @@ export const CommandSection = props => {
           value={value}
           placeholder={COMMAND_PLACEHOLDER}
           onChange={_onChange}
-          completionItems={[...PAI_ENV_VAR.map(x => x.key)]}
+          completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
           errorMessage={isEmpty(value) ? 'Commands can not be empty' : null}
         />
       </FormShortSection>

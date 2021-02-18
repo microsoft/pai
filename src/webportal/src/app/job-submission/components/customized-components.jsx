@@ -29,7 +29,7 @@ import PropTypes from 'prop-types';
 import { debounce, isNil } from 'lodash';
 import { TooltipIcon } from './controls/tooltip-icon';
 
-export const CSpinButton = props => {
+export const CSpinButton = (props) => {
   const {
     onChange,
     onIncrement,
@@ -61,9 +61,9 @@ export const CSpinButton = props => {
     [onChange],
   );
 
-  const _onIncrement = value => _onChange(value, onIncrement, +value + 1);
-  const _onDecrement = value => _onChange(value, onDecrement, +value - 1);
-  const _onValidate = value => _onChange(value, onValidate, value);
+  const _onIncrement = (value) => _onChange(value, onIncrement, +value + 1);
+  const _onDecrement = (value) => _onChange(value, onDecrement, +value - 1);
+  const _onValidate = (value) => _onChange(value, onValidate, value);
 
   return (
     <Stack horizontal verticalAlign='baseline'>

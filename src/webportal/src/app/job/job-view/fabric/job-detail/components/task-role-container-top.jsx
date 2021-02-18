@@ -114,7 +114,7 @@ export default function TaskRoleContainerTop({
             iconProps={{ iconName: 'Clock' }}
             items={Object.keys(statuses)}
             selectedItems={Array.from(filter.statuses)}
-            onSelect={statuses => {
+            onSelect={(statuses) => {
               const { keyword, exitType, exitCode, nodeName } = filter;
               setFilter(
                 new TaskRoleFilter(
@@ -134,7 +134,7 @@ export default function TaskRoleContainerTop({
             iconProps={{ iconName: 'Tablet' }}
             items={Array.from(exitTypes)}
             selectedItems={Array.from(filter.exitType)}
-            onSelect={exitTypes => {
+            onSelect={(exitTypes) => {
               const { keyword, statuses, exitCode, nodeName } = filter;
               setFilter(
                 new TaskRoleFilter(
@@ -155,7 +155,7 @@ export default function TaskRoleContainerTop({
             iconProps={{ iconName: 'NumberSymbol' }}
             items={Array.from(exitCodes)}
             selectedItems={Array.from(filter.exitCode)}
-            onSelect={exitCodes => {
+            onSelect={(exitCodes) => {
               const { keyword, statuses, exitType, nodeName } = filter;
               setFilter(
                 new TaskRoleFilter(
@@ -176,7 +176,7 @@ export default function TaskRoleContainerTop({
             iconProps={{ iconName: 'TVMonitor' }}
             items={Array.from(nodeNames)}
             selectedItems={Array.from(filter.nodeName)}
-            onSelect={nodeNames => {
+            onSelect={(nodeNames) => {
               const { keyword, statuses, exitType, exitCode } = filter;
               setFilter(
                 new TaskRoleFilter(

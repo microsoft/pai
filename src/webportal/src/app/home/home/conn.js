@@ -23,7 +23,7 @@ export class UnauthorizedError extends Error {
   }
 }
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {
@@ -61,26 +61,36 @@ export async function getJobStatusNumber(isAdmin) {
   }
 
   return wrapper(async () => {
-    const waiting = (await client.httpClient.get(url, undefined, undefined, {
-      ...query,
-      ...{ state: 'WAITING' },
-    })).totalCount;
-    const running = (await client.httpClient.get(url, undefined, undefined, {
-      ...query,
-      ...{ state: 'RUNNING' },
-    })).totalCount;
-    const stopped = (await client.httpClient.get(url, undefined, undefined, {
-      ...query,
-      ...{ state: 'STOPPED' },
-    })).totalCount;
-    const failed = (await client.httpClient.get(url, undefined, undefined, {
-      ...query,
-      ...{ state: 'FAILED' },
-    })).totalCount;
-    const succeeded = (await client.httpClient.get(url, undefined, undefined, {
-      ...query,
-      ...{ state: 'SUCCEEDED' },
-    })).totalCount;
+    const waiting = (
+      await client.httpClient.get(url, undefined, undefined, {
+        ...query,
+        ...{ state: 'WAITING' },
+      })
+    ).totalCount;
+    const running = (
+      await client.httpClient.get(url, undefined, undefined, {
+        ...query,
+        ...{ state: 'RUNNING' },
+      })
+    ).totalCount;
+    const stopped = (
+      await client.httpClient.get(url, undefined, undefined, {
+        ...query,
+        ...{ state: 'STOPPED' },
+      })
+    ).totalCount;
+    const failed = (
+      await client.httpClient.get(url, undefined, undefined, {
+        ...query,
+        ...{ state: 'FAILED' },
+      })
+    ).totalCount;
+    const succeeded = (
+      await client.httpClient.get(url, undefined, undefined, {
+        ...query,
+        ...{ state: 'SUCCEEDED' },
+      })
+    ).totalCount;
     return { waiting, running, stopped, failed, succeeded };
   });
 }
@@ -132,7 +142,7 @@ export async function getLowGpuJobInfos() {
     throw new Error(json.message);
   }
 
-  const lowGpuJobInfos = json.data.result.map(keyValuePair => {
+  const lowGpuJobInfos = json.data.result.map((keyValuePair) => {
     const frameworkName = keyValuePair.metric.job_name;
     const jobNameBeginIndex = frameworkName.indexOf('~');
     return {

@@ -33,8 +33,8 @@ const getResouceUtilization = (used, guaranteed) => {
   return used / guaranteed;
 };
 
-const getGrantedGroupsDescription = groups => {
-  const str = groups.map(group => group.groupname).join();
+const getGrantedGroupsDescription = (groups) => {
+  const str = groups.map((group) => group.groupname).join();
   if (str.length < 25) {
     return str;
   } else {
@@ -43,7 +43,7 @@ const getGrantedGroupsDescription = groups => {
 };
 
 const isAdmin = cookies.get('admin') === 'true';
-const vcListColumns = colProps => {
+const vcListColumns = (colProps) => {
   const columns = [
     {
       key: 'name',
@@ -168,7 +168,7 @@ const vcListColumns = colProps => {
       isResizable: true,
       onRender(vc) {
         const groups = [];
-        colProps.groups.forEach(group => {
+        colProps.groups.forEach((group) => {
           const virtualClusters = group.extension.acls.virtualClusters;
           if (
             virtualClusters &&
@@ -202,7 +202,7 @@ const vcListColumns = colProps => {
   return columns;
 };
 
-export const VirtualClusterDetailsList = props => {
+export const VirtualClusterDetailsList = (props) => {
   const virtualClusters = props.virtualClusters;
   const otherProps = {
     ...props,

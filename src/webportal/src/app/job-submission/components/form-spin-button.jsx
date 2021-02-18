@@ -29,7 +29,7 @@ import PropTypes from 'prop-types';
 import { CSpinButton } from './customized-components';
 import { FormShortSection } from './form-page';
 
-export const FormSpinButton = props => {
+export const FormSpinButton = (props) => {
   const {
     sectionTooltip,
     sectionLabel,
@@ -39,7 +39,7 @@ export const FormSpinButton = props => {
     shortStyle,
   } = props;
   const _onChange = useCallback(
-    value => {
+    (value) => {
       if (onChange !== undefined) {
         onChange(Number(value));
       }

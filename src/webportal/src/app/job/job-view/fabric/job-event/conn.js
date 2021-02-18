@@ -14,7 +14,7 @@ export class NotFoundError extends Error {
   }
 }
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {

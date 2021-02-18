@@ -27,18 +27,10 @@ import Joi from 'joi-browser';
 import { PAI_PLUGIN } from '../utils/constants';
 
 export const taskRoleSchema = Joi.object().keys({
-  instances: Joi.number()
-    .default(1)
-    .min(1),
+  instances: Joi.number().default(1).min(1),
   completion: Joi.object().keys({
-    minFailedInstances: Joi.number()
-      .min(-1)
-      .allow(null)
-      .default(1),
-    minSucceededInstances: Joi.number()
-      .min(-1)
-      .allow(null)
-      .default(-1),
+    minFailedInstances: Joi.number().min(-1).allow(null).default(1),
+    minSucceededInstances: Joi.number().min(-1).allow(null).default(-1),
   }),
   taskRetryCount: Joi.number().default(0),
   // Following dockerImage, data, output and script should ref to prerequisites content
@@ -60,10 +52,7 @@ export const taskRoleSchema = Joi.object().keys({
       gpu: Joi.number().required(),
       ports: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, Joi.number()),
     }),
-  commands: Joi.array()
-    .items(Joi.string())
-    .min(1)
-    .required(),
+  commands: Joi.array().items(Joi.string()).min(1).required(),
 });
 
 export const taskRolesSchema = Joi.object().pattern(
@@ -91,9 +80,7 @@ export const prerequisitesSchema = Joi.object()
     }),
     uri: Joi.when('type', {
       is: 'data',
-      then: Joi.array()
-        .items(Joi.string())
-        .required(),
+      then: Joi.array().items(Joi.string()).required(),
       otherwise: Joi.string(),
     }),
     version: [Joi.string(), Joi.number()],
@@ -108,12 +95,8 @@ const deploymentSchema = Joi.object().keys({
     .pattern(
       /^[A-Za-z0-9._~]+$/,
       Joi.object().keys({
-        preCommands: Joi.array()
-          .items(Joi.string())
-          .min(1),
-        postCommands: Joi.array()
-          .items(Joi.string())
-          .min(1),
+        preCommands: Joi.array().items(Joi.string()).min(1),
+        postCommands: Joi.array().items(Joi.string()).min(1),
       }),
     )
     .required(),
@@ -133,9 +116,7 @@ const runtimePluginSchema = Joi.object().keys({
     .when('plugin', {
       is: 'teamwise_storage',
       then: Joi.object().keys({
-        storageConfigNames: Joi.array()
-          .min(1)
-          .items(Joi.string()),
+        storageConfigNames: Joi.array().min(1).items(Joi.string()),
       }),
     })
     .when('plugin', {
@@ -147,10 +128,7 @@ const runtimePluginSchema = Joi.object().keys({
           sshbarrierTimeout: Joi.number(),
           userssh: Joi.object().keys({
             type: Joi.string(),
-            value: Joi.string()
-              .allow(null)
-              .allow('')
-              .optional(),
+            value: Joi.string().allow(null).allow('').optional(),
           }),
         })
         .required(),
@@ -166,18 +144,14 @@ export const jobProtocolSchema = Joi.object().keys({
   contributor: Joi.string(),
   description: Joi.string(),
 
-  prerequisites: Joi.array()
-    .items(prerequisitesSchema)
-    .min(1),
+  prerequisites: Joi.array().items(prerequisitesSchema).min(1),
 
   parameters: Joi.object(),
   secrets: Joi.object(),
 
   jobRetryCount: Joi.number().default(0),
   taskRoles: taskRolesSchema,
-  deployments: Joi.array()
-    .items(deploymentSchema)
-    .min(1),
+  deployments: Joi.array().items(deploymentSchema).min(1),
   defaults: Joi.object().keys({
     virtualCluster: Joi.string(),
     deployment: Joi.string(),

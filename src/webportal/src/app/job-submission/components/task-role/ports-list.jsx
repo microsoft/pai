@@ -54,11 +54,11 @@ export const PortsList = React.memo(({ onChange, ports }) => {
   const [currentIdx, setCurrentIdx] = useState();
   const countRef = useRef();
 
-  const onRemove = idx => {
+  const onRemove = (idx) => {
     onChange([...ports.slice(0, idx), ...ports.slice(idx + 1)]);
   };
 
-  const onEdit = idx => {
+  const onEdit = (idx) => {
     setCurrentIdx(idx);
     setLabel(ports[idx].key);
     setShowDialog(true);
@@ -88,7 +88,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
     if (!PORT_LABEL_REGEX.test(label)) {
       return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
     }
-    const idx = ports.findIndex(item => item.key === label);
+    const idx = ports.findIndex((item) => item.key === label);
     if (idx !== -1 && idx !== currentIdx) {
       return 'Duplicated port label';
     }
@@ -101,7 +101,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
       name: 'Port Label',
       minWidth: 60,
       className: FontClassNames.mediumPlus,
-      onRender: item => (
+      onRender: (item) => (
         <div
           style={{
             display: 'flex',
@@ -118,7 +118,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
       name: 'Count',
       minWidth: 50,
       className: FontClassNames.mediumPlus,
-      onRender: item => (
+      onRender: (item) => (
         <div
           style={{
             display: 'flex',

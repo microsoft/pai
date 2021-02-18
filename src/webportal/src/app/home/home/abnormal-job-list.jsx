@@ -64,8 +64,9 @@ const AbnormalJobList = ({ jobs }) => {
         const { legacy, name, namespace, username } = job;
         const href = legacy
           ? `/job-detail.html?jobName=${name}`
-          : `/job-detail.html?username=${namespace ||
-              username}&jobName=${name}`;
+          : `/job-detail.html?username=${
+              namespace || username
+            }&jobName=${name}`;
         return <Link href={href}>{name}</Link>;
       },
     },
@@ -161,7 +162,7 @@ const AbnormalJobList = ({ jobs }) => {
                 rootCheckedDisabled: { backgroundColor: '#eeeeee' },
                 icon: { fontSize: 12 },
               }}
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 setCurrentJob(job);
                 setHideDialog(false);
@@ -176,12 +177,12 @@ const AbnormalJobList = ({ jobs }) => {
   ];
 
   const stopAbnormalJob = useCallback(
-    job => {
+    (job) => {
       userAuth.checkToken(() => {
         stopJob(job)
           .then(() => {
             const result = cloneDeep(abnormalJobs);
-            const stopJob = result.find(item => item.name === job.name);
+            const stopJob = result.find((item) => item.name === job.name);
             stopJob.executionType = 'STOP';
             setAbnormalJobs(result);
           })

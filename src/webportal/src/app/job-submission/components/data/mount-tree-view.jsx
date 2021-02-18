@@ -22,9 +22,9 @@ const { spacing } = getTheme();
 
 function convertToTree(dataList) {
   const mountTrie = new MountPathTrie('/');
-  dataList.forEach(mountItem => {
+  dataList.forEach((mountItem) => {
     let mountPrefixArray = mountItem.mountPath.split('/');
-    mountPrefixArray = mountPrefixArray.map(path => `/${path}`);
+    mountPrefixArray = mountPrefixArray.map((path) => `/${path}`);
     let label;
     if (mountItem.sourceType === 'git') {
       label = [
@@ -47,7 +47,7 @@ function convertToTree(dataList) {
     } else {
       label = mountItem.dataSource.split(', ');
     }
-    label.forEach(l => {
+    label.forEach((l) => {
       mountPrefixArray.push(l);
       mountTrie.insertNode(mountPrefixArray);
       mountPrefixArray.pop();
@@ -99,7 +99,7 @@ const TreeNode = ({ label, isVisible, subpaths }) => {
           </Stack>
           <div style={{ marginLeft: spacing.l2 }}>
             {subpaths &&
-              subpaths.map(item => {
+              subpaths.map((item) => {
                 return (
                   <TreeNode
                     key={item.fullpath}

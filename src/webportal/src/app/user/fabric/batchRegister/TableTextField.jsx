@@ -57,7 +57,7 @@ export default function TableTextField(props) {
     });
   }
 
-  const _getErrorMessage = value => {
+  const _getErrorMessage = (value) => {
     if (!readOnly) {
       setCustomErrorMessage(onGetErrorMessage(value));
     }

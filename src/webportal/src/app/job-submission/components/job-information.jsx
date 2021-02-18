@@ -48,17 +48,17 @@ export const JobInformation = React.memo(
       [onChange, jobInformation],
     );
 
-    const onNameChange = useCallback(name => onChangeProp('name', name), [
+    const onNameChange = useCallback((name) => onChangeProp('name', name), [
       onChangeProp,
     ]);
 
     const onVirtualClusterChange = useCallback(
-      virtualCluster => onChangeProp('virtualCluster', virtualCluster),
+      (virtualCluster) => onChangeProp('virtualCluster', virtualCluster),
       [onChangeProp],
     );
 
     const onRetryCountChange = useCallback(
-      val => onChangeProp('jobRetryCount', val),
+      (val) => onChangeProp('jobRetryCount', val),
       [onChangeProp],
     );
 

@@ -52,11 +52,11 @@ export const YamlEditPage = ({ history }) => {
     }
   }, [protocolYaml]);
 
-  const _onTextChange = text => {
+  const _onTextChange = (text) => {
     setProtocolYaml(text);
   };
 
-  const _submitJob = async event => {
+  const _submitJob = async (event) => {
     event.preventDefault();
     try {
       await submitJob(protocolYaml);

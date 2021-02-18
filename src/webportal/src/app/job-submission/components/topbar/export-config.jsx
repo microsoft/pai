@@ -46,14 +46,14 @@ export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      setTimeout(function() {
+      setTimeout(function () {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, 0);
     }
   };
 
-  const _exportYaml = async event => {
+  const _exportYaml = async (event) => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {

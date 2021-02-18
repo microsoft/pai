@@ -91,7 +91,7 @@ export const getFormPageSytle = () => {
   };
 };
 
-export const getFormBasicSectionStyle = optional => {
+export const getFormBasicSectionStyle = (optional) => {
   const visibility = !optional ? 'hidden' : 'visible';
   return {
     icon: {

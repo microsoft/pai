@@ -10,7 +10,7 @@ const PureConfigPanel = ({ dispatch, currentSideList, isOpen, onDismiss }) => {
 
   const onToggleChange = (item, checked) => {
     handleSideList(
-      sideList.map(side => ({
+      sideList.map((side) => ({
         ...side,
         ...(side.key === item.key ? { checked } : null),
       })),

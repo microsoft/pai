@@ -7,7 +7,7 @@ import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
 import { validateMountPath } from '../../utils/validation';
 import { InputData } from '../../models/data/input-data';
 
-export const AddHttp = props => {
+export const AddHttp = (props) => {
   const { dataList, setDataList, setDataType } = props;
   const [mountPath, setMountPath] = useState();
   const [httpUrl, setHttpUrl] = useState();

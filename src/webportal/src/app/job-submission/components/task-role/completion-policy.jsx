@@ -55,7 +55,7 @@ export const CompletionPolicy = React.memo(({ onChange, value }) => {
             label={'Min Failed Instances'}
             value={minFailedInstances}
             min={-1}
-            onChange={v => _onChange('minFailedInstances', v)}
+            onChange={(v) => _onChange('minFailedInstances', v)}
           />
         </Stack>
       </FormShortSection>

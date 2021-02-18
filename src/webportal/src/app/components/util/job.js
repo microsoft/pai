@@ -121,7 +121,9 @@ export function listAbnormalJobs(allRunningJobs, lowGpuJobsInfo) {
 
   // Get low GPU usage jobs
   const lowGpuUsageJobs = allRunningJobs.reduce((acc, cur) => {
-    const gpuUsageInfo = lowGpuJobsInfo.find(info => info.jobName === cur.name);
+    const gpuUsageInfo = lowGpuJobsInfo.find(
+      (info) => info.jobName === cur.name,
+    );
     if (isNil(gpuUsageInfo)) {
       return acc;
     }
@@ -133,16 +135,16 @@ export function listAbnormalJobs(allRunningJobs, lowGpuJobsInfo) {
 
   // Merge long run jobs and low GPU usage jobs
   const abnormalJobs = cloneDeep(longRunJobs);
-  abnormalJobs.forEach(job => {
+  abnormalJobs.forEach((job) => {
     const lowGpuUsagejob = lowGpuUsageJobs.find(
-      lowGpuUsageJob => lowGpuUsageJob.name === job.name,
+      (lowGpuUsageJob) => lowGpuUsageJob.name === job.name,
     );
     if (!isNil(lowGpuUsagejob)) {
       job.gpuUsage = lowGpuUsagejob.gpuUsage;
     }
   });
-  lowGpuUsageJobs.forEach(lowGpuUsageJob => {
-    if (isNil(abnormalJobs.find(job => job.name === lowGpuUsageJob.name))) {
+  lowGpuUsageJobs.forEach((lowGpuUsageJob) => {
+    if (isNil(abnormalJobs.find((job) => job.name === lowGpuUsageJob.name))) {
       abnormalJobs.push(lowGpuUsageJob);
     }
   });

@@ -24,7 +24,7 @@ const client = new PAIV2.OpenPAIClient({
   https: window.location.protocol === 'https:',
 });
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {
@@ -58,16 +58,18 @@ export async function listHivedSkuTypes(virtualCluster) {
     return {};
   }
   return wrapper(async () =>
-    (await fetch(
-      urljoin(
-        config.restServerUri,
-        `/api/v2/cluster/sku-types?vc=${virtualCluster}`,
-      ),
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    (
+      await fetch(
+        urljoin(
+          config.restServerUri,
+          `/api/v2/cluster/sku-types?vc=${virtualCluster}`,
+        ),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    )).json(),
+      )
+    ).json(),
   );
 }

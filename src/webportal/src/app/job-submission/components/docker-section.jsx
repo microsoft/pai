@@ -48,7 +48,7 @@ import { DOCKER_OPTIONS, DEFAULT_DOCKER_URI } from '../utils/constants';
 const { spacing } = getTheme();
 const dockerSectionStyle = getDockerSectionStyle();
 
-const AuthTextFiled = props => {
+const AuthTextFiled = (props) => {
   const { label, value, componentRef, type } = props;
   return (
     <Stack horizontal gap='s1'>
@@ -76,7 +76,7 @@ AuthTextFiled.propTypes = {
 
 function getDockerImageOptionKey(uri) {
   const dockerOption = DOCKER_OPTIONS.find(
-    dockerOption => dockerOption.image === uri,
+    (dockerOption) => dockerOption.image === uri,
   );
   if (isEmpty(dockerOption)) {
     return 'customize-image';
@@ -105,7 +105,7 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
   );
 
   const _onPropertiesChange = useCallback(
-    updateProperties => {
+    (updateProperties) => {
       let updatedDockerInfo = { ...value, ...updateProperties };
       updatedDockerInfo = new DockerInfo(updatedDockerInfo);
       if (onValueChange !== undefined) {
@@ -138,7 +138,7 @@ export const DockerSection = ({ sectionTooltip, onValueChange, value }) => {
   }, [_onChange]);
 
   const _onUriChange = useCallback(
-    e => {
+    (e) => {
       _onChange('uri', e.target.value);
     },
     [_onChange],

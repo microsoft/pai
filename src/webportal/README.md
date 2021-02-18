@@ -34,7 +34,7 @@ To run web portal, the following services should be started:
 - Kubernetes
 - Other services your feature requires
 
-Create a ```.env``` file and fill the url of all above services, for example:
+Create a `.env` file and fill the url of all above services, for example:
 
 ```text
 REST_SERVER_URI=<hostname>/rest-server
@@ -53,25 +53,25 @@ All these values in .env file will be imported as global object [`window.ENV`](.
 
 ### Devlopment Mode
 
-- Run ```yarn install``` to install all the dependencies
-- Run ```yarn dev``` to start a webpack dev server
+- Run `yarn install` to install all the dependencies
+- Run `yarn dev` to start a webpack dev server
 
 ### Production Mode
 
-- Run ```yarn install``` to install all dependencies
-- Run ```yarn build``` to build static files
-- Run ```yarn start``` to start webportal's static file host server
+- Run `yarn install` to install all dependencies
+- Run `yarn build` to build static files
+- Run `yarn start` to start webportal's static file host server
 
 ## Code style check of webportal
 
 Webportal use [eslint](https://eslint.org/docs/user-guide/getting-started) with [standard config](https://github.com/standard/eslint-config-standard) as linter and [prettier](https://prettier.io/docs/en/index.html) as code formatter.
 
-Pleae refer to [eslint config file](./.eslintrc.js) and [prettier config file](./prettier.config.js) for details. Make sure to run ```yarn lint``` command every time before you push your code, and resolve all the errors and warnings. Otherwise it will break the CI check when you submit your pull request.
+Pleae refer to [eslint config file](./.eslintrc.js) and [prettier config file](./prettier.config.js) for details. Make sure to run `yarn lint` command every time before you push your code, and resolve all the errors and warnings. Otherwise it will break the CI check when you submit your pull request.
 
 If you use modern editors like VS Code. It is highly recommends to install [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extensions.
 
 > How to do code format with prettier?
-> You could use cli like ```prettier --write 'src/**/*.js' 'src/**/*.jsx'``` or use prettier extension in vscode.
+> You could use cli like `prettier --write 'src/**/*.js' 'src/**/*.jsx'` or use prettier extension in vscode.
 
 ## Webportal Plugins
 

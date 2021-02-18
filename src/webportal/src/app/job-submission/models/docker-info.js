@@ -63,7 +63,7 @@ export class DockerInfo {
 
   static isUseCustomizedDocker(uri) {
     return isNil(
-      DOCKER_OPTIONS.find(dockerOption => dockerOption.image === uri),
+      DOCKER_OPTIONS.find((dockerOption) => dockerOption.image === uri),
     );
   }
 

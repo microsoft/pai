@@ -20,14 +20,14 @@ export const YamlEditExportConfig = React.memo(({ protocolYaml }) => {
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      setTimeout(function() {
+      setTimeout(function () {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, 0);
     }
   };
 
-  const _exportYaml = async event => {
+  const _exportYaml = async (event) => {
     event.preventDefault();
     try {
       _exportFile(

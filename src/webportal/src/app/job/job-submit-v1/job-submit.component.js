@@ -43,7 +43,7 @@ const jobSubmitHtml = jobSubmitComponent({
 let editor;
 let jobDefaultConfig;
 
-const getChecksum = str => {
+const getChecksum = (str) => {
   let res = 0;
   for (const c of str) {
     res ^= c.charCodeAt(0) & 0xff;
@@ -51,7 +51,7 @@ const getChecksum = str => {
   return res.toString(16);
 };
 
-const isValidJson = str => {
+const isValidJson = (str) => {
   let valid = true;
   let errors = null;
   try {
@@ -84,15 +84,15 @@ const exportFile = (data, filename, type) => {
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    setTimeout(function() {
+    setTimeout(function () {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, 0);
   }
 };
 
-const submitJob = jobConfig => {
-  userAuth.checkToken(token => {
+const submitJob = (jobConfig) => {
+  userAuth.checkToken((token) => {
     const user = cookies.get('user');
     loading.showLoading();
     $.ajax({
@@ -104,7 +104,7 @@ const submitJob = jobConfig => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: data => {
+      success: (data) => {
         loading.hideLoading();
         if (data.error) {
           alert(data.message);
@@ -142,7 +142,7 @@ const loadEditor = () => {
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
-  userAuth.checkToken(function(token) {
+  userAuth.checkToken(function (token) {
     loadEditor();
     editor.on('change', () => {
       $('#submitJob').prop('disabled', editor.validate().length !== 0);
@@ -173,9 +173,9 @@ $(document).ready(() => {
       $($(element).contents()[2]).replaceWith('More Properties');
     });
 
-    $(document).on('change', '#fileUpload', event => {
+    $(document).on('change', '#fileUpload', (event) => {
       const reader = new FileReader();
-      reader.onload = event => {
+      reader.onload = (event) => {
         const jobConfig = stripJsonComments(event.target.result);
         if (isValidJson(jobConfig)) {
           editor.setValue(
@@ -213,7 +213,7 @@ $(document).ready(() => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          success: data => {
+          success: (data) => {
             let jobConfigObj = data;
             if (typeof jobConfigObj === 'string') {
               jobConfigObj = JSON.parse(data);
@@ -225,9 +225,7 @@ $(document).ready(() => {
             ) {
               name = name.slice(0, -9);
             }
-            name = `${name}_${Date.now()
-              .toString(16)
-              .substr(-6)}`;
+            name = `${name}_${Date.now().toString(16).substr(-6)}`;
             name = name + getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));

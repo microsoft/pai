@@ -6,7 +6,7 @@ export function removeEmptyProperties(obj) {
   }
 
   const newObj = { ...obj };
-  Object.keys(newObj).forEach(key => {
+  Object.keys(newObj).forEach((key) => {
     const onCheckingElement = newObj[key];
     if (!isEmpty(onCheckingElement)) {
       return;
@@ -29,7 +29,7 @@ export function removeEmptyProperties(obj) {
 export function createUniqueName(usedNames, namePrefix, startIndex) {
   let index = startIndex;
   let name = `${namePrefix}_${index++}`;
-  while (usedNames.find(usedName => usedName === name)) {
+  while (usedNames.find((usedName) => usedName === name)) {
     name = `${namePrefix}_${index++}`;
   }
   return [name, index];

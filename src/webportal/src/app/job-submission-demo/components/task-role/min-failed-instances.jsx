@@ -12,7 +12,7 @@ const PureMinFailedInstances = ({ dispatch, jobProtocol, currentTaskRole }) => {
     1,
   );
 
-  const onChange = value => {
+  const onChange = (value) => {
     dispatch({
       type: 'SAVE_JOBPROTOCOL',
       payload: {
@@ -31,8 +31,8 @@ const PureMinFailedInstances = ({ dispatch, jobProtocol, currentTaskRole }) => {
     });
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
+  const onIncrement = (value) => onChange(+value + 1);
+  const onDecrement = (value) => onChange(+value - 1);
 
   return (
     <SpinButton

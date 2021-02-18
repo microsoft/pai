@@ -37,7 +37,7 @@ export class SSHPlugin {
   static fromProtocol(extras) {
     const pluginBase = get(extras, PAI_PLUGIN, []);
     const sshPluginProtocol = pluginBase.find(
-      plugin => plugin.plugin === 'ssh',
+      (plugin) => plugin.plugin === 'ssh',
     );
 
     if (sshPluginProtocol === undefined) {

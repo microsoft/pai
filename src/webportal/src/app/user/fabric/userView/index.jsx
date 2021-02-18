@@ -43,7 +43,7 @@ import {
 
 export default function UserView() {
   const [loading, setLoading] = useState({ show: false, text: '' });
-  const showLoading = text => {
+  const showLoading = (text) => {
     setLoading({ show: true, text: text });
   };
   const hideLoading = () => {
@@ -55,17 +55,17 @@ export default function UserView() {
     confirm: false,
     onClose: null,
   });
-  const showMessageBox = value => {
+  const showMessageBox = (value) => {
     return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve });
     });
   };
-  const showMessageBoxWithConfirm = value => {
+  const showMessageBoxWithConfirm = (value) => {
     return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve, confirm: true });
     });
   };
-  const hideMessageBox = value => {
+  const hideMessageBox = (value) => {
     const { onClose } = messageBox;
     setMessageBox({ text: '' });
     if (onClose) {
@@ -77,10 +77,10 @@ export default function UserView() {
   const refreshAllUsers = () => {
     setAllUsers([]);
     getAllUsersRequest()
-      .then(data => {
+      .then((data) => {
         setAllUsers(data);
       })
-      .catch(err => {
+      .catch((err) => {
         showMessageBox(err).then(() => {
           window.location.href = '/';
         });
@@ -90,7 +90,7 @@ export default function UserView() {
 
   const [allVCs, setAllVCs] = useState([]);
   const refreshAllVCs = () => {
-    getAllVcsRequest().then(data => {
+    getAllVcsRequest().then((data) => {
       setAllVCs(Object.keys(data).sort());
     });
   };
@@ -141,22 +141,22 @@ export default function UserView() {
       `Are you sure to remove ${
         selected.length === 1 ? 'the user' : 'these users'
       }?`,
-    ).then(confirmed => {
+    ).then((confirmed) => {
       if (confirmed) {
         showLoading('Processing...');
         Promise.all(
-          selected.map(user =>
-            removeUserRequest(user.username).catch(err => err),
+          selected.map((user) =>
+            removeUserRequest(user.username).catch((err) => err),
           ),
-        ).then(results => {
+        ).then((results) => {
           hideLoading();
-          const errors = results.filter(result => result instanceof Error);
+          const errors = results.filter((result) => result instanceof Error);
           let message = `Remove ${selected.length === 1 ? 'user' : 'users'} `;
           if (errors.length === 0) {
             message += 'successfully.';
           } else {
             message += `with ${errors.length} failed.`;
-            errors.forEach(error => {
+            errors.forEach((error) => {
               message += `\n${String(error)}`;
             });
           }
@@ -183,7 +183,7 @@ export default function UserView() {
       user: { virtualCluster: ['default'] },
     });
   };
-  const editUser = user => {
+  const editUser = (user) => {
     setUserEditor({ isOpen: true, isCreate: false, user });
   };
   const hideAddOrEditUser = () => {
@@ -195,11 +195,11 @@ export default function UserView() {
   });
   const showBatchPasswordEditor = () => {
     const selectedAdmin =
-      findIndex(getSelectedUsers(), user => user.admin) !== -1;
+      findIndex(getSelectedUsers(), (user) => user.admin) !== -1;
     if (selectedAdmin) {
       showMessageBoxWithConfirm(
         'Your options include the administrator, please confirm whether to continue this operation',
-      ).then(confirmed => {
+      ).then((confirmed) => {
         if (confirmed) {
           setBatchPasswordEditor({ isOpen: true });
         }

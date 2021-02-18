@@ -5,7 +5,7 @@ import { FormShortSection } from './form-page';
 import Context from './context';
 import PropTypes from 'prop-types';
 
-export const VirtualCluster = React.memo(props => {
+export const VirtualCluster = React.memo((props) => {
   const { onChange, virtualCluster } = props;
   const { vcNames } = useContext(Context);
 
@@ -29,7 +29,7 @@ export const VirtualCluster = React.memo(props => {
     [onChange],
   );
 
-  const vcIndex = options.findIndex(value => value.text === virtualCluster);
+  const vcIndex = options.findIndex((value) => value.text === virtualCluster);
   return (
     <BasicSection sectionLabel={'Virtual cluster'}>
       <FormShortSection>

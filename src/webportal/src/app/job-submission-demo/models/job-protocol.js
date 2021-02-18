@@ -73,13 +73,13 @@ export class JobProtocol {
   static safePruneProtocol(protocol) {
     const prunedProtocol = removeEmptyProperties(protocol);
     const taskRoles = cloneDeep(prunedProtocol.taskRoles);
-    Object.keys(taskRoles).forEach(taskRoleName => {
+    Object.keys(taskRoles).forEach((taskRoleName) => {
       const taskRoleContent = taskRoles[taskRoleName];
       if (isEmpty(taskRoleContent.commands)) {
         return;
       }
       taskRoleContent.commands = taskRoleContent.commands.filter(
-        line => !isEmpty(line),
+        (line) => !isEmpty(line),
       );
     });
     prunedProtocol.taskRoles = taskRoles;

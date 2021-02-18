@@ -108,14 +108,14 @@ const LogDialogContent = ({ urls, logListUrl }) => {
             getContainerLogList(logListUrl)
               .then(({ fullLogUrls, _ }) => {
                 const logUrl = fullLogUrls.locations.find(
-                  url => url.name === key,
+                  (url) => url.name === key,
                 );
                 if (!logUrl || !logUrl.uri) {
                   throw new Error('Failed to get log url');
                 }
                 location.href = logUrl.uri;
               })
-              .catch(err => {
+              .catch((err) => {
                 alert('Error occur, please try again. err: ' + err);
               });
           }}
@@ -169,7 +169,7 @@ export default class TaskAttemptList extends React.Component {
     getContainerLog(tailLogUrls, fullLogUrls, logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
-          prevState =>
+          (prevState) =>
             prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: text },
               monacoFooterButton: (
@@ -185,9 +185,9 @@ export default class TaskAttemptList extends React.Component {
             },
         ),
       )
-      .catch(err => {
+      .catch((err) => {
         this.setState(
-          prevState =>
+          (prevState) =>
             prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
@@ -286,7 +286,7 @@ export default class TaskAttemptList extends React.Component {
           },
         );
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({ monacoProps: { value: err.message } });
       });
   }
@@ -294,7 +294,7 @@ export default class TaskAttemptList extends React.Component {
   showSshInfo(id, containerPorts, containerIp) {
     const { sshInfo, jobConfig } = this.context;
     const containerSshInfo =
-      sshInfo && sshInfo.containers.find(x => x.id === id);
+      sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (config.launcherType !== 'k8s') {
       if (!containerSshInfo) {
         const res = [];
@@ -490,7 +490,7 @@ export default class TaskAttemptList extends React.Component {
         minWidth: 120,
         headerClassName: FontClassNames.medium,
         isResizable: true,
-        onRender: item => (
+        onRender: (item) => (
           <StatusBadge status={capitalize(item.attemptState)} />
         ),
       },
@@ -503,7 +503,7 @@ export default class TaskAttemptList extends React.Component {
         maxWidth: 140,
         isResizable: true,
         fieldName: 'containerIp',
-        onRender: item => {
+        onRender: (item) => {
           const ip = item.containerIp;
           return !isNil(ip) && <div>{ip}</div>;
         },
@@ -516,7 +516,7 @@ export default class TaskAttemptList extends React.Component {
         minWidth: 150,
         maxWidth: 300,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           const ports = item.containerPorts;
           return (
             !isNil(ports) && (
@@ -541,7 +541,7 @@ export default class TaskAttemptList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 300,
         maxWidth: 500,
-        onRender: item => (
+        onRender: (item) => (
           <div
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
@@ -623,7 +623,7 @@ export default class TaskAttemptList extends React.Component {
         minWidth: 150,
         maxWidth: 200,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {!isNil(item.containerExitSpec) &&
@@ -659,7 +659,7 @@ export default class TaskAttemptList extends React.Component {
         minWidth: 180,
         maxWidth: 200,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {isNil(item.currentAttemptLaunchedTime)
@@ -696,7 +696,7 @@ export default class TaskAttemptList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 100,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {item.containerNodeName}
@@ -710,7 +710,7 @@ export default class TaskAttemptList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 200,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <CommandBarButton
               className={FontClassNames.mediumPlus}
@@ -773,7 +773,7 @@ export default class TaskAttemptList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 300,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           const id = item.containerId;
           return (
             !isNil(id) && (

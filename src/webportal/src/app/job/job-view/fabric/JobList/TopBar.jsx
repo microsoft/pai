@@ -86,11 +86,11 @@ function TopBar() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }).then(async response => {
+      }).then(async (response) => {
         if (response.ok) {
           const data = await response.json();
           const users = {};
-          data.forEach(user => {
+          data.forEach((user) => {
             users[user.username] = true;
           });
           setUser(users);
@@ -118,7 +118,7 @@ function TopBar() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }).then(async response => {
+      }).then(async (response) => {
         if (response.ok) {
           const data = await response.json();
           const vcs = {};
@@ -129,7 +129,7 @@ function TopBar() {
           const allValidVC = Object.keys(data);
           const { keyword, users, virtualClusters, statuses } = filter;
           const filterVC = new Set(
-            allValidVC.filter(vc => virtualClusters.has(vc)),
+            allValidVC.filter((vc) => virtualClusters.has(vc)),
           );
           setFilter(new Filter(keyword, users, filterVC, statuses));
         } else {
@@ -154,7 +154,7 @@ function TopBar() {
           }
         }
       }),
-    ]).catch(err => alert(err.message));
+    ]).catch((err) => alert(err.message));
   }, []);
 
   /**
@@ -239,7 +239,7 @@ function TopBar() {
   }
 
   const ableStop =
-    selectedJobs.length > 0 && selectedJobs.every(job => isStoppable(job));
+    selectedJobs.length > 0 && selectedJobs.every((job) => isStoppable(job));
 
   const topBarItems = [ableStop ? getStop() : getNew(), getRefresh()];
   const topBarFarItems = [getFilters()];
@@ -247,7 +247,7 @@ function TopBar() {
   // user filter preprocess
   let userItems = Object.keys(users);
   const currentUser = cookies.get('user');
-  const idx = userItems.findIndex(x => x === currentUser);
+  const idx = userItems.findIndex((x) => x === currentUser);
   if (idx !== -1) {
     userItems = [
       CURRENT_USER_KEY,
@@ -295,7 +295,7 @@ function TopBar() {
               iconProps={{ iconName: 'Contact' }}
               items={userItems}
               selectedItems={selectedItems}
-              onSelect={users => {
+              onSelect={(users) => {
                 const { keyword, virtualClusters, statuses } = filter;
                 const userFilter = new Set(users);
                 if (userFilter.has(CURRENT_USER_KEY)) {
@@ -315,7 +315,7 @@ function TopBar() {
               iconProps={{ iconName: 'CellPhone' }}
               items={Object.keys(virtualClusters)}
               selectedItems={Array.from(filter.virtualClusters)}
-              onSelect={virtualClusters => {
+              onSelect={(virtualClusters) => {
                 const { keyword, users, statuses } = filter;
                 setFilter(
                   new Filter(
@@ -334,7 +334,7 @@ function TopBar() {
               iconProps={{ iconName: 'Clock' }}
               items={Object.keys(statuses)}
               selectedItems={Array.from(filter.statuses)}
-              onSelect={statuses => {
+              onSelect={(statuses) => {
                 const { keyword, users, virtualClusters } = filter;
                 setFilter(
                   new Filter(

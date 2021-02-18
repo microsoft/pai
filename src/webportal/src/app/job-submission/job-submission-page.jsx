@@ -102,7 +102,7 @@ export const JobSubmissionPage = ({
   const [errorMessages, setErrorMessages] = useState({});
 
   const setJobTaskRoles = useCallback(
-    taskRoles => {
+    (taskRoles) => {
       if (isEmpty(taskRoles)) {
         setJobTaskRolesState([new JobTaskRole({ name: 'taskrole1' })]);
       } else {
@@ -113,7 +113,7 @@ export const JobSubmissionPage = ({
   );
 
   const setParameters = useCallback(
-    param => {
+    (param) => {
       if (isEmpty(param)) {
         setParametersState([{ key: '', value: '' }]);
       } else {
@@ -124,7 +124,7 @@ export const JobSubmissionPage = ({
   );
 
   const setSecrets = useCallback(
-    secret => {
+    (secret) => {
       if (isEmpty(secret)) {
         setSecretsState([{ key: '', value: '' }]);
       } else {
@@ -135,7 +135,7 @@ export const JobSubmissionPage = ({
   );
 
   const onSelect = useCallback(
-    x => {
+    (x) => {
       if (x === selected) {
         setSelected(null);
       } else {
@@ -147,7 +147,7 @@ export const JobSubmissionPage = ({
 
   const setErrorMessage = useCallback(
     (id, msg) => {
-      setErrorMessages(prev => {
+      setErrorMessages((prev) => {
         if (isEmpty(msg)) {
           if (prev !== undefined && prev[id] !== undefined) {
             const updated = { ...prev };
@@ -259,7 +259,7 @@ export const JobSubmissionPage = ({
       const user = params.get('user') || '';
       if (user && jobName) {
         fetchJobConfig(user, jobName)
-          .then(jobConfig => {
+          .then((jobConfig) => {
             const [
               jobInfo,
               taskRoles,
@@ -342,7 +342,7 @@ export const JobSubmissionPage = ({
 
   useEffect(() => {
     listUserVirtualClusters(loginUser)
-      .then(virtualClusters => {
+      .then((virtualClusters) => {
         setVcNames(virtualClusters);
       })
       .catch(alert);
@@ -350,7 +350,7 @@ export const JobSubmissionPage = ({
 
   useEffect(() => {
     listHivedSkuTypes(jobInformation.virtualCluster)
-      .then(hivedSkuTypes => {
+      .then((hivedSkuTypes) => {
         setHivedSkuTypes(hivedSkuTypes);
       })
       .catch(alert);
@@ -369,6 +369,8 @@ export const JobSubmissionPage = ({
   if (loading) {
     return <SpinnerLoading />;
   }
+
+  console.log(jobProtocol);
 
   return (
     <Context.Provider value={contextValue}>

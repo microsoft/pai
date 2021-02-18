@@ -15,7 +15,7 @@ const client = new PAIV2.OpenPAIClient({
   https: window.location.protocol === 'https:',
 });
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {
@@ -51,7 +51,7 @@ export const getAllUsersRequest = async () => {
   });
 };
 
-export const removeUserRequest = async username => {
+export const removeUserRequest = async (username) => {
   const url = `${config.restServerUri}/api/v2/user/${username}`;
   const token = checkToken();
   return fetchWrapper(url, {
@@ -169,7 +169,7 @@ export const getAllVcsRequest = async () => {
   });
 };
 
-export const getUserRequest = async username => {
+export const getUserRequest = async (username) => {
   const url = `${config.restServerUri}/api/v2/user/${username}`;
   const token = checkToken();
   return fetchWrapper(url, {
@@ -207,7 +207,7 @@ export const getGroupsRequest = async () => {
   return wrapper(() => client.group.getAllGroup());
 };
 
-export const revokeTokenRequest = async token => {
+export const revokeTokenRequest = async (token) => {
   await wrapper(() => client.token.deleteToken(token));
   if (token === checkToken()) {
     clearToken();

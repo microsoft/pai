@@ -8,7 +8,7 @@ const RETRY_COUNT_MIN = 0;
 const PureRetryCount = ({ dispatch, jobProtocol }) => {
   const jobRetryCount = get(jobProtocol, 'jobRetryCount', 0);
 
-  const onChange = value => {
+  const onChange = (value) => {
     dispatch({
       type: 'SAVE_JOBPROTOCOL',
       payload: {
@@ -18,8 +18,8 @@ const PureRetryCount = ({ dispatch, jobProtocol }) => {
     });
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
+  const onIncrement = (value) => onChange(+value + 1);
+  const onDecrement = (value) => onChange(+value - 1);
 
   return (
     <SpinButton

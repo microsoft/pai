@@ -19,7 +19,7 @@ export class WebHDFSClient {
       .then(() => {
         return true;
       })
-      .catch(error => {
+      .catch((error) => {
         if (error) {
           return false;
         }
@@ -29,8 +29,8 @@ export class WebHDFSClient {
   async ensureDir(path) {
     this.client
       .readdir(path)
-      .then(data => {})
-      .catch(error => {
+      .then((data) => {})
+      .catch((error) => {
         if (error.message.includes('does not exist')) {
           this.client.mkdir(path);
         } else {
@@ -42,7 +42,7 @@ export class WebHDFSClient {
   async readDir(path) {
     return this.client
       .readdir(path)
-      .then(data => data.map(item => item.pathSuffix));
+      .then((data) => data.map((item) => item.pathSuffix));
   }
 
   async uploadFile(dir, file, newFileName = file.name) {
@@ -79,7 +79,7 @@ export class WebHDFSClient {
           .then(() => {
             resolve(`${dir}/${newFileName}`);
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       };

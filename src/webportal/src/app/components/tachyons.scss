@@ -1,19 +1,19 @@
 /* tachyons without normalize.css */
 
-//  Variables 
-//  Importing here will allow you to override any variables in the modules 
+//  Variables
+//  Importing here will allow you to override any variables in the modules
 
 @import 'tachyons-custom-variables';
 @import '~tachyons-sass/scss/_variables';
 
-//  Debugging 
+//  Debugging
 @import '~tachyons-sass/scss/_debug-children';
 @import '~tachyons-sass/scss/_debug-grid';
 
-//  Uncomment out the line below to help debug layout issues 
-//  @import '~tachyons-sass/scss/_debug'; 
+//  Uncomment out the line below to help debug layout issues
+//  @import '~tachyons-sass/scss/_debug';
 
-//  Modules 
+//  Modules
 @import '~tachyons-sass/scss/_box-sizing';
 @import '~tachyons-sass/scss/_aspect-ratios';
 @import '~tachyons-sass/scss/_images';

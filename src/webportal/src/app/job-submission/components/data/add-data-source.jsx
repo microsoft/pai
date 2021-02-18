@@ -13,7 +13,7 @@ import { HdfsContext } from '../../models/data/hdfs-context';
 import config from '../../../config/webportal.config';
 import t from '../../../../app/components/tachyons.scss';
 
-export const AddDataSource = props => {
+export const AddDataSource = (props) => {
   const { dataList, setDataList } = props;
   const [dataType, setDataType] = useState();
 
@@ -64,7 +64,7 @@ export const AddDataSource = props => {
       <div className={c(t.mb1)}>
         {dataType === 'local' && (
           <HdfsContext.Consumer>
-            {value => (
+            {(value) => (
               <AddLocal
                 dataList={dataList}
                 setDataList={setDataList}
@@ -90,7 +90,7 @@ export const AddDataSource = props => {
         )}
         {dataType === 'hdfs' && (
           <HdfsContext.Consumer>
-            {value => (
+            {(value) => (
               <AddHDFS
                 dataList={dataList}
                 setDataList={setDataList}

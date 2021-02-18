@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Dropdown } from 'office-ui-fabric-react';
 
 const PureSKUType = ({ availableHivedSkuTypes }) => {
-  const options = Object.keys(availableHivedSkuTypes).map(name => {
+  const options = Object.keys(availableHivedSkuTypes).map((name) => {
     const { gpu, cpu, memory } = availableHivedSkuTypes[name];
     return {
       key: name,

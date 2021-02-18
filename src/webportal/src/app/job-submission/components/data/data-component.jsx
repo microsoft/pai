@@ -30,14 +30,14 @@ import {
 
 const generateUpdatedRuntimePlugins = (storageConfigs, oriPlugins) => {
   const updatedPlugins = oriPlugins.filter(
-    plugin => plugin.plugin !== STORAGE_PLUGIN,
+    (plugin) => plugin.plugin !== STORAGE_PLUGIN,
   );
 
   if (!isEmpty(storageConfigs)) {
     const storagePlugin = {
       plugin: STORAGE_PLUGIN,
       parameters: {
-        storageConfigNames: storageConfigs.map(config => config.name),
+        storageConfigNames: storageConfigs.map((config) => config.name),
       },
     };
     updatedPlugins.push(storagePlugin);
@@ -54,7 +54,7 @@ const getStorageConfigNamesFromExtras = (extras, teamStorageConfigs) => {
   let defaultTeamStorageConfigName;
   if (!isEmpty(teamStorageConfigs)) {
     const defaultConfig = teamStorageConfigs.find(
-      config => config.default === true,
+      (config) => config.default === true,
     );
     if (!isEmpty(defaultConfig)) {
       defaultTeamStorageConfigName = defaultConfig.name;
@@ -77,7 +77,7 @@ const getValidStorageConfigs = (extras, teamStorageConfigs) => {
   );
 
   const validStorageConfigs = teamStorageConfigs.filter(
-    config => storageConfigNames.indexOf(config.name) > -1,
+    (config) => storageConfigNames.indexOf(config.name) > -1,
   );
   if (storageConfigNames.length !== validStorageConfigs.length) {
     alert('Some storage configs is invalid, please check');
@@ -85,7 +85,7 @@ const getValidStorageConfigs = (extras, teamStorageConfigs) => {
   return validStorageConfigs;
 };
 
-export const DataComponent = React.memo(props => {
+export const DataComponent = React.memo((props) => {
   const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
   let hdfsHost;
   let port;
@@ -144,7 +144,7 @@ export const DataComponent = React.memo(props => {
       teamStorageConfig.storageDetails,
     );
 
-    setJobData(jobData => {
+    setJobData((jobData) => {
       const updatedJobData = new JobData(
         jobData.hdfsClient,
         jobData.customDataList,
@@ -157,8 +157,8 @@ export const DataComponent = React.memo(props => {
   }, [extras, teamStorageConfig, onChange]);
 
   const onDataListChange = useCallback(
-    dataList => {
-      setJobData(jobData => {
+    (dataList) => {
+      setJobData((jobData) => {
         const updatedJobData = new JobData(
           jobData.hdfsClient,
           dataList,
@@ -174,7 +174,7 @@ export const DataComponent = React.memo(props => {
 
   const onMountDirChange = useCallback(
     // Will only update extra field, jobData will be updated by useEffect function
-    mountDir => {
+    (mountDir) => {
       const plugins = get(extras, [PAI_PLUGIN], []);
       const updatedRuntimePlugins = generateUpdatedRuntimePlugins(
         mountDir.selectedConfigs,

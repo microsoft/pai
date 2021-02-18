@@ -46,7 +46,7 @@ export default function BatchPasswordEditor({ isOpen = false, hide }) {
   const [lock, setLock] = useState(false);
   const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setLock(true);
 
@@ -66,7 +66,7 @@ export default function BatchPasswordEditor({ isOpen = false, hide }) {
           setNeedRefreshAllUsers(true);
           return { success: true };
         })
-        .catch(err => {
+        .catch((err) => {
           return { success: false, message: String(err) };
         });
       if (!result.success) {

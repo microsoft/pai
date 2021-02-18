@@ -8,6 +8,7 @@ import { SubmissionSection } from './components/submission-section';
 import styled from 'styled-components';
 import { Flex, Box, Row, Col } from './elements';
 import { fetchJobConfig } from './utils/conn';
+import { JobProtocol } from './models/job-protocol';
 
 const loginUser = cookies.get('user');
 
@@ -35,12 +36,46 @@ function generateJobName(jobName) {
   return name;
 }
 
-const UnwrapperedJobEditPage = props => {
+const UnwrapperedJobEditPage = (props) => {
   const { dispatch } = props;
+
+  useEffect(() => {
+    let suffix = Date.now().toString(16);
+    suffix = suffix.substring(suffix.length - 6);
+    let name = `${loginUser}_${suffix}`;
+    name = name + getChecksum(name);
+    dispatch({
+      type: 'SAVE_JOBPROTOCOL',
+      payload: new JobProtocol({
+        name,
+        defaults: { virtualCluster: 'default' },
+        extras: {
+          hivedScheduler: {
+            taskRoles: { taskrole: { skuNum: 1, skuType: 'GENERIC-WORKER' } },
+          },
+        },
+        prerequisites: [
+          {
+            type: 'dockerimage',
+            uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu',
+            name: 'docker_image_0',
+          },
+        ],
+        taskRoles: {
+          taskrole: {
+            completion: { minFailedInstances: 1 },
+            dockerImage: 'docker_image_0',
+            instances: 1,
+            taskRetryCount: 0,
+          },
+        },
+      }),
+    });
+  }, []);
 
   // fill protocol if cloned job or local storage
   useEffect(() => {
-    const fillJobProtocol = jobConfig => {
+    const fillJobProtocol = (jobConfig) => {
       dispatch({
         type: 'SAVE_JOBPROTOCOL',
         payload: { ...jobConfig, name: generateJobName(jobConfig.name) },
@@ -55,7 +90,7 @@ const UnwrapperedJobEditPage = props => {
       const user = params.get('user') || '';
       if (user && jobName) {
         fetchJobConfig(user, jobName)
-          .then(jobConfig => fillJobProtocol(jobConfig))
+          .then((jobConfig) => fillJobProtocol(jobConfig))
           .catch(alert);
       }
     } else if (!isNil(window.localStorage.getItem('marketItem'))) {
@@ -76,12 +111,16 @@ const UnwrapperedJobEditPage = props => {
   return (
     <>
       {/* left */}
-      <Flex flexDirection='column' flex={1}>
-        <JobInformation />
-        <TaskRole />
+      <Flex flexDirection='column' flex={1} minHeight={0} overFlow='hidden'>
+        <Box>
+          <JobInformation />
+        </Box>
+        <Box flex={1} minHeight={0} overFlow='auto'>
+          <TaskRole />
+        </Box>
       </Flex>
       {/* right */}
-        <Sidebar />
+      <Sidebar />
     </>
   );
 };

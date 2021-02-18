@@ -189,7 +189,7 @@ const JobTransferPage = () => {
     setLoading(false);
   };
 
-  const showError = e => {
+  const showError = (e) => {
     setShowInfoBox(true);
     setInfoBoxProps({
       title: 'Error',
@@ -263,7 +263,7 @@ const JobTransferPage = () => {
     }
   };
 
-  const onEditorYAMLChange = text => {
+  const onEditorYAMLChange = (text) => {
     setEditorYAML(text);
   };
 
@@ -322,7 +322,7 @@ const JobTransferPage = () => {
               <TextField
                 label='Job Name'
                 value={_.get(jobConfig.getObject(), 'name', '')}
-                onChange={e => {
+                onChange={(e) => {
                   setJobConfig((prevJobConfig, props) => {
                     const newJobConfig = _.cloneDeep(jobConfig.getObject());
                     _.set(newJobConfig, 'name', e.target.value);
@@ -340,7 +340,7 @@ const JobTransferPage = () => {
                   'defaults.virtualCluster',
                   '',
                 )}
-                onChange={e => {
+                onChange={(e) => {
                   setJobConfig((prevJobConfig, props) => {
                     const newJobConfig = _.cloneDeep(prevJobConfig.getObject());
                     _.set(

@@ -33,7 +33,7 @@ const JobEventPage = () => {
   const [jobEvents, setJobEvents] = useState([]);
 
   useEffect(() => {
-    fetchJobEvents(userName, jobName).then(res => {
+    fetchJobEvents(userName, jobName).then((res) => {
       setJobEvents(res.data);
       setLoading(false);
     });

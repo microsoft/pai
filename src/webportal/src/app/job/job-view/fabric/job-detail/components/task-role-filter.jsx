@@ -89,8 +89,8 @@ class TaskRoleFilter {
     }
     if (filters.length === 0) return taskRoles;
 
-    return taskRoles.filter(taskRole =>
-      filters.every(filter => filter(taskRole)),
+    return taskRoles.filter((taskRole) =>
+      filters.every((filter) => filter(taskRole)),
     );
   }
 }

@@ -12,7 +12,7 @@ const PureInstance = ({ dispatch, jobProtocol, currentTaskRole }) => {
     0,
   );
 
-  const onChange = value => {
+  const onChange = (value) => {
     dispatch({
       type: 'SAVE_JOBPROTOCOL',
       payload: {
@@ -28,8 +28,8 @@ const PureInstance = ({ dispatch, jobProtocol, currentTaskRole }) => {
     });
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
+  const onIncrement = (value) => onChange(+value + 1);
+  const onDecrement = (value) => onChange(+value - 1);
 
   return (
     <SpinButton

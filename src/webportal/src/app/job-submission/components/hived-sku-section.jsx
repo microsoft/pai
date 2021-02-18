@@ -11,7 +11,7 @@ import { FormShortSection } from './form-page';
 import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 import Context from './context';
 
-export const HivedSkuSection = React.memo(props => {
+export const HivedSkuSection = React.memo((props) => {
   const { value, onChange } = props;
   const { skuNum, skuType } = value;
   const { hivedSkuTypes } = useContext(Context);
@@ -34,7 +34,9 @@ export const HivedSkuSection = React.memo(props => {
 
   const _setSku = () => {
     if (value.skuType != null) {
-      const selected = skuOptions.find(option => option.key === value.skuType);
+      const selected = skuOptions.find(
+        (option) => option.key === value.skuType,
+      );
       if (selected == null) {
         onChange({ ...value, skuType: null, sku: null });
       } else if (value.sku == null) {
@@ -50,7 +52,7 @@ export const HivedSkuSection = React.memo(props => {
   };
 
   const _onSkuNumChange = useCallback(
-    num => {
+    (num) => {
       onChange({
         ...value,
         skuNum: num,

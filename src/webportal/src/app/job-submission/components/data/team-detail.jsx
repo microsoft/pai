@@ -34,14 +34,14 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
     hide();
   };
 
-  const columes = config => {
+  const columes = (config) => {
     const result = [
       {
         key: 'containerPath',
         name: 'Path',
         headerClassName: FontClassNames.semibold,
         minWidth: 120,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={FontClassNames.small}>{`/mnt/${item.name}`}</div>
           );
@@ -52,7 +52,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         name: 'Server Type',
         headerClassName: FontClassNames.semibold,
         minWidth: 80,
-        onRender: item => {
+        onRender: (item) => {
           if (item === undefined) {
             return (
               <div className={FontClassNames.small}>{'Invalid Server'}</div>
@@ -69,7 +69,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         name: 'UFS Type',
         headerClassName: FontClassNames.semibold,
         minWidth: 80,
-        onRender: item => {
+        onRender: (item) => {
           if (item === undefined) {
             return <div className={FontClassNames.small}>{'Invalid Type'}</div>;
           } else if (item.data.ufsType === 'wasb') {
@@ -84,7 +84,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         name: 'UFS Server Path(Server Root Path as bold)',
         headerClassName: FontClassNames.semibold,
         minWidth: 350,
-        onRender: item => {
+        onRender: (item) => {
           if (item === undefined) {
             return (
               <div className={FontClassNames.small}>{'Invalid Server'}</div>
@@ -100,7 +100,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         name: 'Server Path(Server Root Path as bold)',
         headerClassName: FontClassNames.semibold,
         minWidth: 400,
-        onRender: item => {
+        onRender: (item) => {
           if (item === undefined) {
             return (
               <div className={FontClassNames.small}>{'Invalid Server'}</div>
@@ -116,7 +116,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
       name: 'Permission',
       headerClassName: FontClassNames.semibold,
       minWidth: 80,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={FontClassNames.small}>
             {get(item, 'permission', item.readOnly ? 'ro' : 'rw')}
@@ -390,37 +390,37 @@ export const NAS_TIPS = {
 };
 
 export const SERVER_PATH = {
-  nfs: storage => (
+  nfs: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.server}:${storage.data.path}`}</b>
       {storage.share === false ? '/$' + '{PAI_USER_NAME}' : '/'}
     </div>
   ),
-  samba: storage => (
+  samba: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.server}:${storage.data.path}`}</b>
       {storage.share === false ? '/$' + '{PAI_USER_NAME}' : '/'}
     </div>
   ),
-  azureFile: storage => (
+  azureFile: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.accountName}.file.core.windows.net/${storage.data.shareName}`}</b>
       {storage.data.path || '/'}
     </div>
   ),
-  azureBlob: storage => (
+  azureBlob: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`}</b>
       {storage.data.path || '/'}
     </div>
   ),
-  hdfs: storage => (
+  hdfs: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.namenode}:${storage.data.port}`}</b>
       {storage.data.path || '/'}
     </div>
   ),
-  dshuttle: storage => (
+  dshuttle: (storage) => (
     <div className={FontClassNames.semibold}>
       <b>
         {storage.data.ufsType === 'wasb'

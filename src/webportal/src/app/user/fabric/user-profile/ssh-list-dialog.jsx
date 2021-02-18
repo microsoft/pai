@@ -31,7 +31,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
       setInputTitleError('Please input title');
     } else if (
       sshKeys !== undefined &&
-      sshKeys.filter(item => item.title === title.trim()).length > 0
+      sshKeys.filter((item) => item.title === title.trim()).length > 0
     ) {
       setInputTitleError('This title already exists, please re-input');
     } else {
@@ -84,7 +84,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
               label='Title (Please give the SSH key a name):'
               required={true}
               errorMessage={inputTitleError}
-              onChange={e => {
+              onChange={(e) => {
                 setTitle(e.target.value);
                 setInputTitleError(null);
               }}
@@ -96,7 +96,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
               label='Value (SSH Public key, starts with ssh-rsa):'
               required={true}
               errorMessage={inputValueError}
-              onChange={e => {
+              onChange={(e) => {
                 setValue(e.target.value);
                 setInputValueError(null);
               }}

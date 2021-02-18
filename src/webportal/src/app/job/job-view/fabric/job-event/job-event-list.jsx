@@ -31,7 +31,7 @@ import {
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
-const JobEventList = props => {
+const JobEventList = (props) => {
   const { jobEvents } = props;
   const [hideDialog, setHideDialog] = useState(true);
   const [dialogMessage, setDialogMessage] = useState(null);

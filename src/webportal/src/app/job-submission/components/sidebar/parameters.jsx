@@ -51,10 +51,10 @@ export const Parameters = React.memo(
     }, [parameters]);
 
     const onListChange = useCallback(
-      newItems => {
+      (newItems) => {
         const itemsWithError = getItemsWithError(newItems);
         const idx = itemsWithError.findIndex(
-          item => item.keyError || item.valueError,
+          (item) => item.keyError || item.valueError,
         );
         if (idx === -1) {
           onChange(itemsWithError);
@@ -68,7 +68,7 @@ export const Parameters = React.memo(
     );
 
     const hasError = useMemo(() => {
-      return items.findIndex(item => item.keyError || item.valueError) !== -1;
+      return items.findIndex((item) => item.keyError || item.valueError) !== -1;
     }, [items]);
 
     return (

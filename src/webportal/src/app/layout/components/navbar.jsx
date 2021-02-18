@@ -25,7 +25,7 @@ import { NotificationButton } from './alerts';
 
 import t from '../../components/tachyons.scss';
 
-const CustomButton = props => (
+const CustomButton = (props) => (
   <CommandBarButton
     {...props}
     styles={concatStyleSets(
@@ -116,7 +116,7 @@ const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
               },
             )}
             iconProps={mobile && { iconName: 'Contact' }}
-            onClick={e => {
+            onClick={(e) => {
               setMenuVisible(!menuVisible);
               e.preventDefault();
             }}
@@ -129,7 +129,7 @@ const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
           hidden={!menuVisible}
           minPagePadding={0}
           directionalHint={DirectionalHint.bottomRightEdge}
-          onDismiss={e => {
+          onDismiss={(e) => {
             setMenuVisible(false);
             e.preventDefault();
           }}

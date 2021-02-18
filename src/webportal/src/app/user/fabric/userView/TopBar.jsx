@@ -37,8 +37,8 @@ function FilterButton({ defaultRender: Button, ...props }) {
     subMenuProps: { items },
   } = props;
   const checkedItems = items
-    .filter(item => item.checked)
-    .map(item => item.text);
+    .filter((item) => item.checked)
+    .map((item) => item.text);
   const checkedText =
     checkedItems.length === 0 ? null : checkedItems.length === 1 ? (
       <strong>{checkedItems[0]}</strong>
@@ -420,7 +420,7 @@ function TopBar() {
   const selectedUsers = getSelectedUsers();
   const selected = selectedUsers.length > 0;
   const selectedMulti = selectedUsers.length > 1;
-  const selectedAdmin = findIndex(selectedUsers, user => user.admin) !== -1;
+  const selectedAdmin = findIndex(selectedUsers, (user) => user.admin) !== -1;
   if (selected) {
     if (selectedMulti) {
       topBarItems.push(btnBatchEditPassword);

@@ -37,7 +37,7 @@ export const TeamMountList = ({ dataList }) => {
       headerClassName: FontClassNames.medium,
       isMultiline: true,
       minWidth: 200,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>{`${item.dataSource}`}</div>
         );
@@ -49,7 +49,7 @@ export const TeamMountList = ({ dataList }) => {
       headerClassName: FontClassNames.medium,
       isMultiline: true,
       minWidth: 100,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>{`${item.sourceType}`}</div>
         );

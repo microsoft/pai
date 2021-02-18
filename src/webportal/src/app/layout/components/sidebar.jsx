@@ -46,7 +46,7 @@ const KEY_DICT = {
   '/user-view.html': KEY_USER_MANAGEMENT,
 };
 
-const NavStyles = props => {
+const NavStyles = (props) => {
   const { navHeight = 48, leftPadding, isSelected } = props;
   const { palette } = getTheme();
   return {
@@ -134,7 +134,7 @@ const Sidebar = ({ className, style }) => {
             e.preventDefault();
           }
         }}
-        onRenderLink={link => {
+        onRenderLink={(link) => {
           let chevronIcon;
           if (link.key === KEY_ADMIN) {
             chevronIcon = (

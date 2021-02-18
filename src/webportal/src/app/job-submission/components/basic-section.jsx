@@ -38,7 +38,7 @@ import { TooltipIcon } from './controls/tooltip-icon';
 
 const formPageStyle = getFormPageSytle();
 
-export const BasicSection = props => {
+export const BasicSection = (props) => {
   const { sectionLabel, sectionOptional, sectionTooltip, children } = props;
   const basicSectionStyle = getFormBasicSectionStyle(sectionOptional);
 

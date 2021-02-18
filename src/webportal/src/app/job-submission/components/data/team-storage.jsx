@@ -44,14 +44,14 @@ export const TeamStorage = ({
     if (isNil(mountDirs) || isNil(mountDirs.selectedConfigs)) {
       return [];
     }
-    return mountDirs.selectedConfigs.map(element => {
+    return mountDirs.selectedConfigs.map((element) => {
       return element.name;
     });
   }, [mountDirs]);
 
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
 
-  const openTeamDetail = useCallback(config => {
+  const openTeamDetail = useCallback((config) => {
     setTeamDetail({ isOpen: true, config: config, servers: mountDirs.servers });
   });
 
@@ -60,10 +60,10 @@ export const TeamStorage = ({
   });
 
   const updateMountDir = useCallback(
-    selectedConfigNames => {
+    (selectedConfigNames) => {
       let selectedConfigs = [];
       if (selectedConfigNames.length > 0) {
-        selectedConfigs = teamStorageConfigs.filter(element => {
+        selectedConfigs = teamStorageConfigs.filter((element) => {
           return selectedConfigNames.includes(element.name);
         });
       }
@@ -115,7 +115,7 @@ export const TeamStorage = ({
       name: 'Path',
       headerClassName: FontClassNames.medium,
       minWidth: 120,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>
             <div key={item.name}>{`/mnt/${item.name}`}</div>
@@ -128,7 +128,7 @@ export const TeamStorage = ({
       name: 'Permission',
       headerClassName: FontClassNames.medium,
       minWidth: 50,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={FontClassNames.medium}>
             <div key={item.name + 'per'}>{item.readOnly ? 'RO' : 'RW'}</div>
@@ -141,7 +141,7 @@ export const TeamStorage = ({
       name: 'Detail',
       headerClassName: FontClassNames.medium,
       minWidth: 70,
-      onRender: item => {
+      onRender: (item) => {
         /**
          * @param {React.MouseEvent} event
          */

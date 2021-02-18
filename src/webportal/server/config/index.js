@@ -37,11 +37,7 @@ const configSchema = Joi.object()
     logLevel: Joi.string()
       .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
       .default('debug'),
-    serverPort: Joi.number()
-      .integer()
-      .min(8000)
-      .max(65535)
-      .default(9286),
+    serverPort: Joi.number().integer().min(8000).max(65535).default(9286),
   })
   .required();
 

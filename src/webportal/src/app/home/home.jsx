@@ -60,9 +60,7 @@ const Home = () => {
   useEffect(() => {
     if (!isEmpty(cookies.get('user'))) {
       if (isAdmin) {
-        getLowGpuJobInfos()
-          .then(setLowGpuJobInfo)
-          .catch(alert);
+        getLowGpuJobInfos().then(setLowGpuJobInfo).catch(alert);
       }
       Promise.all([
         getJobStatusNumber(isAdmin).then(setJobStatusNumber),
@@ -75,7 +73,7 @@ const Home = () => {
         .then(() => {
           setLoading(false);
         })
-        .catch(err => {
+        .catch((err) => {
           if (err instanceof UnauthorizedError) {
             alert(err);
             clearToken();

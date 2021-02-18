@@ -41,7 +41,7 @@ export const ImportConfig = React.memo(
   ({ extras, onChange, isSingle, history, setYamlText }) => {
     const { vcNames } = useContext(Context);
 
-    const _updatedComponent = protocolYaml => {
+    const _updatedComponent = (protocolYaml) => {
       const updatedJob = JobProtocol.fromYaml(protocolYaml);
       if (isNil(updatedJob)) {
         return;
@@ -68,7 +68,7 @@ export const ImportConfig = React.memo(
       );
     };
 
-    const _importFile = event => {
+    const _importFile = (event) => {
       event.preventDefault();
       const files = event.target.files;
       if (!files || !files[0]) {

@@ -28,7 +28,7 @@ export class NotFoundError extends Error {
   }
 }
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {
@@ -117,7 +117,7 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
     rawJobConfig,
     ['extras', 'com.microsoft.pai.runtimeplugin'],
     [],
-  ).find(plugin => plugin.plugin === 'tensorboard');
+  ).find((plugin) => plugin.plugin === 'tensorboard');
   if (isNil(tensorBoardPlugin)) {
     return null;
   }
@@ -169,11 +169,11 @@ export async function getContainerLogList(logListUrl) {
       },
     }),
   ]);
-  const resp = res.find(r => !r.ok);
+  const resp = res.find((r) => !r.ok);
   if (resp) {
     throw new Error('Log folder can not be retrieved');
   }
-  const logUrls = await Promise.all(res.map(r => r.json()));
+  const logUrls = await Promise.all(res.map((r) => r.json()));
   return {
     fullLogUrls: logUrls[0],
     tailLogUrls: logUrls[1],

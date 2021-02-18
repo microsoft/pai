@@ -33,17 +33,17 @@ const webportalConfig = require('../../config/webportal.config.js');
 //
 let table = null;
 
-const getHostname = host => host.split(':', 1)[0];
+const getHostname = (host) => host.split(':', 1)[0];
 
 //
 
-const getCellId = instanceName => {
+const getCellId = (instanceName) => {
   return '#' + instanceName.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
 };
 
 //
 
-const getCellHtml = percentage => {
+const getCellHtml = (percentage) => {
   let innerColorString = '';
   let outerColorString = '';
   let loadLevelString = '';
@@ -110,7 +110,7 @@ const loadCpuUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(data) {
+    success: function (data) {
       initCells('cpu', instanceList, table);
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -121,7 +121,7 @@ const loadCpuUtilData = (
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error: function () {
       initCells('cpu', instanceList, table);
       alert('Error when loading CPU utilization data.');
     },
@@ -147,7 +147,7 @@ const loadMemUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(dataOfMemUsed) {
+    success: function (dataOfMemUsed) {
       const dictOfMemUsed = {};
       const result = dataOfMemUsed.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -165,7 +165,7 @@ const loadMemUtilData = (
           '&end=' +
           currentEpochTimeInSeconds +
           '&step=1',
-        success: function(dataOfMemTotal) {
+        success: function (dataOfMemTotal) {
           initCells('mem', instanceList, table);
           const result = dataOfMemTotal.data.result;
           for (let i = 0; i < result.length; i++) {
@@ -179,13 +179,13 @@ const loadMemUtilData = (
             table.cell(cellId).data(cellHtml);
           }
         },
-        error: function() {
+        error: function () {
           initCells('mem', instanceList, table);
           alert('Error when loading memory utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error: function () {
       initCells('mem', instanceList, table);
       alert('Error when loading memory utilization data (step 1).');
     },
@@ -211,7 +211,7 @@ const loadGpuUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(data) {
+    success: function (data) {
       initCells('gpu', instanceList, table);
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -222,7 +222,7 @@ const loadGpuUtilData = (
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error: function () {
       initCells('gpu', instanceList, table);
       alert('Error when loading GPU utilization data.');
     },
@@ -248,7 +248,7 @@ const loadGpuMemUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(data) {
+    success: function (data) {
       initCells('gpumem', instanceList, table);
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -259,7 +259,7 @@ const loadGpuMemUtilData = (
         table.cell(cellId).data(cellHtml);
       }
     },
-    error: function() {
+    error: function () {
       initCells('gpumem', instanceList, table);
       alert('Error when loading GPU memory utilization data.');
     },
@@ -288,7 +288,7 @@ const loadDiskUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(dataOfDiskBytesRead) {
+    success: function (dataOfDiskBytesRead) {
       const dictOfDiskBytesRead = {};
       const result = dataOfDiskBytesRead.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -308,7 +308,7 @@ const loadDiskUtilData = (
           '&end=' +
           currentEpochTimeInSeconds +
           '&step=1',
-        success: function(dataOfDiskBytesWritten) {
+        success: function (dataOfDiskBytesWritten) {
           initCells('disk', instanceList, table);
           const result = dataOfDiskBytesWritten.data.result;
           for (let i = 0; i < result.length; i++) {
@@ -328,13 +328,13 @@ const loadDiskUtilData = (
             }
           }
         },
-        error: function() {
+        error: function () {
           initCells('disk', instanceList, table);
           alert('Error when loading disk utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error: function () {
       initCells('disk', instanceList, table);
       alert('Error when loading disk utilization data (step 1).');
     },
@@ -363,7 +363,7 @@ const loadEthUtilData = (
       '&end=' +
       currentEpochTimeInSeconds +
       '&step=1',
-    success: function(dataOfEthBytesRecieved) {
+    success: function (dataOfEthBytesRecieved) {
       const dictOfEthBytesRecieved = {};
       const result = dataOfEthBytesRecieved.data.result;
       for (let i = 0; i < result.length; i++) {
@@ -383,7 +383,7 @@ const loadEthUtilData = (
           '&end=' +
           currentEpochTimeInSeconds +
           '&step=1',
-        success: function(dataOfEthBytesSent) {
+        success: function (dataOfEthBytesSent) {
           initCells('eth', instanceList, table);
           const result = dataOfEthBytesSent.data.result;
           for (let i = 0; i < result.length; i++) {
@@ -404,13 +404,13 @@ const loadEthUtilData = (
             }
           }
         },
-        error: function() {
+        error: function () {
           initCells('eth', instanceList, table);
           alert('Error when loading ethernet utilization data (step 2).');
         },
       });
     },
-    error: function() {
+    error: function () {
       initCells('eth', instanceList, table);
       alert('Error when loading ethernet utilization data (step 1).');
     },
@@ -428,7 +428,7 @@ const loadData = () => {
       '/api/v1/query?' +
       'query=node_uname_info&time=' +
       currentEpochTimeInSeconds,
-    success: function(data) {
+    success: function (data) {
       const hardwareHtml = hardwareComponent({
         breadcrumb: breadcrumbComponent,
         grafanaUri: webportalConfig.grafanaUri,
@@ -438,7 +438,10 @@ const loadData = () => {
       table = $('#hardware-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [
             { type: 'natural', targets: [0] },
             { type: 'ip-address', targets: [1] },
@@ -487,7 +490,7 @@ const loadData = () => {
         table,
       );
     },
-    error: function() {
+    error: function () {
       alert('Error when loading data.');
     },
   });
@@ -501,7 +504,7 @@ const resizeContentWrapper = () => {
 
 $(document).ready(() => {
   loadData();
-  window.onresize = function(envent) {
+  window.onresize = function (envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();

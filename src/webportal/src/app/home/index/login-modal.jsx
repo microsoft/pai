@@ -32,7 +32,7 @@ import t from 'tachyons-sass/tachyons.scss';
 const LoginModal = ({ isOpen, lock, error, onDismiss, onLogin }) => {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
-  const onSubmit = useCallback(e => {
+  const onSubmit = useCallback((e) => {
     e.preventDefault();
     onLogin(usernameRef.current.value, passwordRef.current.value);
   }, []);

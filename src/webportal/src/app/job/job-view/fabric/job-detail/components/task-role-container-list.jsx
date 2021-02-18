@@ -137,14 +137,14 @@ const LogDialogContent = ({ urls, logListUrl }) => {
             getContainerLogList(logListUrl)
               .then(({ fullLogUrls, _ }) => {
                 const logUrl = fullLogUrls.locations.find(
-                  url => url.name === key,
+                  (url) => url.name === key,
                 );
                 if (!logUrl || !logUrl.uri) {
                   throw new Error('Failed to get log url');
                 }
                 location.href = logUrl.uri;
               })
-              .catch(err => {
+              .catch((err) => {
                 alert('Error occur, please try again. err: ' + err);
               });
           }}
@@ -203,7 +203,7 @@ export default class TaskRoleContainerList extends React.Component {
     getContainerLog(tailLogUrls, fullLogUrls, logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
-          prevState =>
+          (prevState) =>
             prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: text },
               monacoFooterButton: (
@@ -219,9 +219,9 @@ export default class TaskRoleContainerList extends React.Component {
             },
         ),
       )
-      .catch(err => {
+      .catch((err) => {
         this.setState(
-          prevState =>
+          (prevState) =>
             prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
@@ -300,7 +300,7 @@ export default class TaskRoleContainerList extends React.Component {
           },
         );
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({ monacoProps: { value: err.message } });
       });
   }
@@ -308,7 +308,7 @@ export default class TaskRoleContainerList extends React.Component {
   showSshInfo(id, containerPorts, containerIp) {
     const { sshInfo, jobConfig } = this.context;
     const containerSshInfo =
-      sshInfo && sshInfo.containers.find(x => x.id === id);
+      sshInfo && sshInfo.containers.find((x) => x.id === id);
     if (config.launcherType !== 'k8s') {
       if (!containerSshInfo) {
         const res = [];
@@ -443,11 +443,13 @@ export default class TaskRoleContainerList extends React.Component {
     return items
       .slice(0)
       .sort((a, b) =>
-        (ordering.descending
-        ? this.getTaskPropertyFromColumnKey(a, key) <
-          this.getTaskPropertyFromColumnKey(b, key)
-        : this.getTaskPropertyFromColumnKey(a, key) >
-          this.getTaskPropertyFromColumnKey(b, key))
+        (
+          ordering.descending
+            ? this.getTaskPropertyFromColumnKey(a, key) <
+              this.getTaskPropertyFromColumnKey(b, key)
+            : this.getTaskPropertyFromColumnKey(a, key) >
+              this.getTaskPropertyFromColumnKey(b, key)
+        )
           ? 1
           : -1,
       );
@@ -516,7 +518,7 @@ export default class TaskRoleContainerList extends React.Component {
             taskStatuses={items}
             taskRoleName={taskRoleName}
             filter={filter}
-            setFilter={newFilter => this.setState({ filter: newFilter })}
+            setFilter={(newFilter) => this.setState({ filter: newFilter })}
           />
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
@@ -575,7 +577,7 @@ export default class TaskRoleContainerList extends React.Component {
       minWidth: 100,
       maxWidth: 150,
       isResizable: true,
-      onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
+      onRender: (item) => <StatusBadge status={capitalize(item.taskState)} />,
     });
     const exitTypeColumn = this.applySortProps({
       key: 'exitType',
@@ -584,7 +586,7 @@ export default class TaskRoleContainerList extends React.Component {
       minWidth: 150,
       maxWidth: 200,
       isResizable: true,
-      onRender: item => {
+      onRender: (item) => {
         return (
           <div className={c(FontClassNames.mediumPlus)}>
             {!isNil(item.containerExitSpec) &&
@@ -634,7 +636,7 @@ export default class TaskRoleContainerList extends React.Component {
         maxWidth: 140,
         isResizable: true,
         fieldName: 'containerIp',
-        onRender: item => {
+        onRender: (item) => {
           const ip = item.containerIp;
           return (
             !isNil(ip) && (
@@ -663,7 +665,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 150,
         maxWidth: 300,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           const ports = item.containerPorts;
           return (
             !isNil(ports) && (
@@ -700,7 +702,7 @@ export default class TaskRoleContainerList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 300,
         maxWidth: 500,
-        onRender: item => (
+        onRender: (item) => (
           <div
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
@@ -801,7 +803,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 260,
         headerClassName: FontClassNames.medium,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return isNil(item.containerExitSpec) ? (
             <div className={c(FontClassNames.mediumPlus)}>
               {item.containerExitCode}
@@ -822,7 +824,7 @@ export default class TaskRoleContainerList extends React.Component {
         minWidth: 180,
         maxWidth: 200,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {isNil(item.launchedTime)
@@ -856,7 +858,7 @@ export default class TaskRoleContainerList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 100,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {item.containerNodeName}
@@ -870,7 +872,7 @@ export default class TaskRoleContainerList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 200,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           return (
             <CommandBarButton
               className={FontClassNames.mediumPlus}
@@ -933,7 +935,7 @@ export default class TaskRoleContainerList extends React.Component {
         headerClassName: FontClassNames.medium,
         minWidth: 300,
         isResizable: true,
-        onRender: item => {
+        onRender: (item) => {
           const id = item.containerId;
           return (
             !isNil(id) && (

@@ -32,7 +32,7 @@ import { DebouncedTextField } from './controls/debounced-text-field';
 
 const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
-export const FormTextField = React.memo(props => {
+export const FormTextField = React.memo((props) => {
   const {
     sectionLabel,
     onChange,
@@ -41,7 +41,7 @@ export const FormTextField = React.memo(props => {
     shortStyle,
     value,
   } = props;
-  const _onGetErrorMessage = value => {
+  const _onGetErrorMessage = (value) => {
     const match = TEXT_FILED_REGX.exec(value);
     if (isEmpty(match)) {
       return 'Input is invalid';

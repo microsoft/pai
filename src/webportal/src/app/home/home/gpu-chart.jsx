@@ -87,12 +87,15 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
     }
     // data - stack
     stack[0] = ['shared', ...shared.slice(1)];
-    stack[1] = Object.values(dedicated).reduce((prev, val) => {
-      for (let i = 0; i <= maxGpu; i += 1) {
-        prev[i] += val[i];
-      }
-      return prev;
-    }, Array.from({ length: maxGpu + 1 }, () => 0));
+    stack[1] = Object.values(dedicated).reduce(
+      (prev, val) => {
+        for (let i = 0; i <= maxGpu; i += 1) {
+          prev[i] += val[i];
+        }
+        return prev;
+      },
+      Array.from({ length: maxGpu + 1 }, () => 0),
+    );
     stack[1][0] = 'dedicated';
     const maxValue = Math.max(...stack[0].slice(1), ...stack[1].slice(1)) - 1;
     const ylines = [
@@ -111,8 +114,8 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
         groups: [['shared', 'dedicated']],
         labels: {
           format: {
-            shared: x => x,
-            dedicated: x => (x === 0 ? '' : x),
+            shared: (x) => x,
+            dedicated: (x) => (x === 0 ? '' : x),
           },
         },
         empty: { label: { text: 'No available GPU nodes now' } },
@@ -132,7 +135,7 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
           },
           tick: {
             outer: false,
-            format: x => `${x + 1}`,
+            format: (x) => `${x + 1}`,
             multiline: true,
             multilineMax: 3,
           },

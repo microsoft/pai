@@ -165,7 +165,7 @@ const config = (env, argv) => ({
             options: {
               sourceMap: true,
               ident: 'postcss',
-              plugins: loader => [
+              plugins: (loader) => [
                 require('postcss-import')({ root: loader.resourcePath }),
                 require('autoprefixer')(),
                 require('cssnano')(),
@@ -205,7 +205,7 @@ const config = (env, argv) => ({
             options: {
               sourceMap: true,
               ident: 'postcss2',
-              plugins: loader => [
+              plugins: (loader) => [
                 require('postcss-import')({ root: loader.resourcePath }),
                 require('autoprefixer')(),
                 require('cssnano')(),

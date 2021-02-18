@@ -128,7 +128,7 @@ export default function SSHGenerator({
             defaultValue={isNil(sshKeys) ? '' : sshKeys.private}
           />
           <DefaultButton
-            onClick={ev => {
+            onClick={(ev) => {
               setDownloadedPriKey(true);
               downloadAsFile(sshKeys.private, 'id_rsa_pai', ev);
             }}
@@ -146,7 +146,9 @@ export default function SSHGenerator({
             defaultValue={isNil(sshKeys) ? '' : sshKeys.public}
           />
           <DefaultButton
-            onClick={ev => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
+            onClick={(ev) =>
+              downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)
+            }
           >
             Download Public Key
           </DefaultButton>

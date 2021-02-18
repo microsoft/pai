@@ -37,7 +37,7 @@ export const AddLocal = ({
     if (!hdfsClient) {
       setHDFSErrorMessage('Cannot upload to pai right now');
     } else {
-      hdfsClient.checkAccess().then(isAccessiable => {
+      hdfsClient.checkAccess().then((isAccessiable) => {
         if (!isAccessiable) {
           setHDFSErrorMessage('Cannot upload to pai right now');
         }
@@ -63,7 +63,7 @@ export const AddLocal = ({
   };
   const submitMount = () => {
     const newMountList = cloneDeep(dataList);
-    const dataSource = files.map(file => file.name).join(', ');
+    const dataSource = files.map((file) => file.name).join(', ');
     const uploadFiles = files;
     newMountList.push(
       new InputData(mountPath, dataSource, 'local', uploadFiles),
@@ -144,7 +144,7 @@ export const AddLocal = ({
       <input
         type='file'
         ref={uploadFile}
-        onChange={event => {
+        onChange={(event) => {
           const fileList = [];
           if (event.target.files !== null) {
             for (let i = 0; i < event.target.files.length; i += 1) {
@@ -159,7 +159,7 @@ export const AddLocal = ({
       <input
         type='file'
         ref={uploadFolder}
-        onChange={event => {
+        onChange={(event) => {
           const fileList = [];
           if (event.target.files !== null) {
             for (let i = 0; i < event.target.files.length; i += 1) {

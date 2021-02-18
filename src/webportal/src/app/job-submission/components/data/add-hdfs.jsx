@@ -37,7 +37,7 @@ export const AddHDFS = ({
       setIsHdfsEnabled(false);
       setHdfsPathErrorMessage('Pai HDFS is not available');
     } else {
-      hdfsClient.checkAccess().then(isAccessiable => {
+      hdfsClient.checkAccess().then((isAccessiable) => {
         setIsHdfsEnabled(isAccessiable);
         if (!isAccessiable) {
           setHdfsPathErrorMessage('Pai HDFS is not available');

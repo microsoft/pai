@@ -23,6 +23,6 @@ const k8sDashboardHtml = k8sComponent({
   k8sDashboardUri: webportalConfig.k8sDashboardUri,
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
   $('#content-wrapper').html(k8sDashboardHtml);
 });

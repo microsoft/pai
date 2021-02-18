@@ -88,7 +88,7 @@ export class JobTaskRole {
     const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
     const dockerInfo =
       prerequisites.find(
-        prerequisite =>
+        (prerequisite) =>
           prerequisite.name === dockerImage &&
           prerequisite.type === 'dockerimage',
       ) || {};
@@ -169,12 +169,13 @@ export class JobTaskRole {
       config.launcherScheduler === 'hivedscheduler' &&
       this.hivedSku.sku != null
     ) {
-      [['gpu', 'gpu'], ['cpu', 'cpu'], ['memoryMB', 'memory']].forEach(
-        ([k1, k2]) => {
-          resourcePerInstance[k1] =
-            this.hivedSku.skuNum * this.hivedSku.sku[k2];
-        },
-      );
+      [
+        ['gpu', 'gpu'],
+        ['cpu', 'cpu'],
+        ['memoryMB', 'memory'],
+      ].forEach(([k1, k2]) => {
+        resourcePerInstance[k1] = this.hivedSku.skuNum * this.hivedSku.sku[k2];
+      });
     }
 
     taskRole[this.name] = removeEmptyProperties({
@@ -196,7 +197,7 @@ export class JobTaskRole {
         : this.commands
             .trim()
             .split('\n')
-            .map(line => line.trim()),
+            .map((line) => line.trim()),
     });
     if (config.launcherScheduler === 'hivedscheduler') {
       hivedTaskRole[this.name] = {

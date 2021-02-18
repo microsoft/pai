@@ -49,7 +49,7 @@ export default function Paginator() {
     buttonStyles,
     menuIconProps: { iconName: 'ChevronUp' },
     subMenuProps: {
-      items: [20, 50, 100].map(number => ({
+      items: [20, 50, 100].map((number) => ({
         key: String(number),
         text: String(number),
         onClick: onClickItemsPerPage,

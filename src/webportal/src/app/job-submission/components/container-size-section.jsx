@@ -34,7 +34,7 @@ import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
 const { spacing } = getTheme();
 
-export const ContainerSizeSection = props => {
+export const ContainerSizeSection = (props) => {
   const { value, onChange, isContainerSizeEnabled, onEnable } = props;
   const { cpu, memoryMB, gpu } = value;
 
@@ -51,7 +51,7 @@ export const ContainerSizeSection = props => {
     onEnable(checked);
   };
 
-  const _onGPUSkuChange = gpuNumber => {
+  const _onGPUSkuChange = (gpuNumber) => {
     if (onChange !== undefined) {
       onChange(getDefaultContainerSize(gpuNumber));
     }
@@ -70,7 +70,7 @@ export const ContainerSizeSection = props => {
             min={0}
             onChange={
               isContainerSizeEnabled
-                ? value => _onChange('gpu', value)
+                ? (value) => _onChange('gpu', value)
                 : _onGPUSkuChange
             }
           />
@@ -78,13 +78,13 @@ export const ContainerSizeSection = props => {
             label={'CPU vcore count'}
             disabled={!isContainerSizeEnabled}
             value={cpu}
-            onChange={value => _onChange('cpu', value)}
+            onChange={(value) => _onChange('cpu', value)}
           />
           <CSpinButton
             label={'Memory (MB)'}
             disabled={!isContainerSizeEnabled}
             value={memoryMB}
-            onChange={value => _onChange('memoryMB', value)}
+            onChange={(value) => _onChange('memoryMB', value)}
           />
         </FormShortSection>
         <Stack horizontalAlign='start'>

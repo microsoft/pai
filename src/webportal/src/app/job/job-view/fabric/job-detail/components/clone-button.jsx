@@ -51,7 +51,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
     }
     // plugin
     const plugins = window.PAI_PLUGINS;
-    const pluginIndex = plugins.findIndex(x => x.id === pluginId);
+    const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
     // plugin not found
     if (pluginIndex === -1) {
       if (isJobV2(rawJobConfig)) {

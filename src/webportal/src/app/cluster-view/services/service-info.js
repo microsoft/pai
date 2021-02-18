@@ -7,7 +7,7 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const { clearToken } = require('../../user/user-logout/user-logout.component');
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     const data = await func();
     return data.items;
@@ -21,7 +21,7 @@ const wrapper = async func => {
   }
 };
 
-export const getServiceView = async callback => {
+export const getServiceView = async (callback) => {
   const restServerUrl = new URL(
     webportalConfig.restServerUri,
     window.location.href,

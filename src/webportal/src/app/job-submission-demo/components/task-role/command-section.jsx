@@ -11,13 +11,13 @@ const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
     null,
   );
 
-  const onChange = value => {
+  const onChange = (value) => {
     const commands = isEmpty(value)
       ? []
       : value
           .trim()
           .split('\n')
-          .map(line => line.trim());
+          .map((line) => line.trim());
     dispatch({
       type: 'SAVE_JOBPROTOCOL',
       payload: {
@@ -39,7 +39,7 @@ const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
       value={isNil(commands) ? '' : commands.join('\n')}
       placeholder={COMMAND_PLACEHOLDER}
       onChange={onChange}
-      completionItems={[...PAI_ENV_VAR.map(x => x.key)]}
+      completionItems={[...PAI_ENV_VAR.map((x) => x.key)]}
       errorMessage={isEmpty(commands) ? 'Commands can not be empty' : null}
     />
   );

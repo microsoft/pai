@@ -35,7 +35,7 @@ import PropTypes from 'prop-types';
 import MonacoEditor from '../../components/monaco-editor';
 import { isEmpty, isNil, debounce } from 'lodash';
 
-export const MonacoTextField = props => {
+export const MonacoTextField = (props) => {
   const {
     value,
     onChange,
@@ -53,7 +53,7 @@ export const MonacoTextField = props => {
 
   const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange]);
   const onChangeWrapper = useCallback(
-    val => {
+    (val) => {
       if (val === placeholder) {
         return;
       }

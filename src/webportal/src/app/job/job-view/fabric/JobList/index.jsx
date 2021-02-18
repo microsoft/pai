@@ -44,7 +44,9 @@ export default function JobList() {
 
   const initialFilter = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (['vcName', 'status', 'user', 'keyword'].some(x => !isEmpty(query[x]))) {
+    if (
+      ['vcName', 'status', 'user', 'keyword'].some((x) => !isEmpty(query[x]))
+    ) {
       const queryFilter = new Filter();
       if (query.vcName) {
         queryFilter.virtualClusters = new Set([query.vcName]);
@@ -115,11 +117,11 @@ export default function JobList() {
         ...pagination.apply(),
         ...{ withTotalCount: true },
       })
-        .then(data => {
+        .then((data) => {
           setFilteredJobsInfo(data);
           setLoading(false);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err.data.message || err.message);
           setLoading(false);
           throw Error(err.data.message || err.message);
@@ -164,8 +166,8 @@ export default function JobList() {
   }, [applyOrdering, ordering]);
 
   const stopJob = (...jobs) => {
-    userAuth.checkToken(token => {
-      jobs.forEach(job => {
+    userAuth.checkToken((token) => {
+      jobs.forEach((job) => {
         const { name, username } = job;
         const client = new PAIV2.OpenPAIClient({
           rest_server_uri: new URL(
@@ -185,7 +187,7 @@ export default function JobList() {
             const newFilteredJobsInfo = cloneDeep(filteredJobsInfo);
             setFilteredJobsInfo(newFilteredJobsInfo);
           })
-          .catch(err => {
+          .catch((err) => {
             if (err.data && err.data.code === 'UnauthorizedUserError') {
               alert(err.data.message);
               clearToken();
@@ -201,7 +203,7 @@ export default function JobList() {
     });
   };
 
-  const getJobs = async query => {
+  const getJobs = async (query) => {
     const token = userAuth.checkToken();
     const client = new PAIV2.OpenPAIClient({
       rest_server_uri: new URL(
@@ -237,11 +239,11 @@ export default function JobList() {
         ...pagination.apply(),
         ...{ withTotalCount: true },
       })
-        .then(data => {
+        .then((data) => {
           setFilteredJobsInfo(data);
           setLoading(false);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err.data.message || err.message);
           setLoading(false);
           throw Error(err.data.message || err.message);

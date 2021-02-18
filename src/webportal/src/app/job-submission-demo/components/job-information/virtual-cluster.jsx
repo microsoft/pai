@@ -14,7 +14,7 @@ const PureVirtualCluster = ({
     key: `vc_${index}`,
     text: vcName,
   }));
-  const vcIndex = options.findIndex(val => val.text === virtualCluster);
+  const vcIndex = options.findIndex((val) => val.text === virtualCluster);
 
   const onChange = (_, item) => {
     dispatch({

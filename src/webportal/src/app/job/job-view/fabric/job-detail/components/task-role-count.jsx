@@ -66,8 +66,8 @@ const TaskRoleCount = ({ taskInfo }) => {
   return (
     <div className={c(t.flex, t.itemsCenter)}>
       {Object.keys(count)
-        .filter(x => count[x] > 0)
-        .map(x => (
+        .filter((x) => count[x] > 0)
+        .map((x) => (
           <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
             <TooltipHost
               calloutProps={{ isBeakVisible: false, gapSpace: 8 }} // spacing.s1

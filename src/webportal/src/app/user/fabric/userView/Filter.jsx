@@ -63,11 +63,11 @@ class Filter {
         ({ username, email, virtualCluster }) =>
           username.indexOf(keyword) > -1 ||
           email.indexOf(keyword) > -1 ||
-          virtualCluster.some(item => item.indexOf(keyword) > -1),
+          virtualCluster.some((item) => item.indexOf(keyword) > -1),
       );
     }
     if (admins.size > 0) {
-      filters.push(user => admins.has(user.admin));
+      filters.push((user) => admins.has(user.admin));
     }
     if (virtualClusters.size > 0) {
       filters.push(({ virtualCluster, admin }) => {
@@ -75,13 +75,13 @@ class Filter {
           return true;
         }
         return Array.from(virtualClusters).every(
-          item => virtualCluster.indexOf(item) > -1,
+          (item) => virtualCluster.indexOf(item) > -1,
         );
       });
     }
     if (filters.length === 0) return users;
 
-    return users.filter(user => filters.every(filter => filter(user)));
+    return users.filter((user) => filters.every((filter) => filter(user)));
   }
 }
 

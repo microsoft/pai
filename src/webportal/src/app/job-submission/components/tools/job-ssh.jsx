@@ -50,7 +50,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
       }
       const pluginBase = updatedExtras[PAI_PLUGIN];
       const oriSshIndex = pluginBase.findIndex(
-        plugin => plugin.plugin === 'ssh',
+        (plugin) => plugin.plugin === 'ssh',
       );
       if (oriSshIndex >= 0) {
         pluginBase[oriSshIndex] = updatedSSHPlugin.convertToProtocolFormat();
@@ -63,7 +63,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
   );
 
   const _onUsersshValueChange = useCallback(
-    e => {
+    (e) => {
       _onChangeExtras('userssh', {
         ...sshPlugin.userssh,
         value: e.target.value,
@@ -97,7 +97,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
     setSshGenerator({ isOpen: false });
   };
 
-  const _onSshKeysGenerated = sshKeys => {
+  const _onSshKeysGenerated = (sshKeys) => {
     _onChangeExtras('userssh', {
       ...sshPlugin.userssh,
       value: sshKeys.public,
@@ -131,7 +131,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
               onChange={_onUsersshValueChange}
               value={sshPlugin.getUserSshValue()}
             />
-            <DefaultButton onClick={ev => openSshGenerator(ev)}>
+            <DefaultButton onClick={(ev) => openSshGenerator(ev)}>
               Generator
             </DefaultButton>
             {sshGenerator.isOpen && (

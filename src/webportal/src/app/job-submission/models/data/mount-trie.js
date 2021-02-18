@@ -25,7 +25,7 @@ export class MountPathTrie {
     queryIndex += 1;
     while (pivot.subpaths && queryIndex < query.length) {
       const prefixValue = query[queryIndex];
-      const matchedNode = pivot.subpaths.filter(node => {
+      const matchedNode = pivot.subpaths.filter((node) => {
         return node.label === prefixValue;
       });
       if (matchedNode.length === 0) {

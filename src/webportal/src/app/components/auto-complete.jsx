@@ -65,7 +65,7 @@ export const AutoComplete = ({
   useEffect(() => {
     const suggestions = showAllSuggestions
       ? items
-      : items.sort().filter(x => x.startsWith(value) && x !== value);
+      : items.sort().filter((x) => x.startsWith(value) && x !== value);
     setSuggestions(suggestions);
     if (suggested >= suggestions.length) {
       setSuggested(Math.max(0, suggestions.length - 1));
@@ -81,14 +81,14 @@ export const AutoComplete = ({
 
   const onFocus = useCallback(() => setFocused(true), []);
 
-  const onBlur = useCallback(e => {
+  const onBlur = useCallback((e) => {
     const relatedTarget = e.relatedTarget || document.activeElement;
     if (relatedTarget && !elementContains(root.current, relatedTarget)) {
       setFocused(false);
     }
   }, []);
 
-  const onSelect = idx => {
+  const onSelect = (idx) => {
     if (isEmpty(suggestions)) {
       return;
     }
@@ -97,7 +97,7 @@ export const AutoComplete = ({
     setSuggested(0);
   };
 
-  const onKeyDown = e => {
+  const onKeyDown = (e) => {
     const keyCode = e.which;
     switch (keyCode) {
       case KeyCodes.tab:

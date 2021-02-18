@@ -29,7 +29,7 @@ import { TextField } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 
-export const DebouncedTextField = props => {
+export const DebouncedTextField = (props) => {
   const { onChange, value } = props;
   const [cachedValue, setCachedValue] = useState('');
   useEffect(() => setCachedValue(value), [value]);

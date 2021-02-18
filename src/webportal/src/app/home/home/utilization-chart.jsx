@@ -77,7 +77,7 @@ export const UtilizationChart = ({ percentage }) => {
       },
       onrendered: () => {
         const d3Donuts = d3.selectAll('.c3-chart-arcs').nodes();
-        d3Donuts.forEach(node => {
+        d3Donuts.forEach((node) => {
           // TODO: hardcode here, change it when has better solution
           node.setAttribute('transform', 'translate(' + 45 + ',' + 43 + ')');
         });

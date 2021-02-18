@@ -41,7 +41,7 @@ const TokenList = ({ tokens, onRevoke }) => {
 
   const tokenItems = useMemo(() => {
     return tokens
-      .map(x => ({
+      .map((x) => ({
         ...jwt.decode(x),
         value: x,
       }))

@@ -18,7 +18,7 @@ const client = new PAIV2.OpenPAIClient({
   https: window.location.protocol === 'https:',
 });
 
-const wrapper = async func => {
+const wrapper = async (func) => {
   try {
     return await func();
   } catch (err) {
@@ -59,17 +59,19 @@ export async function listHivedSkuTypes(virtualCluster) {
     return {};
   }
   return wrapper(async () =>
-    (await fetch(
-      urljoin(
-        config.restServerUri,
-        `/api/v2/cluster/sku-types?vc=${virtualCluster}`,
-      ),
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    (
+      await fetch(
+        urljoin(
+          config.restServerUri,
+          `/api/v2/cluster/sku-types?vc=${virtualCluster}`,
+        ),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    )).json(),
+      )
+    ).json(),
   );
 }
 
@@ -89,7 +91,7 @@ export async function fetchStorageDetails(configNames) {
   return wrapper(async () => {
     const storageSummary = await client.storage.getStorages();
     const defaultStorages = await client.storage.getStorages(true);
-    const defaultStorageNames = defaultStorages.storages.map(x => x.name);
+    const defaultStorageNames = defaultStorages.storages.map((x) => x.name);
     const details = [];
     for (const storage of storageSummary.storages) {
       if (configNames.includes(storage.name)) {

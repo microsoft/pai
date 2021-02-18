@@ -13,7 +13,7 @@ let taskRoleSeq = 1;
 
 function generateUniqueTaskName(taskRoles, curIndex) {
   const usedNames = taskRoles
-    .map(taskRole => taskRole.name)
+    .map((taskRole) => taskRole.name)
     .filter((_, index) => index < curIndex);
   const [newName, updateIndex] = createUniqueName(
     usedNames,
@@ -26,16 +26,16 @@ function generateUniqueTaskName(taskRoles, curIndex) {
 
 export const TaskRoles = React.memo(
   ({ taskRoles, onChange, advanceFlag, isSingle }) => {
-    const _onItemChange = items => {
+    const _onItemChange = (items) => {
       if (onChange === undefined) {
         return;
       }
-      onChange(items.map(item => item.content));
+      onChange(items.map((item) => item.content));
     };
 
-    const _onItemAdd = items => {
+    const _onItemAdd = (items) => {
       const taskRoleName = generateUniqueTaskName(
-        items.map(item => item.content),
+        items.map((item) => item.content),
         items.length,
       );
       const updatedItems = [
@@ -77,7 +77,9 @@ export const TaskRoles = React.memo(
         res[item.headerText] += 1;
         return res;
       }, {});
-      const dupNames = Object.keys(nameCount).filter(key => nameCount[key] > 1);
+      const dupNames = Object.keys(nameCount).filter(
+        (key) => nameCount[key] > 1,
+      );
       if (dupNames.length > 0) {
         setErrorMessage(
           'TaskRole',

@@ -46,7 +46,7 @@ export class MountDirectories {
     for (const spn in serverMountDict) {
       if (!isNil(serverMountDict[spn])) {
         const mountInfos = serverMountDict[spn];
-        const server = this.servers.find(item => item.spn === spn);
+        const server = this.servers.find((item) => item.spn === spn);
 
         if (server !== undefined) {
           const tmpFolder = `/tmp_${spn}_root/`;
@@ -347,8 +347,8 @@ export class MountDirectories {
 
   getTeamDataList() {
     const newTeamDataList = [];
-    const selectedNames = this.selectedConfigs.map(x => x.name);
-    this.storageDetails.forEach(storage => {
+    const selectedNames = this.selectedConfigs.map((x) => x.name);
+    this.storageDetails.forEach((storage) => {
       if (selectedNames.includes(storage.name)) {
         const serverRootPath = this.getServerPath(storage);
         const path = storage.share === false ? '$' + '{PAI_USER_NAME}' : '';

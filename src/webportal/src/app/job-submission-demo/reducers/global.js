@@ -4,7 +4,7 @@ const initialState = {
   currentTabKey: 'ui',
   expandedFlag: false,
   currentSideKey: SIDEBAR_PARAM,
-  currentSideList: SIDEBAR_CONFIG.map(item => ({
+  currentSideList: SIDEBAR_CONFIG.map((item) => ({
     ...item,
     checked: true,
   })),
@@ -31,7 +31,7 @@ export const global = (state = initialState, action) => {
       const currentSideList = action.payload || [];
       if (state.currentSideKey) {
         const currentSideItem = currentSideList.find(
-          item => item.key === state.currentSideKey,
+          (item) => item.key === state.currentSideKey,
         );
         const isCurrentChecked = currentSideItem.checked;
         return {

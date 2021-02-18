@@ -27,7 +27,7 @@ function GotoPage(props) {
             setPageIndex(newPageIndex);
           } catch {}
         }}
-        onKeyPress={event => {
+        onKeyPress={(event) => {
           if (event.key === 'Enter') {
             props.setPage(pageIndex - 1);
           }
@@ -84,7 +84,7 @@ export default function Paginator() {
     buttonStyles,
     menuIconProps: { iconName: 'ChevronUp' },
     subMenuProps: {
-      items: [20, 50, 100].map(number => ({
+      items: [20, 50, 100].map((number) => ({
         key: String(number),
         text: String(number),
         onClick: onClickItemsPerPage,

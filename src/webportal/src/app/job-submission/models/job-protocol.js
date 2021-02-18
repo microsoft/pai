@@ -84,13 +84,13 @@ export class JobProtocol {
   static safePruneProtocol(protocol) {
     const prunedProtocol = removeEmptyProperties(protocol);
     const taskRoles = cloneDeep(prunedProtocol.taskRoles);
-    Object.keys(taskRoles).forEach(taskRoleName => {
+    Object.keys(taskRoles).forEach((taskRoleName) => {
       const taskRoleContent = taskRoles[taskRoleName];
       if (isEmpty(taskRoleContent.commands)) {
         return;
       }
       taskRoleContent.commands = taskRoleContent.commands.filter(
-        line => !isEmpty(line),
+        (line) => !isEmpty(line),
       );
     });
     prunedProtocol.taskRoles = taskRoles;
@@ -125,10 +125,12 @@ export class JobProtocol {
       : [{ name: deployName, taskRoles: deployments }];
 
     const prerequisites = this.prerequisites
-      .filter(prerequisite => prerequisite.type !== 'dockerimage')
+      .filter((prerequisite) => prerequisite.type !== 'dockerimage')
       .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles))
-      .map(curPre => {
-        const oriPre = this.prerequisites.find(pre => pre.name === curPre.name);
+      .map((curPre) => {
+        const oriPre = this.prerequisites.find(
+          (pre) => pre.name === curPre.name,
+        );
         return { ...oriPre, ...curPre };
       });
 

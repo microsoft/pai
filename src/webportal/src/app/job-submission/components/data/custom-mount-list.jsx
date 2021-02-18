@@ -94,8 +94,8 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
 
   useEffect(() => {
     if (
-      containerPathErrorMessage.every(element => element === null) &&
-      dataSourceErrorMessage.every(element => element === null)
+      containerPathErrorMessage.every((element) => element === null) &&
+      dataSourceErrorMessage.every((element) => element === null)
     ) {
       setErrorMessage(DATA_ERROR_MESSAGE_ID, null);
       setDataError({
@@ -104,26 +104,26 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
       });
     } else {
       const newErrorMessage = containerPathErrorMessage.every(
-        element => element === null,
+        (element) => element === null,
       )
-        ? dataSourceErrorMessage.find(element => element !== null)
-        : containerPathErrorMessage.find(element => element !== null);
+        ? dataSourceErrorMessage.find((element) => element !== null)
+        : containerPathErrorMessage.find((element) => element !== null);
       setErrorMessage(
         DATA_ERROR_MESSAGE_ID,
         `DataSectionError: ${newErrorMessage}`,
       );
       setDataError({
         customContainerPathError: !containerPathErrorMessage.every(
-          element => element === null,
+          (element) => element === null,
         ),
         customDataSourceError: !dataSourceErrorMessage.every(
-          element => element === null,
+          (element) => element === null,
         ),
       });
     }
   }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
-  const onRemove = useCallback(idx => {
+  const onRemove = useCallback((idx) => {
     setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]);
   });
 

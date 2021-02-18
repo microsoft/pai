@@ -29,9 +29,9 @@ const generateUniqueTaskName = (taskRoles, curIndex) => {
   return newName;
 };
 
-const getDockerImageName = prerequisites => {
+const getDockerImageName = (prerequisites) => {
   const prerequisite = prerequisites.find(
-    prerequisite => prerequisite.type === 'dockerimage',
+    (prerequisite) => prerequisite.type === 'dockerimage',
   );
   return prerequisite.name;
 };
@@ -39,7 +39,7 @@ const getDockerImageName = prerequisites => {
 const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
   const { taskRoles, prerequisites } = jobProtocol;
 
-  const onLinkClick = item => {
+  const onLinkClick = (item) => {
     dispatch({
       type: 'SAVE_CURRENT_TASKROLE',
       payload: item.props.itemKey,
@@ -141,7 +141,7 @@ const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
           }}
           selectedKey={currentTaskRole}
         >
-          {Object.keys(taskRoles).map(key => (
+          {Object.keys(taskRoles).map((key) => (
             <PivotItem
               key={key}
               itemKey={key}

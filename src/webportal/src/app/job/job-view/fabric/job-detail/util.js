@@ -56,7 +56,7 @@ export function getTaskConfig(rawJobConfig, name) {
       return rawJobConfig.taskRoles[name];
     } else {
       // v1
-      return rawJobConfig.taskRoles.find(x => x.name === name);
+      return rawJobConfig.taskRoles.find((x) => x.name === name);
     }
   }
   return null;

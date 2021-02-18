@@ -54,15 +54,15 @@ export default function BatchRegister() {
   const [allUsers, setAllUsers] = useState([]);
 
   const refreshAllVcs = () => {
-    getAllVcsRequest().then(data => {
+    getAllVcsRequest().then((data) => {
       setVirtualClusters(Object.keys(data).sort());
     });
   };
   useEffect(refreshAllVcs, []);
 
   const refreshAllUsers = () => {
-    getAllUsersRequest().then(data => {
-      setAllUsers(data.map(user => user.username));
+    getAllUsersRequest().then((data) => {
+      setAllUsers(data.map((user) => user.username));
     });
   };
   useEffect(refreshAllUsers, []);
@@ -93,14 +93,14 @@ export default function BatchRegister() {
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      setTimeout(function() {
+      setTimeout(function () {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, 0);
     }
   };
 
-  const checkCSVFormat = csvResult => {
+  const checkCSVFormat = (csvResult) => {
     const fields = csvResult.meta.fields;
     if (fields.indexOf(columnUsername) === -1) {
       showMessageBox('Missing column of username in the CSV file!');
@@ -123,11 +123,11 @@ export default function BatchRegister() {
     return true;
   };
 
-  const checkVCField = csvResult => {
+  const checkVCField = (csvResult) => {
     for (let i = 0; i < csvResult.data.length; i++) {
       const user = csvResult.data[i];
       if (user[columnVC]) {
-        const parsedVCs = user[columnVC].split(',').map(vc => vc.trim());
+        const parsedVCs = user[columnVC].split(',').map((vc) => vc.trim());
         for (let j = 0; j < parsedVCs.length; j++) {
           const vc = parsedVCs[j];
           if (vc) {
@@ -145,7 +145,7 @@ export default function BatchRegister() {
     return true;
   };
 
-  const parseUserInfosFromCSV = csvContent => {
+  const parseUserInfosFromCSV = (csvContent) => {
     if (!csvContent) {
       showMessageBox('Empty CSV file');
       hideLoading();
@@ -171,18 +171,18 @@ export default function BatchRegister() {
   };
 
   const importFromCSV = () => {
-    const readFile = function(e) {
+    const readFile = function (e) {
       const file = e.target.files[0];
       if (!file) {
         return;
       }
       showLoading('Uploading...');
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         parseUserInfosFromCSV(e.target.result);
         document.body.removeChild(fileInput);
       };
-      reader.onerror = function(e) {
+      reader.onerror = function (e) {
         hideLoading();
         showMessageBox('File could not be read.');
       };
@@ -220,7 +220,7 @@ export default function BatchRegister() {
         .then(() => {
           return successResult;
         })
-        .catch(err => {
+        .catch((err) => {
           return {
             isSuccess: false,
             message: `User ${userInfo[columnUsername]} created failed: ${String(
@@ -253,7 +253,7 @@ export default function BatchRegister() {
     setUserInfos(userInfos.slice());
   };
 
-  const removeRow = userInfo => {
+  const removeRow = (userInfo) => {
     const newUserInfos = userInfos.slice();
     newUserInfos.splice(newUserInfos.indexOf(userInfo), 1);
     setUserInfos(newUserInfos);
@@ -270,7 +270,7 @@ export default function BatchRegister() {
     submit,
   };
 
-  const showLoading = text => {
+  const showLoading = (text) => {
     setLoading({ show: true, text: text });
   };
 
@@ -283,12 +283,12 @@ export default function BatchRegister() {
     confirm: false,
     onClose: null,
   });
-  const showMessageBox = value => {
+  const showMessageBox = (value) => {
     return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve });
     });
   };
-  const hideMessageBox = value => {
+  const hideMessageBox = (value) => {
     const { onClose } = messageBox;
     setMessageBox({ text: '' });
     if (onClose) {
@@ -307,7 +307,7 @@ export default function BatchRegister() {
   }, []);
 
   const hideSubmit =
-    findIndex(userInfos, userInfo => {
+    findIndex(userInfos, (userInfo) => {
       return isNil(userInfo.status) || userInfo.status.isSuccess === false;
     }) === -1;
 

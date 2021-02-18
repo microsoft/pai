@@ -58,7 +58,7 @@ const { palette } = getTheme();
 
 const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
 
-export const SubmissionSection = props => {
+export const SubmissionSection = (props) => {
   const {
     jobInformation,
     jobTaskRoles,
@@ -84,7 +84,7 @@ export const SubmissionSection = props => {
   const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
   const params = new URLSearchParams(window.location.search);
 
-  const _protocolAndErrorUpdate = protocol => {
+  const _protocolAndErrorUpdate = (protocol) => {
     if (!isEqual(jobProtocol, protocol)) {
       setJobProtocol(protocol);
     }
@@ -106,7 +106,7 @@ export const SubmissionSection = props => {
     _protocolAndErrorUpdate(protocol);
   }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol, extras]);
 
-  const _openEditor = async event => {
+  const _openEditor = async (event) => {
     event.preventDefault();
     setEditorOpen(true);
 
@@ -126,7 +126,7 @@ export const SubmissionSection = props => {
     }
   };
 
-  const _updatedComponent = protocolYaml => {
+  const _updatedComponent = (protocolYaml) => {
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
     if (isNil(updatedJob)) {
       return;
@@ -167,7 +167,7 @@ export const SubmissionSection = props => {
     monaco.current.editor.setTheme('vs');
   };
 
-  const _onYamlTextChange = text => {
+  const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
     const valid = JobProtocol.validateFromYaml(text);
     setValidationMsg(valid);
@@ -182,7 +182,7 @@ export const SubmissionSection = props => {
     }
   };
 
-  const _submitJob = async event => {
+  const _submitJob = async (event) => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {

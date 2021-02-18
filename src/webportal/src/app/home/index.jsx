@@ -77,7 +77,7 @@ const Index = () => {
       .then(() => {
         window.location.replace(loginTarget);
       })
-      .catch(e => {
+      .catch((e) => {
         setError(e.message);
       })
       .finally(() => {

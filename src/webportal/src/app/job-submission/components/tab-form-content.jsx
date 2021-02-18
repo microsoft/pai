@@ -53,7 +53,7 @@ export const TabFormContent = ({
     }
   };
 
-  const _onValuesChange = updateProperties => {
+  const _onValuesChange = (updateProperties) => {
     let updatedJobTaskRole = { ...jobTaskRole, ...updateProperties };
     updatedJobTaskRole = new JobTaskRole(updatedJobTaskRole);
     if (onContentChange !== undefined) {
@@ -68,13 +68,13 @@ export const TabFormContent = ({
           sectionLabel={'Task role name'}
           shortStyle
           value={jobTaskRole.name}
-          onChange={value => _onValueChange('name', value)}
+          onChange={(value) => _onValueChange('name', value)}
           placeholder='Enter task role name...'
         />
       )}
       <CommandSection
         value={jobTaskRole.commands}
-        onChange={value => _onValueChange('commands', value)}
+        onChange={(value) => _onValueChange('commands', value)}
       />
       {!isSingle && (
         <FormSpinButton
@@ -83,18 +83,18 @@ export const TabFormContent = ({
           textFiledProps={{ placeholder: 'Enter instance number...' }}
           value={jobTaskRole.instances}
           min={1}
-          onChange={value => _onValueChange('instances', value)}
+          onChange={(value) => _onValueChange('instances', value)}
         />
       )}
       {(config.launcherScheduler === 'hivedscheduler' && (
         <HivedSkuSection
           value={jobTaskRole.hivedSku}
-          onChange={hivedSku => _onValueChange('hivedSku', hivedSku)}
+          onChange={(hivedSku) => _onValueChange('hivedSku', hivedSku)}
         />
       )) || (
         <ContainerSizeSection
           value={jobTaskRole.containerSize}
-          onEnable={checked =>
+          onEnable={(checked) =>
             _onValuesChange({
               isContainerSizeEnabled: checked,
               containerSize: getDefaultContainerSize(
@@ -102,7 +102,7 @@ export const TabFormContent = ({
               ),
             })
           }
-          onChange={containerSize =>
+          onChange={(containerSize) =>
             _onValueChange('containerSize', containerSize)
           }
           isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
@@ -111,13 +111,13 @@ export const TabFormContent = ({
       <DockerSection
         sectionTooltip={PROTOCOL_TOOLTIPS.dockerImage}
         value={jobTaskRole.dockerInfo}
-        onValueChange={dockerInfo => _onValueChange('dockerInfo', dockerInfo)}
+        onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}
       />
       {advanceFlag && (
         <React.Fragment>
           <PortsList
             ports={jobTaskRole.ports}
-            onChange={ports => _onValueChange('ports', ports)}
+            onChange={(ports) => _onValueChange('ports', ports)}
           />
           <FormSpinButton
             sectionTooltip={PROTOCOL_TOOLTIPS.policy}
@@ -125,10 +125,10 @@ export const TabFormContent = ({
             shortStyle
             sectionOptional
             value={jobTaskRole.taskRetryCount || 0}
-            onChange={value => _onValueChange('taskRetryCount', value)}
+            onChange={(value) => _onValueChange('taskRetryCount', value)}
           />
           <CompletionPolicy
-            onChange={completion => _onValueChange('completion', completion)}
+            onChange={(completion) => _onValueChange('completion', completion)}
             value={jobTaskRole.completion}
           />
         </React.Fragment>

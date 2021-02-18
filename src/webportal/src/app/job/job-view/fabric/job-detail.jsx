@@ -247,7 +247,7 @@ class JobDetail extends React.Component {
 
   onChangeJobAttempt(event, item) {
     this.setState({ loadingAttempt: true, selectedAttemptIndex: item.key });
-    fetchJobInfo(item.key).then(data => {
+    fetchJobInfo(item.key).then((data) => {
       this.setState({
         jobInfo: data,
         loadingAttempt: false,
@@ -375,7 +375,7 @@ class JobDetail extends React.Component {
                   <Text variant='mediumPlus'>
                     This job has been transferred to{' '}
                     {transferredURLs
-                      .map(url => (
+                      .map((url) => (
                         <a
                           href={url}
                           key={url}
@@ -397,7 +397,7 @@ class JobDetail extends React.Component {
                   <Text variant='mediumPlus'>
                     You have transfer attempts to cluster{' '}
                     {transferFailedClusters
-                      .map(item => (
+                      .map((item) => (
                         <a
                           href={item.uri}
                           key={item.alias}
@@ -516,7 +516,7 @@ class JobDetail extends React.Component {
                       />
                     </Stack>
                     {!isEmpty(jobInfo.taskRoles) &&
-                      Object.keys(jobInfo.taskRoles).map(name => (
+                      Object.keys(jobInfo.taskRoles).map((name) => (
                         <Stack key={name} gap='m'>
                           <HorizontalLine />
                           <Stack horizontal gap='l1'>

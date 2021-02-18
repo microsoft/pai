@@ -38,7 +38,7 @@ export default function StopJobConfirm(props) {
   function onStopJob() {
     setHideDialog(true);
     if (selectedJobs || currentJob) {
-      const willStopedJobs = selectedJobs.filter(job => isStoppable(job));
+      const willStopedJobs = selectedJobs.filter((job) => isStoppable(job));
       willStopedJobs.length === 0
         ? stopJob(currentJob)
         : stopJob(...willStopedJobs);

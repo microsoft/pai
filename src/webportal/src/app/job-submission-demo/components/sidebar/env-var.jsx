@@ -1,14 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   DetailsList,
   CheckboxVisibility,
   DetailsListLayoutMode,
   SelectionMode,
 } from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
 import { Box, Code } from '../../elements';
+import { FormSection } from '../form-page';
 import { PAI_ENV_VAR } from '../../utils/constants';
-import { SidebarCard } from './sidebar-card';
 
 const columns = [
   {
@@ -16,28 +16,28 @@ const columns = [
     name: 'Key',
     fieldName: 'key',
     isMultiline: true,
-    minWidth: 200,
+    minWidth: 130,
   },
   {
     key: 'desc',
     name: 'Description',
-    isMultiline: true,
     fieldName: 'desc',
-    minWidth: 200,
+    isMultiline: true,
+    minWidth: 130,
   },
 ];
 
 export const EnvVar = () => {
   return (
-    <SidebarCard title='PAI environment variables'>
+    <FormSection title='PAI environment variables'>
       <Box>
         <Box fontSize='s2'>
           You could reference these PAI Environment Variables in command by
+          <Code fontSize='s2' color='dark-red' bg='black-05'>
+            {'$envKey'}
+          </Code>
+          .
         </Box>
-        <Code fontSize='s2' color='dark-red' bg='black-05'>
-          {'$envKey'}
-        </Code>
-        .
       </Box>
       <Box>
         <DetailsList
@@ -49,6 +49,6 @@ export const EnvVar = () => {
           compact
         />
       </Box>
-    </SidebarCard>
+    </FormSection>
   );
 };

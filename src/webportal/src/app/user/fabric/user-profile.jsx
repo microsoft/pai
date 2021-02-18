@@ -92,7 +92,7 @@ const UserProfile = () => {
         tokenPromise,
         storageDetailPromise,
         groupsPromise,
-      ]).catch(err => {
+      ]).catch((err) => {
         alert(err);
         throw err;
       });
@@ -140,14 +140,14 @@ const UserProfile = () => {
   const onCreateApplicationToken = useCallback(async () => {
     setProcessing(true);
     await createApplicationTokenRequest();
-    await getTokenRequest().then(res => {
+    await getTokenRequest().then((res) => {
       setTokens(res.tokens);
       setProcessing(false);
     });
   });
 
   // click `add public ssh keys button` -> open dialog
-  const onAddPublicKeys = useCallback(async sshPublicKeys => {
+  const onAddPublicKeys = useCallback(async (sshPublicKeys) => {
     setSSHProcessing(true);
     let updatedSSHPublickeys = [];
     if (userInfo.extension.sshKeys) {
@@ -164,25 +164,25 @@ const UserProfile = () => {
     setSSHProcessing(false);
   });
 
-  const onDeleteSSHkeys = useCallback(async sshPublicKeys => {
+  const onDeleteSSHkeys = useCallback(async (sshPublicKeys) => {
     let updatedSSHPublickeys = [];
     if (userInfo.extension.sshKeys) {
       updatedSSHPublickeys = cloneDeep(userInfo.extension.sshKeys);
     }
     updatedSSHPublickeys = updatedSSHPublickeys.filter(
-      item => item.title !== sshPublicKeys.title,
+      (item) => item.title !== sshPublicKeys.title,
     );
     await updateUserRequest(userInfo.username, updatedSSHPublickeys);
     const updatedUserInfo = await getUserRequest(userInfo.username);
     setUserInfo(updatedUserInfo);
   });
 
-  const onRevokeToken = useCallback(async token => {
+  const onRevokeToken = useCallback(async (token) => {
     await revokeTokenRequest(token);
-    await getTokenRequest().then(res => setTokens(res.tokens));
+    await getTokenRequest().then((res) => setTokens(res.tokens));
   });
 
-  const onAddBoundedCluster = async clusterConfig => {
+  const onAddBoundedCluster = async (clusterConfig) => {
     let updatedBoundedClusters = {};
     if (userInfo.extension.boundedClusters) {
       updatedBoundedClusters = cloneDeep(userInfo.extension.boundedClusters);
@@ -200,7 +200,7 @@ const UserProfile = () => {
     setUserInfo(updatedUserInfo);
   };
 
-  const onDeleteBoundedCluster = async clusterAlias => {
+  const onDeleteBoundedCluster = async (clusterAlias) => {
     let updatedBoundedClusters = {};
     if (userInfo.extension.boundedClusters) {
       updatedBoundedClusters = cloneDeep(userInfo.extension.boundedClusters);

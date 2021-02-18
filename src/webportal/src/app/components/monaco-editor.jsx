@@ -81,7 +81,7 @@ const MonacoEditor = ({
   useEffect(() => {
     if (completionItems) {
       completionList.current = {
-        suggestions: completionItems.map(x => ({
+        suggestions: completionItems.map((x) => ({
           label: x,
           insertText: x,
         })),

@@ -30,9 +30,7 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
           return 'Please use a valid OpenPAI URI, e.g. https://10.0.0.1, https://a.b.c';
         }),
       username: Joi.string().required(),
-      token: Joi.string()
-        .trim()
-        .required(),
+      token: Joi.string().trim().required(),
     })
     .required();
   const input = {
@@ -99,7 +97,7 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
       )
       .catch(
         // If error, show the error, and don't close this dialog
-        e => {
+        (e) => {
           console.error(e);
           setError(e.message);
         },
@@ -126,28 +124,28 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
             <TextField
               label='Cluster Alias (Only A-Z, a-z, 0-9, - and _ are allowed):'
               value={clusterAlias}
-              onChange={e => setClusterAlias(e.target.value)}
+              onChange={(e) => setClusterAlias(e.target.value)}
             />
           </div>
           <div className={t.mt1}>
             <TextField
               label='Cluster URI (Starts with http:// or https://):'
               value={clusterUri}
-              onChange={e => setClusterUri(e.target.value)}
+              onChange={(e) => setClusterUri(e.target.value)}
             />
           </div>
           <div className={t.mt1}>
             <TextField
               label='Your username on this cluster:'
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className={t.mt1}>
             <TextField
               label='Token:'
               value={token}
-              onChange={e => setToken(e.target.value)}
+              onChange={(e) => setToken(e.target.value)}
               multiline
               rows={5}
             />

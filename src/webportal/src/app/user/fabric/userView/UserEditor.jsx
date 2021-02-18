@@ -86,7 +86,7 @@ export default function UserEditor({
   const [lock, setLock] = useState(false);
   const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setLock(true);
 
@@ -134,7 +134,7 @@ export default function UserEditor({
           setNeedRefreshAllUsers(true);
           return { success: true };
         })
-        .catch(err => {
+        .catch((err) => {
           return { success: false, message: String(err) };
         });
       if (!result.success) {
@@ -149,7 +149,7 @@ export default function UserEditor({
             setNeedRefreshAllUsers(true);
             return { success: true };
           })
-          .catch(err => {
+          .catch((err) => {
             return { success: false, message: String(err) };
           });
         if (!result.success) {
@@ -165,7 +165,7 @@ export default function UserEditor({
             setNeedRefreshAllUsers(true);
             return { success: true };
           })
-          .catch(err => {
+          .catch((err) => {
             return { success: false, message: String(err) };
           });
         if (!result.success) {
@@ -181,7 +181,7 @@ export default function UserEditor({
             setNeedRefreshAllUsers(true);
             return { success: true };
           })
-          .catch(err => {
+          .catch((err) => {
             return { success: false, message: String(err) };
           });
         if (!result.success) {
@@ -198,7 +198,7 @@ export default function UserEditor({
             setNeedRefreshAllUsers(true);
             return { success: true };
           })
-          .catch(err => {
+          .catch((err) => {
             return { success: false, message: String(err) };
           });
         if (!result.success) {
@@ -232,7 +232,7 @@ export default function UserEditor({
   /**
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
    */
-  const vcsOptions = allVCs.map(vc => {
+  const vcsOptions = allVCs.map((vc) => {
     if (vc === 'default') return { key: vc, text: vc, disabled: true };
     else return { key: vc, text: vc };
   });

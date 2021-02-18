@@ -51,9 +51,9 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: userInfo => {
+    onRender: (userInfo) => {
       const { username } = userInfo;
-      const getErrorMessage = value => {
+      const getErrorMessage = (value) => {
         const errorMessage = checkUsername(value);
         if (errorMessage) {
           return errorMessage;
@@ -88,9 +88,9 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: userInfo => {
+    onRender: (userInfo) => {
       const { password } = userInfo;
-      const getErrorMessage = value => {
+      const getErrorMessage = (value) => {
         return checkPassword(value);
       };
       return (
@@ -119,9 +119,9 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: userInfo => {
+    onRender: (userInfo) => {
       const { email } = userInfo;
-      const getErrorMessage = value => {
+      const getErrorMessage = (value) => {
         return checkEmail(value);
       };
       return (
@@ -153,7 +153,7 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: userInfo => {
+    onRender: (userInfo) => {
       /**
        * @type {import('office-ui-fabric-react').IDropdownOption[]}
        */
@@ -172,7 +172,7 @@ export default function Table() {
           onChange={(_event, option, _index) => {
             userInfo.admin = option.key;
           }}
-          onRenderTitle={options => {
+          onRenderTitle={(options) => {
             const [{ text }] = options;
             return <span className={t.black}>{text}</span>;
           }}
@@ -193,11 +193,11 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: userInfo => {
+    onRender: (userInfo) => {
       /**
        * @type {import('office-ui-fabric-react').IDropdownOption[]}
        */
-      const options = virtualClusters.map(vc => {
+      const options = virtualClusters.map((vc) => {
         return { key: vc, text: vc };
       });
       const finished = isFinished(userInfo);
@@ -215,7 +215,7 @@ export default function Table() {
               userInfo.vcs.splice(userInfo.vcs.indexOf(option.text), 1);
             }
           }}
-          onRenderTitle={_options => {
+          onRenderTitle={(_options) => {
             if (userInfo.vcs.length === 0) {
               return null;
             } else {

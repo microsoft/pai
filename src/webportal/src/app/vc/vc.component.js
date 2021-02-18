@@ -23,7 +23,7 @@ const nodeListShowLength = 2;
 const isAdmin = cookies.get('admin');
 //
 
-const loadData = specifiedVc => {
+const loadData = (specifiedVc) => {
   const token = userAuth.checkToken();
   $.ajax({
     type: 'GET',
@@ -31,7 +31,7 @@ const loadData = specifiedVc => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    success: function(data) {
+    success: function (data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
@@ -46,14 +46,20 @@ const loadData = specifiedVc => {
       commonTable = $('#common-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [{ type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] }],
         })
         .api();
       dedicateTable = $('#dedicated-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [
             { type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] },
             {
@@ -72,7 +78,7 @@ const loadData = specifiedVc => {
         .api();
       resizeContentWrapper();
     },
-    error: function() {
+    error: function () {
       alert('Error when loading data.');
     },
   });
@@ -107,7 +113,7 @@ const nodeListShow = (nodelist, obj) => {
 };
 
 //
-const getPartialRemarksHtml = nodelist => {
+const getPartialRemarksHtml = (nodelist) => {
   return (
     nodelist.split(',').splice(0, nodeListShowLength) +
     '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>'
@@ -115,7 +121,7 @@ const getPartialRemarksHtml = nodelist => {
 };
 
 //
-const getTotalRemarksHtml = nodelist => {
+const getTotalRemarksHtml = (nodelist) => {
   return nodelist.split(',').join(', ');
 };
 
@@ -128,7 +134,7 @@ const virtualClusterShow = () => {
 
 //
 const virtualClustersAdd = () => {
-  userAuth.checkToken(token => {
+  userAuth.checkToken((token) => {
     const vcName = $('#virtualClustersList input[name="vcname"]').val();
     const capacity = $('#virtualClustersList input[name="capacity"]').val();
     if (!vcName) {
@@ -152,7 +158,7 @@ const virtualClustersAdd = () => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: data => {
+      success: (data) => {
         const params = new URLSearchParams(window.location.search);
         const vcName = params.get('vcName');
         loadData(vcName);
@@ -171,13 +177,13 @@ const virtualClustersAdd = () => {
 };
 
 //
-const deleteVcItem = name => {
+const deleteVcItem = (name) => {
   if (name === 'default') return false;
   const res = confirm(
     `Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`,
   );
   if (!res) return false;
-  userAuth.checkToken(token => {
+  userAuth.checkToken((token) => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       headers: {
@@ -186,7 +192,7 @@ const deleteVcItem = name => {
       contentType: 'application/json; charset=utf-8',
       type: 'DELETE',
       dataType: 'json',
-      success: data => {
+      success: (data) => {
         const params = new URLSearchParams(window.location.search);
         const vcName = params.get('vcName');
         loadData(vcName);
@@ -213,7 +219,7 @@ const editVcItem = (name, capacity) => {
 
 //
 const editVcItemPut = (name, capacity) => {
-  userAuth.checkToken(token => {
+  userAuth.checkToken((token) => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       data: JSON.stringify({
@@ -225,7 +231,7 @@ const editVcItemPut = (name, capacity) => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: data => {
+      success: (data) => {
         const params = new URLSearchParams(window.location.search);
         const vcName = params.get('vcName');
         loadData(vcName);
@@ -246,7 +252,7 @@ const editVcItemPut = (name, capacity) => {
 const changeVcState = (name, state) => {
   if (isAdmin !== 'true') return false;
   if (name === 'default') return false;
-  userAuth.checkToken(token => {
+  userAuth.checkToken((token) => {
     const res = confirm(
       `Do you want to ${
         state.toLowerCase() === 'running' ? 'stop' : 'activate'
@@ -266,7 +272,7 @@ const changeVcState = (name, state) => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: data => {
+      success: (data) => {
         const params = new URLSearchParams(window.location.search);
         const vcName = params.get('vcName');
         loadData(vcName);
@@ -317,7 +323,7 @@ window.convertState = convertState;
 window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {
-  window.onresize = function(envent) {
+  window.onresize = function (envent) {
     resizeContentWrapper();
   };
   $(document).on('click', '.nav li', () => {

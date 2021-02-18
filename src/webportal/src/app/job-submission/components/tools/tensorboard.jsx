@@ -25,7 +25,7 @@ const style = {
   },
 };
 
-const generateDefaultTensorBoardExtras = port => {
+const generateDefaultTensorBoardExtras = (port) => {
   const tensorBoardExtras = {
     plugin: 'tensorboard',
     parameters: {
@@ -38,7 +38,7 @@ const generateDefaultTensorBoardExtras = port => {
   return tensorBoardExtras;
 };
 
-export const TensorBoard = props => {
+export const TensorBoard = (props) => {
   const { extras, onChange } = props;
 
   // TensorBoard will use random port in [10000, 15000)
@@ -59,7 +59,7 @@ export const TensorBoard = props => {
         const tensorBoard = generateDefaultTensorBoardExtras(tensorBoardPort);
         plugins.push(tensorBoard);
       } else {
-        plugins = plugins.filter(plugin => plugin.plugin !== 'tensorboard');
+        plugins = plugins.filter((plugin) => plugin.plugin !== 'tensorboard');
       }
       updatedExtras[PAI_PLUGIN] = plugins;
       onChange(updatedExtras);
@@ -84,7 +84,7 @@ export const TensorBoard = props => {
         checked={
           !isNil(
             get(extras, [PAI_PLUGIN], []).find(
-              plugin => plugin.plugin === 'tensorboard',
+              (plugin) => plugin.plugin === 'tensorboard',
             ),
           )
         }

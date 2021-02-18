@@ -30,7 +30,7 @@ function loadScript(uri, callback) {
   }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   const query = new URLSearchParams(window.location.search);
   const index = Number(query.get('index'));
   const plugin = window.PAI_PLUGINS[index];
@@ -42,7 +42,7 @@ $(document).ready(function() {
 
   $('.sidebar-menu .plugin-' + index).addClass('active');
 
-  loadScript(plugin.uri, function() {
+  loadScript(plugin.uri, function () {
     const $plugin = $('<pai-plugin>')
       .attr('pai-rest-server-uri', window.ENV.restServerUri)
       .attr('pai-version', window.PAI_VERSION);
@@ -51,8 +51,6 @@ $(document).ready(function() {
         .attr('pai-user', cookies.get('user'))
         .attr('pai-rest-server-token', cookies.get('token'));
     }
-    $('#content-wrapper')
-      .empty()
-      .append($plugin);
+    $('#content-wrapper').empty().append($plugin);
   });
 });

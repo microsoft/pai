@@ -15,7 +15,7 @@ import CopyButton from '../../components/copy-button';
 
 import t from '../../components/tachyons.scss';
 
-const CopySucceeded = props =>
+const CopySucceeded = (props) =>
   props.copied ? <p style={{ color: 'green' }}>Copied succeeded!</p> : null;
 
 CopySucceeded.propTypes = {

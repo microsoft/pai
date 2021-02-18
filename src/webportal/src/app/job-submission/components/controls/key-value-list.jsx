@@ -54,7 +54,7 @@ export const KeyValueList = ({
   }, [onChange, items]);
 
   const onRemove = useCallback(
-    idx => {
+    (idx) => {
       onChange([...items.slice(0, idx), ...items.slice(idx + 1)]);
     },
     [onChange, items],
@@ -180,7 +180,7 @@ KeyValueList.propTypes = {
   valueHeader: PropTypes.string,
 };
 
-export const getItemsWithError = items => {
+export const getItemsWithError = (items) => {
   const result = [];
   // remove old errors
   for (const item of items) {
@@ -191,7 +191,7 @@ export const getItemsWithError = items => {
     }
   }
   // duplicate key
-  const keyCount = countBy(result, x => x.key);
+  const keyCount = countBy(result, (x) => x.key);
   for (const [idx, item] of result.entries()) {
     if (keyCount[item.key] > 1) {
       result[idx] = { ...item, keyError: 'Duplicated key' };

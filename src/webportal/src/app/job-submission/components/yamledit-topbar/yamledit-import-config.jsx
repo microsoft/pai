@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
 
 export const YamlEditImportConfig = React.memo(({ onChange }) => {
-  const _importFile = event => {
+  const _importFile = (event) => {
     event.preventDefault();
     const files = event.target.files;
     if (!files || !files[0]) {

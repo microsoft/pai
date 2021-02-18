@@ -35,7 +35,7 @@ function StopBox({ hidden, userName, jobName, jobState, onDismiss }) {
         onDismiss();
         redirectToJobDetail();
       })
-      .catch(err => {
+      .catch((err) => {
         setIsStopping(false);
         alert(`An error happens during job stopping. Details: ${err.message}`);
       });

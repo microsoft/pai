@@ -48,11 +48,11 @@ export class JobData {
         const mountHdfsDir = `${jobDir}${dataItem.mountPath}`;
         if (dataItem.uploadFiles) {
           await Promise.all(
-            dataItem.uploadFiles.map(file => {
+            dataItem.uploadFiles.map((file) => {
               return this.hdfsClient.uploadFile(mountHdfsDir, file);
             }),
           );
-          dataItem.uploadFiles.forEach(file => {
+          dataItem.uploadFiles.forEach((file) => {
             preCommand.push(
               `hdfscli download --alias=dev ${mountHdfsDir}/${file.name} ${dataItem.mountPath}`,
             );
@@ -73,7 +73,7 @@ export class JobData {
 
     if (!isEmpty(this.customDataList)) {
       return this._generateCustomStorageCommands(userName, jobName).then(
-        preCommands => {
+        (preCommands) => {
           return teamwiseCommands.concat(preCommands);
         },
       );

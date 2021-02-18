@@ -142,7 +142,7 @@ const BoundedClusterList = ({ boundedClusters, onDelete }) => {
             onClick={() => {
               setProcessing(true);
               onDelete(deleteClusterAlias)
-                .catch(err => {
+                .catch((err) => {
                   console.error(err);
                   alert(err.message);
                 })

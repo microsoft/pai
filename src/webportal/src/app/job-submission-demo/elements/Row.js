@@ -9,7 +9,7 @@ const Row = ({ children, gutter }) => {
           marginRight: gutter / -2,
         }
       : {};
-  const cols = React.Children.map(children, col => {
+  const cols = React.Children.map(children, (col) => {
     if ((React, isValidElement(col))) {
       return React.cloneElement(col, {
         style: { paddingLeft: gutter / 2, paddingRight: gutter / 2 },

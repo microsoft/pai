@@ -23,6 +23,6 @@ const dashboardHtml = dashboardComponent({
   grafanaUri: webportalConfig.grafanaUri,
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
   $('#content-wrapper').html(dashboardHtml);
 });
