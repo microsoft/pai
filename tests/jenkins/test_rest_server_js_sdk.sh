@@ -12,10 +12,10 @@ case ${cluster_type} in
     ;;
   "k8s")
     # install nodejs 12.x
-    sudo apt update
-    sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
-    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-    sudo apt install nodejs -y
+    sudo apt update || true
+    sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates || true
+    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - || true
+    sudo apt install nodejs -y || true
     node --version
 
     # install openpai-js-sdk
