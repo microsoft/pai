@@ -1,6 +1,7 @@
 import React from 'react';
 import { TooltipIcon } from '../controls/tooltip-icon';
 import { Box, Flex, Text } from '../../elements';
+import PropTypes from 'prop-types';
 
 export const SidebarCard = ({ title, tooltip, selected, children }) => {
   return (
@@ -14,4 +15,11 @@ export const SidebarCard = ({ title, tooltip, selected, children }) => {
       {children}
     </Box>
   );
+};
+
+SidebarCard.propTypes = {
+  title: PropTypes.string,
+  tooltip: PropTypes.string,
+  selected: PropTypes.bool,
+  children: PropTypes.node,
 };

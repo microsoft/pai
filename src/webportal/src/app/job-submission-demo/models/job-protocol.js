@@ -25,7 +25,7 @@
 
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
-import { get, isEmpty, cloneDeep } from 'lodash';
+import { isEmpty, cloneDeep } from 'lodash';
 import { removeEmptyProperties } from '../utils/utils';
 import { jobProtocolSchema } from '../models/protocol-schema';
 

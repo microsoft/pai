@@ -2,6 +2,7 @@ import { Dropdown } from 'office-ui-fabric-react';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import PropTypes from 'prop-types';
 
 const PureVirtualCluster = ({
   dispatch,
@@ -47,3 +48,9 @@ export const VirtualCluster = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   availableVirtualClusters: jobInformation.availableVirtualClusters,
 }))(PureVirtualCluster);
+
+PureVirtualCluster.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  availableVirtualClusters: PropTypes.array,
+};

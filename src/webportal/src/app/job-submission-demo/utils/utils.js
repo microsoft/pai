@@ -1,4 +1,4 @@
-import { isObject, isEmpty, isNil, isArrayLike, get } from 'lodash';
+import { isObject, isEmpty, isNil, isArrayLike } from 'lodash';
 
 export function removeEmptyProperties(obj) {
   if (!isObject(obj)) {

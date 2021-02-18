@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getTheme, Modal, Toggle } from 'office-ui-fabric-react';
+import { Modal, Toggle } from 'office-ui-fabric-react';
 import { Flex, Box, Button, Heading } from '../../elements';
 import { SIDEBAR_CONFIG } from '../../utils/constants';
 
@@ -31,7 +31,7 @@ const PureConfigPanel = ({ dispatch, currentSideList, isOpen, onDismiss }) => {
         <Heading>Panel Setting</Heading>
         <Flex flexDirection='column'>
           {SIDEBAR_CONFIG.map((item, index) => (
-            <Flex>
+            <Flex key={index}>
               <Box flex={1} width={240}>
                 {item.text}
               </Box>
@@ -58,6 +58,8 @@ export const ConfigPanel = connect(({ global }) => ({
 }))(PureConfigPanel);
 
 PureConfigPanel.propTypes = {
+  dispatch: PropTypes.func,
+  currentSideList: PropTypes.array,
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };

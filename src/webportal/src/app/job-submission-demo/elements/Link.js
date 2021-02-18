@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { space, color, layout, flexbox, border } from 'styled-system';
+import { space, color, layout, border } from 'styled-system';
 
 const Link = styled('a')(
   { cursor: 'pointer', userSelect: 'none', color: '#000000' },

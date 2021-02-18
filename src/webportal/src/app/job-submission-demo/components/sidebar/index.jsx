@@ -8,6 +8,7 @@ import { Icon } from 'office-ui-fabric-react';
 import { SIDEBAR_ENVVAR, SIDEBAR_PARAM } from '../../utils/constants';
 import { Parameters } from './parameters';
 import { EnvVar } from './env-var';
+import PropTypes from 'prop-types';
 
 const SidebarItem = styled(Box)(
   {
@@ -57,7 +58,7 @@ const UnwrapperedSidebar = ({
 }) => {
   const [isModalOpen, toggleModalOpen] = useState(false);
 
-  const getCurrentSideComponent = (currentKey) => {
+  const getCurrentSideComponent = currentKey => {
     switch (currentKey) {
       case SIDEBAR_PARAM:
         return <Parameters />;
@@ -75,7 +76,7 @@ const UnwrapperedSidebar = ({
     });
   };
 
-  const onSidebarSelect = (key) => {
+  const onSidebarSelect = key => {
     dispatch({
       type: 'TOGGLE_CURRENT_SIDEBAR',
       payload: key,
@@ -93,7 +94,7 @@ const UnwrapperedSidebar = ({
         </Link>
         <Box flex={1}>
           {currentSideList.map(
-            (item) =>
+            item =>
               item.checked && (
                 <SidebarItem
                   mt='m'
@@ -123,3 +124,10 @@ export const Sidebar = connect(({ global }) => ({
   currentSideKey: global.currentSideKey,
   currentSideList: global.currentSideList,
 }))(UnwrapperedSidebar);
+
+UnwrapperedSidebar.propTypes = {
+  dispatch: PropTypes.func,
+  expandedFlag: PropTypes.bool,
+  currentSideList: PropTypes.array,
+  currentSideKey: PropTypes.string,
+};

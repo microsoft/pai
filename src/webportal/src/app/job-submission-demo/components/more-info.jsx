@@ -1,6 +1,7 @@
 import { Icon } from 'office-ui-fabric-react';
 import React from 'react';
-import { Box, Flex, Link, Text } from '../elements';
+import { Box, Flex } from '../elements';
+import PropTypes from 'prop-types';
 
 export const MoreInfo = ({ isShow, onChange }) => {
   return (
@@ -16,4 +17,9 @@ export const MoreInfo = ({ isShow, onChange }) => {
       {isShow ? <Icon iconName='ChevronUp' /> : <Icon iconName='ChevronDown' />}
     </Flex>
   );
+};
+
+MoreInfo.propTypes = {
+  isShow: PropTypes.bool,
+  onChange: PropTypes.func,
 };

@@ -35,7 +35,7 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import { countBy, isEmpty } from 'lodash';
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { useCallback } from 'react';
 import { DebouncedTextField } from './debounced-text-field';
 // import { dispatchResizeEvent } from '../../utils/utils';
 
@@ -96,7 +96,7 @@ export const KeyValueList = ({
     {
       key: 'key',
       name: keyHeader,
-      minWidth: 180,
+      // minWidth: 180,
       onRender: (item, idx) => {
         return (
           <DebouncedTextField
@@ -110,7 +110,7 @@ export const KeyValueList = ({
     {
       key: 'value',
       name: valueHeader,
-      minWidth: 180,
+      // minWidth: 180,
       onRender: (item, idx) => {
         return (
           <DebouncedTextField

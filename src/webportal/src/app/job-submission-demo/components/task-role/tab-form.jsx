@@ -10,8 +10,9 @@ import {
   PivotItem,
 } from 'office-ui-fabric-react';
 import { createUniqueName } from '../../utils/utils';
+import PropTypes from 'prop-types';
 
-const { spacing, palette } = getTheme();
+const { spacing } = getTheme();
 
 const HEADER_PREFIX = 'taskrole';
 let taskRoleSeq = 1;
@@ -167,3 +168,9 @@ export const TabForm = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureTabForm);
+
+PureTabForm.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

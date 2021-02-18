@@ -47,7 +47,7 @@ const Layout = () => {
   // check token && get email
   useEffect(() => {
     const username = cookies.get('user');
-    getUserRequest(username).then((res) => {
+    getUserRequest(username).then(res => {
       setUserInfo(res);
     });
   }, []);

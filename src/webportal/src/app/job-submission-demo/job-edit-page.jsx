@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { isNil, get, set } from 'lodash';
+import { isNil, get } from 'lodash';
 import { JobInformation } from './components/job-information';
 import { TaskRole } from './components/task-role';
 import { Sidebar } from './components/sidebar';
-import { SubmissionSection } from './components/submission-section';
-import styled from 'styled-components';
-import { Flex, Box, Row, Col } from './elements';
+import { Flex, Box } from './elements';
 import { fetchJobConfig } from './utils/conn';
 import { JobProtocol } from './models/job-protocol';
+import PropTypes from 'prop-types';
 
 const loginUser = cookies.get('user');
 
@@ -36,9 +35,7 @@ function generateJobName(jobName) {
   return name;
 }
 
-const UnwrapperedJobEditPage = (props) => {
-  const { dispatch } = props;
-
+const PureJobEditPage = ({ dispatch }) => {
   useEffect(() => {
     let suffix = Date.now().toString(16);
     suffix = suffix.substring(suffix.length - 6);
@@ -75,7 +72,7 @@ const UnwrapperedJobEditPage = (props) => {
 
   // fill protocol if cloned job or local storage
   useEffect(() => {
-    const fillJobProtocol = (jobConfig) => {
+    const fillJobProtocol = jobConfig => {
       dispatch({
         type: 'SAVE_JOBPROTOCOL',
         payload: { ...jobConfig, name: generateJobName(jobConfig.name) },
@@ -90,7 +87,7 @@ const UnwrapperedJobEditPage = (props) => {
       const user = params.get('user') || '';
       if (user && jobName) {
         fetchJobConfig(user, jobName)
-          .then((jobConfig) => fillJobProtocol(jobConfig))
+          .then(jobConfig => fillJobProtocol(jobConfig))
           .catch(alert);
       }
     } else if (!isNil(window.localStorage.getItem('marketItem'))) {
@@ -128,4 +125,8 @@ const UnwrapperedJobEditPage = (props) => {
 export const JobEditPage = connect(({ jobInformation, global }) => ({
   ...jobInformation,
   ...global,
-}))(UnwrapperedJobEditPage);
+}))(PureJobEditPage);
+
+PureJobEditPage.propTypes = {
+  dispatch: PropTypes.func,
+};

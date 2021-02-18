@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import { KeyValueList, getItemsWithError } from '../controls/key-value-list';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import { Box, Code } from '../../elements';
-import { SidebarCard } from './sidebar-card';
 import { FormSection } from '../form-page';
+import PropTypes from 'prop-types';
 
 const PureParameters = ({ dispatch, parameters }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    let newItems = [];
+    const newItems = [];
     if (Object.keys(parameters).length > 0) {
       for (const key in parameters) {
         newItems.push({ key: key, value: parameters[key] });
@@ -22,10 +22,10 @@ const PureParameters = ({ dispatch, parameters }) => {
     // setErrorMessage(ERROR_ID, null);
   }, [parameters]);
 
-  const onListChange = (newItems) => {
+  const onListChange = newItems => {
     const itemsWithError = getItemsWithError(newItems);
     const idx = itemsWithError.findIndex(
-      (item) => item.keyError || item.valueError,
+      item => item.keyError || item.valueError,
     );
     if (idx === -1) {
       const newParameters = {};
@@ -67,3 +67,8 @@ const PureParameters = ({ dispatch, parameters }) => {
 export const Parameters = connect(({ jobInformation }) => ({
   parameters: jobInformation.jobProtocol.parameters,
 }))(PureParameters);
+
+PureParameters.propTypes = {
+  dispatch: PropTypes.func,
+  parameters: PropTypes.object,
+};

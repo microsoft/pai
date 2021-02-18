@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { get, isEmpty, isNil } from 'lodash';
 import { MonacoTextField } from '../controls/monaco-text-field';
 import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../../utils/constants';
+import PropTypes from 'prop-types';
 
 const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
   const commands = get(
@@ -49,3 +50,9 @@ export const CommandSection = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureCommandSection);
+
+PureCommandSection.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

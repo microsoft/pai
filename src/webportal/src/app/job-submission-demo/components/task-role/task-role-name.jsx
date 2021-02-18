@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { TextField } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const PureTaskRoleName = ({ dispatch, jobProtocol, currentTaskRole }) => {
   const { taskRoles } = jobProtocol;
@@ -40,3 +41,9 @@ export const TaskRoleName = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureTaskRoleName);
+
+PureTaskRoleName.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

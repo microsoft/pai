@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Box, Flex, Row, Col } from '../../elements';
+import { Row, Col } from '../../elements';
 import { FormItem, FormSection } from '../form-page';
 import { DockerImage } from './docker-image';
 import { Instance } from './instances';
@@ -13,8 +13,9 @@ import { MinFailedInstances } from './min-failed-instances';
 import { MinSucceedInstances } from './min-succeed-instances';
 import { MoreInfo } from '../more-info';
 import { TaskRoleName } from './task-role-name';
+import PropTypes from 'prop-types';
 
-const PureTaskRole = ({ expandedFlag, jobProtocol }) => {
+const PureTaskRole = ({ expandedFlag }) => {
   const [advancedFlag, handleAdvancedFlag] = useState(false);
 
   const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
@@ -85,3 +86,7 @@ export const TaskRole = connect(({ global, jobInformation }) => ({
   expandedFlag: global.expandedFlag,
   jobProtocol: jobInformation.jobProtocol,
 }))(PureTaskRole);
+
+PureTaskRole.propTypes = {
+  expandedFlag: PropTypes.bool,
+};

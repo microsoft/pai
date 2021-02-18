@@ -1,8 +1,9 @@
 import { Dropdown } from 'office-ui-fabric-react';
 import React from 'react';
 import { connect } from 'react-redux';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { DEFAULT_DOCKER_URI, DOCKER_OPTIONS } from '../../utils/constants';
+import PropTypes from 'prop-types';
 
 const getDockerImageUri = (prerequisites, dockerImage) => {
   const prerequisite = prerequisites.find(
@@ -59,3 +60,9 @@ export const DockerImage = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureDockerImage);
+
+PureDockerImage.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

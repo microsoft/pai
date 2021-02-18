@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { TextField } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const loginUser = cookies.get('user');
 
@@ -37,3 +38,8 @@ const PureJobName = ({ dispatch, jobProtocol }) => {
 export const JobName = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
 }))(PureJobName);
+
+PureJobName.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+};

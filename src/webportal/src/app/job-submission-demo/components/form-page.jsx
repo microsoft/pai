@@ -1,8 +1,9 @@
 import React from 'react';
 import { Label } from 'office-ui-fabric-react';
 import { TooltipIcon } from './controls/tooltip-icon';
-import { Box, Flex, Text } from '../elements';
+import { Box, Flex } from '../elements';
 import { isString } from 'lodash';
+import PropTypes from 'prop-types';
 
 export const FormSection = ({ title, children, tooltip, ...props }) => {
   return (
@@ -22,7 +23,13 @@ export const FormSection = ({ title, children, tooltip, ...props }) => {
   );
 };
 
-export const FormItem = ({ children, label, name, tooltip }) => {
+FormSection.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.node,
+  tooltip: PropTypes.string,
+};
+
+export const FormItem = ({ children, label, tooltip }) => {
   return (
     <Box mb='l1'>
       <Flex alignItems='center' mb='s2'>
@@ -32,4 +39,10 @@ export const FormItem = ({ children, label, name, tooltip }) => {
       {children}
     </Box>
   );
+};
+
+FormItem.propTypes = {
+  label: PropTypes.string,
+  children: PropTypes.node,
+  tooltip: PropTypes.string,
 };

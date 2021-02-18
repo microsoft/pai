@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { SpinButton } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const SUCCEED_INSTANCES_MIN = -1;
 
@@ -53,3 +54,9 @@ export const MinSucceedInstances = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureMinSucceedInstances);
+
+PureMinSucceedInstances.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

@@ -11,6 +11,7 @@ const initialState = {
 };
 
 export const global = (state = initialState, action) => {
+  let currentSideList = [];
   switch (action.type) {
     case 'TOGGLE_CURRENT_TAB':
       return {
@@ -28,7 +29,7 @@ export const global = (state = initialState, action) => {
         expandedFlag: action.payload || false,
       };
     case 'UPDATE_SIDEBAR_CONFIG':
-      const currentSideList = action.payload || [];
+      currentSideList = action.payload || [];
       if (state.currentSideKey) {
         const currentSideItem = currentSideList.find(
           item => item.key === state.currentSideKey,

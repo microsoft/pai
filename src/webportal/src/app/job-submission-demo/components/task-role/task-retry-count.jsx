@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { SpinButton } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const RETRY_COUNT_MIN = 0;
 
@@ -46,3 +47,9 @@ export const TaskRetryCount = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureTaskRetryCount);
+
+PureTaskRetryCount.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

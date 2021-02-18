@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const PureSKUType = ({ availableHivedSkuTypes }) => {
   const options = Object.keys(availableHivedSkuTypes).map(name => {
@@ -29,3 +30,7 @@ const PureSKUType = ({ availableHivedSkuTypes }) => {
 export const SKUType = connect(({ jobInformation }) => ({
   availableHivedSkuTypes: jobInformation.availableHivedSkuTypes,
 }))(PureSKUType);
+
+PureSKUType.propTypes = {
+  availableHivedSkuTypes: PropTypes.object,
+};

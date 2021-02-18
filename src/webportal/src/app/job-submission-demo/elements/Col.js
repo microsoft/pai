@@ -6,7 +6,7 @@ const Col = styled('div')(
     span: {
       properties: ['flexBasis', 'maxWidth'],
       transform: (value, scale) => {
-        return `${value / 12 * 100}%`;
+        return `${(value / 12) * 100}%`;
       },
     },
   }),

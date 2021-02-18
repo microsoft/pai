@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { SpinButton } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 
 const TASK_ROLE_INSTANCES_MIN = 0;
 
@@ -46,3 +47,9 @@ export const Instance = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
   currentTaskRole: jobInformation.currentTaskRole,
 }))(PureInstance);
+
+PureInstance.propTypes = {
+  dispatch: PropTypes.func,
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
+};

@@ -1,5 +1,6 @@
 import React, { isValidElement } from 'react';
 import Box from './Box';
+import PropTypes from 'prop-types';
 
 const Row = ({ children, gutter }) => {
   const rowStyle =
@@ -23,4 +24,10 @@ const Row = ({ children, gutter }) => {
     </Box>
   );
 };
+
 export default Row;
+
+Row.propTypes = {
+  children: PropTypes.node,
+  gutter: PropTypes.number,
+};

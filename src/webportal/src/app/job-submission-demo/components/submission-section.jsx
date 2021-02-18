@@ -1,7 +1,7 @@
 import { PrimaryButton } from 'office-ui-fabric-react';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Flex } from '../elements';
+import PropTypes from 'prop-types';
 
 const PureSubmissionSection = ({ jobProtocol, ...restProps }) => {
   const onSubmit = () => {
@@ -18,3 +18,7 @@ const PureSubmissionSection = ({ jobProtocol, ...restProps }) => {
 export const SubmissionSection = connect(({ jobInformation }) => ({
   jobProtocol: jobInformation.jobProtocol,
 }))(PureSubmissionSection);
+
+PureSubmissionSection.propTypes = {
+  jobProtocol: PropTypes.object,
+};
