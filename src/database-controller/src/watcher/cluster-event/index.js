@@ -104,7 +104,7 @@ async function assertDiskUsageHealthy() {
 }
 
 function startInformer() {
-  const informer = getEventInformer();
+  const informer = getEventInformer(config.watchTimeoutSeconds);
 
   informer.on('add', apiObject => {
     eventHandler('ADDED', apiObject);

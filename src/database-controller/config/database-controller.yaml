@@ -39,6 +39,10 @@ db-poller-max-heap-mb: 4096
 framework-watcher-max-rpc-concurrency: 150
 # Framework watcher max heap size in MB
 framework-watcher-max-heap-mb: 8192
+# Timeout seconds of watching in framework watcher.
+# Larger timeout can reduce list impact caused to K8S api server,
+# but increase memory usage.
+framework-watcher-watch-timeout-seconds: 86400
 
 # cluster event watcher
 # Max rpc concurrency for cluster event watcher
@@ -49,3 +53,7 @@ cluster-event-watcher-max-heap-mb: 2048
 cluster-event-max-db-connection: 40
 # Max disk usage in internal storage for cluster event watcher
 cluster-event-watcher-max-disk-usage-percent: 80
+# Timeout seconds of watching in cluster event watcher.
+# Larger timeout can reduce list impact caused to K8S api server,
+# but increase memory usage.
+cluster-event-watcher-watch-timeout-seconds: 86400

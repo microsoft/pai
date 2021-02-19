@@ -21,6 +21,7 @@ const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
 const queue = new PQueue({ concurrency: config.maxRpcConcurrency });
 
 async function synchronizeFramework(eventType, apiObject) {
+  return
   const res = await fetch(
     `${config.writeMergerUrl}/api/v1/watchEvents/${eventType}`,
     {
@@ -57,7 +58,7 @@ const eventHandler = (eventType, apiObject) => {
   });
 };
 
-const informer = getFrameworkInformer();
+const informer = getFrameworkInformer(config.watchTimeoutSeconds);
 
 informer.on('add', apiObject => {
   eventHandler('ADDED', apiObject);
