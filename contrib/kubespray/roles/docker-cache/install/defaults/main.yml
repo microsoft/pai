@@ -1,1 +1,2 @@
 enable_docker_cache: false
+docker_cache_host: 'localhost'

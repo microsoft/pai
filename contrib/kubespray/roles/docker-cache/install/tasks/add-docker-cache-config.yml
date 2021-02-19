@@ -10,4 +10,5 @@
       - sudo
       - python3
       - /tmp/add_docker_cache_config.py
+      - {{ docker_cache_host }}
    
