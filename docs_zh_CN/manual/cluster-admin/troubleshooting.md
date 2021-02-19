@@ -84,7 +84,7 @@ pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_e
 
 如果您无法在您的任务中使用GPU，您可以在Worker结点上follow下面的步骤来检查：
 
- 1. 显卡驱动安装正确。如果是Nvidia卡的话，使用`nvidia-smi`来检查。
+ 1. 显卡驱动安装正确。如果是NVIDIA卡的话，使用`nvidia-smi`来检查。
  2. [nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime)已经被正确安装，并且被设置为Docker的默认runtime。您可以用`docker info -f "{{json .DefaultRuntime}}"`来检查。
 
 如果是在Webportal中显示的GPU数目有出入，请参考[这个文档](./how-to-set-up-virtual-clusters.md)对集群重新进行配置。

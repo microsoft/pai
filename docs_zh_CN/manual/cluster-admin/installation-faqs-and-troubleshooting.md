@@ -78,11 +78,11 @@
 
 #### <div id="how-to-check-whether-the-gpu-driver-is-installed">如何检查GPU驱动被正确安装了？</div>
 
-对于Nvidia GPU, 您可以使用命令`nvidia-smi`来检查。
+对于NVIDIA GPU, 您可以使用命令`nvidia-smi`来检查。
 
 #### <div id="how-to-install-gpu-driver">如何安装GPU驱动？</div>
 
-对于Nvidia GPU，请先确认您想安装哪个版本的GPU（您可以参考[这个问题](#which-version-of-nvidia-driver-should-i-install)）。然后参考下面的步骤：
+对于NVIDIA GPU，请先确认您想安装哪个版本的GPU（您可以参考[这个问题](#which-version-of-nvidia-driver-should-i-install)）。然后参考下面的步骤：
 
 ```bash
 sudo add-apt-repository ppa:graphics-drivers/ppa

@@ -1,6 +1,6 @@
 # How to Use Alert System
 
-OpenPAI has a built-in alert system. The alert system has some existing alert rules and actions. It can also let admin customize them. In this document, we will have a detailed introduction to this topic.
+OpenPAI has a built-in alert system. The alert system has some existing alert rules and actions. It can also let the admin customize them. In this document, we will have a detailed introduction to this topic.
 
 ## Alert Rules
 
@@ -13,12 +13,12 @@ alert: GpuUsedByExternalProcess
 expr: gpu_used_by_external_process_count > 0
 for: 5m
 annotations:
-  summary: found nvidia used by external process in {{$labels.instance}}
+  summary: found NVIDIA used by external process in {{$labels.instance}}
 ```
 
 For the detailed syntax of alert rules, please refer to [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
 
-All alerts fired by the alert rules, including the pre-defined rules and the customized rules, will be shown on the home page of Webportal (on the top-right corner).
+All alerts fired by the alert rules, including the pre-defined rules and the customized rules, will be shown on the home page of webportal (on the top-right corner).
 
 ### Existing Alert Rules
 
@@ -53,9 +53,9 @@ prometheus:
 ```
 
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
-The alert severity can be defined as `info`, `warn`, `error` or `fatal` by adding a label.
+The alert severity can be defined as `info`, `warn`, `error`, or `fatal` by adding a label.
 Here we use `warn`.
-Here the metric `task_gpu_percent` is used, which describes the GPU utilization at task level. 
+Here the metric `task_gpu_percent` is used, which describes the GPU utilization at the task level. 
 
 Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands [in the dev-box container](./basic-management-operations.md#pai-service-management-and-paictl):
 ```bash
@@ -68,7 +68,7 @@ Please refer to [Prometheus Alerting Rules](https://prometheus.io/docs/prometheu
 
 ## Alert Actions and Routes
 
-Admin can choose how to handle the alerts by different alert actions. We provide some basic alert actions and you can also customize your own actions. In this section, we will first introduce the existing actions and the matching rules between these actions and alerts. Then we will let you know how to add new alert actions. The actions and matching rules are both handled by [`alert-manager`](https://prometheus.io/docs/alerting/latest/alertmanager/).
+Admin can choose how to handle the alerts by different alert actions. We provide some basic alert actions and you can also customize your actions. In this section, we will first introduce the existing actions and the matching rules between these actions and alerts. Then we will let you know how to add new alert actions. The actions and matching rules are both handled by [`alert-manager`](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
 ### Existing Actions and Matching Rules
 
