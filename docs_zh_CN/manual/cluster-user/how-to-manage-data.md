@@ -9,7 +9,7 @@
 然后所有您有权限访问的空间将被显示为:
 
 ![storage config](./imgs/storage-config.png "storage config")
-如果您没有发现任何存储，请联系集群的管理员。
+如果显示列表为空，请联系集群的管理员。
 
 ## 上传数据
 
@@ -26,13 +26,13 @@ sudo apt-get update
 sudo apt-get install --assume-yes nfs-common
 ```
 
-然后您可以将nfs mount到您的机器中:
+然后您可以将nfs挂载到您的机器中:
 ```bash
 sudo mkdir -p MOUNT_PATH
 sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 ```
 
-`NFS_SERVER`和`NFS_PATH`可以在个人信息页面的存储部分中找到。
+`NFS_SERVER`和`NFS_PATH`可以在个人信息页面的`Storage`部分中找到。
 
 您可以将数据复制到`MOUNT_PATH`，这样数据就被上传到`NFS`服务器了。
 
@@ -60,15 +60,15 @@ sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 
 要将数据上传到Azure Blob或Azure File，请执行以下操作：
 
-1. 下载 [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+1. 下载安装 [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)。
 2. 如果您使用AAD登录到PAI，则管理员应该已经向您授予访问存储空间的权限。 您可以在个人信息页面上获取存储帐户名称，容器名称和文件共享名称。 请使用它们访问Azure存储资源管理器中的存储空间。 有关更多详细信息，请参阅[这里](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)。
-3. 如果您使用基本身份验证（用户名/密码）登录到PAI门户。 请向管理员询问存储空间的`访问密钥`。 然后，您可以通过`访问密钥`和`存储帐户名`添加存储。 有关更多详细信息，请参阅[这里](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)。
+3. 如果您使用基本身份验证（用户名/密码）登录到PAI门户，请向管理员询问存储空间的`访问密钥`。 然后，您可以通过`访问密钥`和`存储帐户名`添加存储。 有关更多详细信息，请参阅[这里](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)。
 
 ## 在任务中使用数据
 
 ### 通过Data的UI界面 
 
-您可以使用任务提交页面上的`Data`部分来选择所需的存储：
+您可以在任务提交页面上的`Data`部分来选择所需的存储：
 
 ![storage submit](./imgs/storage-submit-data.png "storage submit")
 
@@ -76,7 +76,7 @@ sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 
 ### 通过任务配置
 
-您也可以在[任务配置文件](./how-to-use-advanced-job-settings.md#job-protocol-export-and-import-jobs)中的`extras.storages`部分中指定存储名称，以下为相应部分：
+您也可以在[任务配置文件](./how-to-use-advanced-job-settings.md#job-protocol-export-and-import-jobs)中的`extras.storages`部分中指定存储名称：
 
 ```yaml
 extras:
@@ -86,13 +86,11 @@ extras:
     - name: azure-file-storage
 ```
 
-每个存储都有两个字段，`name`和`mountPath`。 `name`是指存储名称，而`mountPath`是任务容器内的mount路径。 `mountPath`的默认值为`/mnt/${name}`。
+每个存储都有两个字段，`name`和`mountPath`。 `name`是指存储名称，而`mountPath`是任务容器内的mount路径。 `mountPath`不是必须项，其默认值为`/mnt/${name}`。
 
-如果`storages`设置为空（如下），将使用当前用户的默认存储。
+如果`storages`设置为空列表（如下），将使用当前用户的默认存储。
 
 ```yaml
 extras:
     storages: []
 ```
-
-

@@ -1,6 +1,6 @@
 # How to Add and Remove Nodes
 
-OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing device (e.g. TPU, NPU) into the cluster.
+OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing devices (e.g. TPU, NPU) into the cluster.
 
 ## How to Add Nodes
 
@@ -133,7 +133,7 @@ If you have configured any PV/PVC storage, please confirm the added worker node 
 
 ## How to Remove Nodes
 
-Please refer to the operation of add nodes. They are very similar.
+Please refer to the operation of adding nodes. They are very similar.
 
 To remove nodes from the cluster, there is no need to modify `hosts.yml`. 
 Go into `~/pai-deploy/kubespray/`, run

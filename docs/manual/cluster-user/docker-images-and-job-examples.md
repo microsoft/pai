@@ -30,7 +30,7 @@ Apart from it, OpenPAI provides many out-of-the-box images for different deep le
 | openpai/standard |    python_3.6-mxnet_1.5.1-cpu    |       -      |            -            |
 | openpai/standard |      python_3.6-cntk_2.7-cpu     |       -      |            -            |
 
-The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported dockers require a high version of your NVIDIA driver, because of the requirement of CUDA. If you are not sure about the driver version of the cluster, please ask your administrator.
+The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. According to the requirement of CUDA, some GPU-supported dockers require a high version of the NVIDIA driver. If you are not sure about the driver version of the cluster, please ask your administrator.
 
 ## Job Examples based on Pre-built Images
 
@@ -43,14 +43,14 @@ The tag of these images indicates the version of the built-in deep learning fram
 
 There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please check [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) for details.
 
-## Use Your Own Custom Image
+## Use Your Custom Image
 
-If you want to build your own custom image instead of pre-built images, it is recommended to build it basing on ubuntu system, which includes bash, apt and other required dependency. Then you could add any requirements your job needs in the docker image, for example, python, pip and tensorflow etc. Please take care of potential conflicts when adding additional dependencies.
+If you want to build your custom image instead of pre-built images, it is recommended to build it basing on the Ubuntu system, which includes bash, apt, and other required dependencies. Then you could add any requirements your job needs in the docker image, such as python, pip, and TensorFlow. Please take care of potential conflicts when adding additional dependencies.
 
 ## How to use Images from Private Registry
 
-By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. The pre-built images are all available in this public registry. 
+By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public Docker registry. The pre-built images are all available in this public registry. 
 
-If you want to use a private registry, please toggle the `Custom` botton, then click the `Auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of an authorization failure after job submission.
+If you want to use a private registry, please toggle the `Custom` button, then click the `Auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of an authorization failure after job submission.
 
    <img src="./imgs/docker-image-auth.png" width="60%" height="60%" />

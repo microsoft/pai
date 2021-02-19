@@ -13,6 +13,7 @@ info:
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
     Version 2.2.1: a user can add/delete tags to/from his/her own jobs
     version 2.2.2: add get task logs api
+    version 2.2.3: set .jobStatus.appId nullable in get jobAttempt schema
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -92,6 +93,12 @@ paths:
       operationId: getTokens
       security:
         - bearerAuth: []
+      parameters:
+        - name: jobSpecific
+          in: query
+          description: If true, return job-specific tokens only, else return user tokens.
+          schema:
+            type: boolean
       responses:
         "200":
           description: Succeeded
@@ -2297,6 +2304,7 @@ components:
               type: string
             appId:
               type: string
+              nullable: true
               description: unique id for the job
             appCreatedTime:
               type: integer

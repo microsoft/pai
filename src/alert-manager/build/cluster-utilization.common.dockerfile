@@ -15,26 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - yarn
-  - k8s
+FROM python:3.7
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+COPY ./src/cluster-utilization .
 
-template-list:
-  - alert-manager-deployment.yaml
-  - alert-manager-configmap.yaml
-  - alert-manager-cronjob.yaml
-  - start.sh
+RUN pip3 install -r requirements.txt
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
+ENTRYPOINT ["python3", "send_alert.py"]
