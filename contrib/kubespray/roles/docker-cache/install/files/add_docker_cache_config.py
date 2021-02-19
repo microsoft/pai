@@ -1,10 +1,16 @@
 from pathlib import Path
-import os
+import argparse
 import json
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("host", default="localhost", help="host addr of docker cache registry")
+    return parser.parse_args()
+
+
 def main():
-    host = os.environ.get("DOCKER_CACHE_HOST") if os.environ.get("DOCKER_CACHE_HOST") else "localhost"
+    args = parse_args()
 
     folder_path = Path("/etc/docker")
     target_path = Path("/etc/docker/daemon.json")
@@ -20,7 +26,7 @@ def main():
     with open(str(backup_path), 'w') as f:
         json.dump(current_config, f)
 
-    docker_cache_mirror = "http://{}:30500".format(host)
+    docker_cache_mirror = "http://{}:30500".format(args.host)
     if "registry-mirrors" in current_config:
         if docker_cache_mirror not in current_config["registry-mirrors"]:
             current_config["registry-mirrors"].append(docker_cache_mirror)

@@ -39,7 +39,7 @@ echo "Performing pre-installation..."
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml pre-installation.yml || exit $?
 
 echo "Performing docker-cache config distribution..."
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config-distribute.yml -e ${HOME}/pai-deploy/cluster-cfg/hosts.yml || exit $?
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config-distribute.yml || exit $?
 
 echo "Starting kubernetes..."
 /bin/bash script/kubernetes-boot.sh || exit $?

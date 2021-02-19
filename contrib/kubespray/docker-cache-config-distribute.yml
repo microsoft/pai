@@ -6,8 +6,6 @@
     - role: '../roles/docker-cache/install'
       vars: 
         enable_docker_cache: true
-      environment:
-        DOCKER_CACHE_HOST: all["hosts"][all["children"]["kube-master"]["hosts"][0]]["ip"]
   tasks:
     - name: Restart service docker config from /etc/docker/daemon.json after update
       ansible.builtin.systemd:
