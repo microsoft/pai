@@ -1,7 +1,6 @@
 from datetime import timezone, datetime, timedelta
 import logging
 import os
-import urllib
 import requests
 
 CLUSTER_QUERY_STRING = "avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))"
@@ -50,68 +49,66 @@ def datetime_to_hours(dt):
 def get_usage_info(job_usage_result, user_usage_result, rest_url):
     job_infos = {}
     user_infos = {}
-    job_list = []
     # get all jobs
     headers = {'Authorization': "Bearer {}".format(TOKEN)}
     resp = requests.get(rest_url, headers=headers)
     resp.raise_for_status()
     job_list = resp.json()
 
-    for v in job_usage_result["data"]["result"]:
-        job_infos[v["metric"]["job_name"]] = {
-            "job_name": v["metric"]["job_name"],
-            "usage": v["value"][1][:6] + "%"
-        }
     for v in user_usage_result["data"]["result"]:
         user_infos[v["metric"]["username"]] = {
             "username": v["metric"]["username"],
             "usage": v["value"][1][:6] + "%", "resources_occupied": 0
         }
-    jobs_unfounded = []
-    for job_name, job_info in job_infos.items():
-        url = urllib.parse.urljoin(rest_url + "/", job_name)
-        resp = requests.get(url, headers=headers)
-        if not resp.ok:
-            logging.warning("request failed %s", resp.text)
-            jobs_unfounded.append(job_name)
-            continue
-        resp_json = resp.json()
-        username = resp_json["jobStatus"]["username"]
-        # get job duration
-        if not resp_json["jobStatus"]["appLaunchedTime"]:
-            logging.warning("job not start, ignore it")
-            del job_infos[job_name]
-            continue
-        job_infos[job_name]["start_time"] = datetime.fromtimestamp(
-            int(resp_json["jobStatus"]["appLaunchedTime"]) / 1000,
-            timezone.utc)
-        if job_infos[job_name]["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
-            job_infos[job_name]["start_time"] = datetime.now(timezone.utc) - timedelta(days = 7)
-        # job has not finished
-        if not resp_json["jobStatus"]["appCompletedTime"]:
-            job_infos[job_name]["duration"] = datetime.now(timezone.utc) - job_infos[job_name]["start_time"]
-        # job has finished
-        else:
-            job_infos[job_name]["duration"] = datetime.fromtimestamp(
-                int(resp_json["jobStatus"]["appCompletedTime"]) / 1000,
-                timezone.utc) - job_infos[job_name]["start_time"]
-        job_infos[job_name]["status"] = resp_json["jobStatus"]["state"]
+    for v in job_usage_result["data"]["result"]:
+        job_name = v["metric"]["job_name"]
+
         matched_job = list(
             filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
             job_list))
-        if matched_job:
-            job_infos[job_name]["gpu_number"] = matched_job[0]["totalGpuNumber"]
-        else:
-            job_infos[job_name]["gpu_number"] = 0
-        job_infos[job_name]["resources_occupied"] = job_infos[job_name]["gpu_number"] * datetime_to_hours(job_infos[job_name]["duration"])
-        user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
 
-    # remove unfounded jobs
-    for job_name in jobs_unfounded:
-        del job_infos[job_name]
+        # ingore unfounded jobs
+        if not matched_job:
+            logging.warning("Job %s not found.", job_name)
+            continue
+        job_info = matched_job[0]
+
+        # ignore jobs not started
+        if not job_info["launchedTime"]:
+            logging.warning("job not start, ignore it")
+            continue
+
+        job_infos[job_name] = {
+            "job_name": job_name,
+            "usage": v["value"][1],
+            "gpu_number": job_info["totalGpuNumber"]
+        }
+
+        # get job duration, only the during within 7d counts
+        job_infos[job_name]["start_time"] = datetime.fromtimestamp(
+            int(job_info["launchedTime"]) / 1000,
+            timezone.utc)
+        if job_infos[job_name]["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
+            job_infos[job_name]["start_time_in_7d"] = datetime.now(timezone.utc) - timedelta(days = 7)
+        else:
+            job_infos[job_name]["start_time_in_7d"] = job_infos[job_name]["start_time"]
+        # job has not finished
+        if not job_info["completedTime"]:
+            job_infos[job_name]["duration"] = datetime.now(timezone.utc) - job_infos[job_name]["start_time_in_7d"]
+        # job has finished
+        else:
+            job_infos[job_name]["duration"] = datetime.fromtimestamp(
+                int(job_info["completedTime"]) / 1000,
+                timezone.utc) - job_infos[job_name]["start_time_in_7d"]
+        job_infos[job_name]["status"] = job_info["state"]
+
+        job_infos[job_name]["resources_occupied"] = job_infos[job_name]["gpu_number"] * datetime_to_hours(job_infos[job_name]["duration"])
+        username = job_info["username"]
+        user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
 
     # format
     for job_name, job_info in job_infos.items():
+        job_infos[job_name]["usage"] = job_info["usage"][:6] + "%"
         job_infos[job_name]["gpu_number"] = str(job_info["gpu_number"])
         job_infos[job_name]["duration"] = str(job_info["duration"])
         job_infos[job_name]["start_time"] = job_info["start_time"].strftime("%y-%m-%d %H:%M:%S")
@@ -123,7 +120,7 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
     job_usage = sorted(job_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
     user_usage = sorted(user_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
 
-    return job_usage, user_usage
+    return job_usage[:10], user_usage
 
 
 @enable_request_debug_log
@@ -207,10 +204,10 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "generatorURL": "alert/script"
         }
         alerts.append(alert)
-    logging.info("Starting to send alerts...")
+    logging.info("Sending alerts to alert-manager...")
     resp = requests.post(post_url, json=alerts)
     resp.raise_for_status()
-    logging.info("Finished sending alerts.")
+    logging.info("Alerts sent to alert-manager.")
 
 
 def main():
