@@ -37,17 +37,23 @@ cluster:
 {% if env["cfg"]["enable_docker_cache"]|default(false) is sameas true %}
 docker-cache:
   enabled: {{ env["cfg"]["enable_docker_cache"] }}
-  storage_backend: {{ env["docker_cache"]["storage_backend"]}}
-  {% if env["docker_cache"]["storage_backend"] == "azure" %}
-  azure_account_name: {{ env["docker_cache"]["azure_account_name"] }}
-  azure_account_key: {{ env["docker_cache"]["azure_account_key"] }}
-  azure_container_name: {{ env["docker_cache"]["azure_container_name"] }}
-  {% elif env["docker_cache"]["storage_backend"] == "filesystem" %}
-  fs_mount_path: {{ env["docker_cache"]["fs_mount_path"]}}
-  {% else %}
+  {% if "docker_cache_storage_backend" in env["cfg"] %}
+  storage_backend: {{ env["cfg"]["docker_cache_storage_backend"]}}
+    {% if env["cfg"]["docker_cache_storage_backend"] == "azure" %}
+  azure_account_name: {{ env["cfg"]["docker_cache_azure_account_name"] }}
+  azure_account_key: {{ env["cfg"]["docker_cache_azure_account_key"] }}
+  azure_container_name: {{ env["cfg"]["docker_cache_azure_container_name"] }}
+    {% elif env["cfg"]["docker_cache_storage_backend"] == "filesystem" %}
+  fs_mount_path: {{ env["cfg"]["docker_cache_fs_mount_path"]}}
+    {% else %}
+    {% endif %}
   {% endif %}
-  remote_url: {{ env["docker_cache"]["remote_url"] }}
-  registry-htpasswd: {{ env["docker_cache"]["registry_htpasswd"] }}
+  {% if "docker_cache_remote_url" in env["cfg"] %}
+  remote_url: {{ env["cfg"]["docker_cache_remote_url"] }}
+  {% endif %}
+  {% if "docker_cache_registry_htpasswd" in env["cfg"] %}
+  registry-htpasswd: {{ env["cfg"]["docker_cache_registry_htpasswd"] }}
+  {% endif %}
 {% else %}
 {% endif %}
 

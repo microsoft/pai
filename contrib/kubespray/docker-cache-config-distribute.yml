@@ -3,9 +3,12 @@
   become_user: root
   gather_facts: true
   roles:
-    - { role: '../roles/docker-cache/install', enable_docker_cache: true }
+    - role: '../roles/docker-cache/install'
+      vars: 
+        enable_docker_cache: true
+        docker_cache_host: all["hosts"][all["children"]["kube-master"]["hosts"][0]]["ip"]
   tasks:
     - name: Restart service docker config from /etc/docker/daemon.json after update
       ansible.builtin.systemd:
         name: docker
-        state: reloaded
+        state: restarted

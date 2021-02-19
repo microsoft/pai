@@ -12,4 +12,4 @@ container_port: 5000
 service_port: 5000
 service_nodeport: 30500
 remote_url: https://registry-1.docker.io
-registry-htpasswd: dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
+registry-htpasswd: '' # test test dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
