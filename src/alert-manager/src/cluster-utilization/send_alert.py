@@ -67,12 +67,13 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
             "username": v["metric"]["username"],
             "usage": v["value"][1][:6] + "%", "resources_occupied": 0
         }
+    jobs_unfounded = []
     for job_name, job_info in job_infos.items():
         url = urllib.parse.urljoin(rest_url + "/", job_name)
         resp = requests.get(url, headers=headers)
         if not resp.ok:
             logging.warning("request failed %s", resp.text)
-            del job_infos[job_name]
+            jobs_unfounded.append(job_name)
             continue
         resp_json = resp.json()
         username = resp_json["jobStatus"]["username"]
@@ -104,6 +105,10 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
             job_infos[job_name]["gpu_number"] = 0
         job_infos[job_name]["resources_occupied"] = job_infos[job_name]["gpu_number"] * datetime_to_hours(job_infos[job_name]["duration"])
         user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
+
+    # remove unfounded jobs
+    for job_name in jobs_unfounded:
+        del job_infos[job_name]
 
     # format
     for job_name, job_info in job_infos.items():

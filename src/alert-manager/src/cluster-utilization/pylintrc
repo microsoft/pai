@@ -8,3 +8,4 @@ disable =
     cell-var-from-loop,
     undefined-loop-variable,
     too-many-locals,
+    too-many-branches,
