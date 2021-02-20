@@ -124,3 +124,60 @@ export async function fetchStorageDetails(configNames) {
     return details;
   });
 }
+
+export async function fetchMyTemplates(user) {
+  const queryOptions = {};
+  queryOptions.author = user;
+  queryOptions.source = 'pai';
+  const queryStr = queryString.stringify(queryOptions);
+  const url = urljoin(config.marketplaceUri, `items?${queryStr}`);
+  const token = cookies.get('token');
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.ok) {
+    const items = await res.json();
+    // order by updateDate
+    items.sort(function(a, b) {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    return items;
+  } else {
+    throw new Error(res.statusText);
+  }
+}
+
+export async function CreateTemplate(marketItem) {
+  const url = urljoin(config.marketplaceUri, 'items');
+  const token = cookies.get('token');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      name: marketItem.name,
+      author: marketItem.author,
+      type: marketItem.type,
+      dataType: marketItem.dataType,
+      dataUrl: marketItem.dataUrl,
+      category: marketItem.category,
+      summary: marketItem.summary,
+      description: marketItem.description,
+      protocol: marketItem.protocol,
+      tags: marketItem.tags,
+      status: marketItem.status,
+    }),
+  });
+  if (res.ok) {
+    const result = await res.json();
+    return result.id;
+  } else {
+    throw new Error(res.statusText);
+  }
+}

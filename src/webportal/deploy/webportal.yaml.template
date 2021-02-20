@@ -46,6 +46,16 @@ spec:
 {% endif %}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+        - name: MARKETPLACE_API_URI
+{%- if 'marketplace_api_uri' in cluster_cfg['marketplace-webportal'] %}
+          value: {{ cluster_cfg["marketplace-webportal"]["marketplace_api_uri"] }}
+{%- else %}
+{% if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+          value: "{{ cluster_cfg['pylon']['uri-https']}}/marketplace/api"
+{% else %}
+          value: "{{ cluster_cfg['pylon']['uri']}}/marketplace/api"
+{% endif %}
+{%- endif %}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
         - name: LOG_TYPE
