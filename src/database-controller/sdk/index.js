@@ -27,6 +27,7 @@ class DatabaseModel {
         jobConfig: Sequelize.TEXT,
         executionType: Sequelize.STRING(32),
         creationTime: Sequelize.DATE,
+        launchTime: Sequelize.DATE,
         virtualCluster: Sequelize.STRING(256),
         jobPriority: Sequelize.STRING(256),
         totalGpuNumber: Sequelize.INTEGER,

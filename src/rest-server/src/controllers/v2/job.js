@@ -119,6 +119,7 @@ const list = asyncHandler(async (req, res) => {
     'executionType',
     'submissionTime',
     'creationTime',
+    'launchTime',
     'virtualCluster',
     'totalGpuNumber',
     'totalTaskNumber',

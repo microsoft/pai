@@ -64,8 +64,7 @@ const convertFrameworkSummary = (framework) => {
     retryDelayTime: framework.retryDelayTime,
     submissionTime: new Date(framework.submissionTime).getTime(),
     createdTime: new Date(framework.creationTime).getTime() || null,
-    launchedTime:
-      new Date(framework.runTime || framework.completionTime).getTime() || null,
+    launchedTime: new Date(framework.launchTime).getTime() || null,
     completedTime: new Date(framework.completionTime).getTime() || null,
     appExitCode: framework.appExitCode,
     virtualCluster: framework.virtualCluster
