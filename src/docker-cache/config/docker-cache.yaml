@@ -12,4 +12,7 @@ container_port: 5000
 service_port: 5000
 service_nodeport: 30500
 remote_url: https://registry-1.docker.io
-registry-htpasswd: '' # test test dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
+registry-htpasswd: '' 
+# registry-htpasswd default value can be dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==,
+# which is "username: test password: test" encoded by htpasswd and base64
+# htpasswd is an apache tool for generate basic auth credentials
