@@ -8,6 +8,7 @@ import yaml from 'js-yaml';
 import { get } from 'lodash';
 import urljoin from 'url-join';
 import { getDeshuttleStorageDetails } from './utils';
+import queryString from 'query-string';
 
 const token = cookies.get('token');
 
@@ -151,7 +152,7 @@ export async function fetchMyTemplates(user) {
   }
 }
 
-export async function CreateTemplate(marketItem) {
+export async function createTemplate(marketItem) {
   const url = urljoin(config.marketplaceUri, 'items');
   const token = cookies.get('token');
   const res = await fetch(url, {
@@ -160,19 +161,7 @@ export async function CreateTemplate(marketItem) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      name: marketItem.name,
-      author: marketItem.author,
-      type: marketItem.type,
-      dataType: marketItem.dataType,
-      dataUrl: marketItem.dataUrl,
-      category: marketItem.category,
-      summary: marketItem.summary,
-      description: marketItem.description,
-      protocol: marketItem.protocol,
-      tags: marketItem.tags,
-      status: marketItem.status,
-    }),
+    body: JSON.stringify(marketItem),
   });
   if (res.ok) {
     const result = await res.json();

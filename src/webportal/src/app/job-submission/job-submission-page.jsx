@@ -2,10 +2,16 @@
 // Licensed under the MIT License.
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
-import { isNil, isEmpty, get } from 'lodash';
+import {
+  Fabric,
+  Stack,
+  StackItem,
+  Dropdown,
+} from 'office-ui-fabric-react';
+import { isNil, isEmpty, get, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
+import Card from '../components/card';
 import { JobInformation } from './components/job-information';
 import { SubmissionSection } from './components/submission-section';
 import { TaskRoles } from './components/task-roles';
@@ -16,6 +22,7 @@ import {
   listUserVirtualClusters,
   listUserStorageConfigs,
   fetchStorageDetails,
+  fetchMyTemplates,
 } from './utils/conn';
 import { TaskRolesManager } from './utils/task-roles-manager';
 
@@ -74,6 +81,13 @@ export const JobSubmissionPage = ({
   yamlText,
   setYamlText,
 }) => {
+  const [templateOptions, setTemplateOptions] = useState([
+    {
+      key: 'No',
+      text: 'No template',
+      protocol: null,
+    },
+  ]);
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({ name: 'taskrole' }),
   ]);
@@ -305,6 +319,21 @@ export const JobSubmissionPage = ({
     }
   }, [vcNames]);
 
+  // fill template options
+  useEffect(() => {
+    fetchMyTemplates(loginUser).then(templates => {
+      const newTemplateOptions = cloneDeep(templateOptions);
+      for (const template of templates) {
+        newTemplateOptions.push({
+          key: template.id,
+          text: template.name,
+          protocol: template.protocol,
+        });
+      }
+      setTemplateOptions(newTemplateOptions);
+    });
+  }, []);
+
   // update component if yamlText is not null
   useEffect(() => {
     if (!isNil(yamlText)) {
@@ -355,6 +384,29 @@ export const JobSubmissionPage = ({
       })
       .catch(alert);
   }, [jobInformation.virtualCluster]);
+
+  const onTemplateChange = useCallback((_, item) => {
+    if (item.key === 'No') {
+      return;
+    }
+    const jobConfig = JobProtocol.fromYaml(item.protocol);
+    const [
+      jobInfo,
+      taskRoles,
+      parameters,
+      ,
+      extras,
+    ] = getJobComponentsFromConfig(jobConfig, { vcNames });
+    jobInfo.name = generateJobName(jobInfo.name);
+    if (get(jobConfig, 'extras.submitFrom')) {
+      delete jobConfig.extras.submitFrom;
+    }
+    setJobProtocol(new JobProtocol(jobConfig));
+    setJobTaskRoles(taskRoles);
+    setParameters(parameters);
+    setJobInformation(jobInfo);
+    setExtras(extras);
+  });
 
   const onToggleAdvanceFlag = useCallback(() => {
     setAdvanceFlag(!advanceFlag);
@@ -415,6 +467,18 @@ export const JobSubmissionPage = ({
                   padding='0 0 s2'
                   styles={{ root: { height: '100%' } }}
                 >
+                  <Card>
+                    <Stack gap='m'>
+                      <div style={{ FontSizes: '16px', fontWeight: '600' }}>
+                        Template Selection
+                      </div>
+                      <Dropdown
+                        onChange={onTemplateChange}
+                        placeholder='Select a saved template'
+                        options={templateOptions}
+                      />
+                    </Stack>
+                  </Card>
                   <JobInformation
                     jobInformation={jobInformation}
                     onChange={setJobInformation}

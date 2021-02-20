@@ -71,6 +71,7 @@
     "office-ui-fabric-react": "^6.189.0",
     "papaparse": "^5.2.0",
     "prop-types": "^15.7.2",
+    "query-string": "^6.14.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-monaco-editor": "^0.25.1",

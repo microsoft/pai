@@ -43,7 +43,7 @@ import {
 import { JobProtocol } from '../models/job-protocol';
 import { JobBasicInfo } from '../models/job-basic-info';
 import { JobTaskRole } from '../models/job-task-role';
-import { submitJob } from '../utils/conn';
+import { submitJob, createTemplate } from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
@@ -82,6 +82,9 @@ export const SubmissionSection = props => {
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
   const [hideDialog, setHideDialog] = useState(true);
+  const [templateName, setTemplateName] = useState('');
+  const [templateSummary, setTemplateSummary] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
 
   const toggleHideDialog = () => {
     setHideDialog(!hideDialog);
@@ -190,6 +193,29 @@ export const SubmissionSection = props => {
     }
   };
 
+  const saveTemplate = async event => {
+    if (isNil(templateName) || templateName === '') {
+      setHideDialog(!hideDialog);
+      alert('Template name is required!');
+      return;
+    }
+    const protocol = cloneDeep(jobProtocol);
+    const template = {};
+    template.name = templateName;
+    template.summary = templateSummary;
+    template.description = templateDescription;
+    template.protocol = protocol.toYaml();
+    template.source = 'pai';
+    template.author = user;
+    try {
+      await createTemplate(template);
+      alert('create successfullly');
+      setHideDialog(!hideDialog);
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   const _submitJob = async event => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
@@ -255,17 +281,34 @@ export const SubmissionSection = props => {
         }}
       >
         <Stack>
-          <TextField label={'name'} required={true} />
-          <TextField label={'summary'} required={false} multiline rows={3} />
+          <TextField
+            label={'name'}
+            onChange={e => {
+              setTemplateName(e.target.value);
+            }}
+            required={true}
+          />
+          <TextField
+            label={'summary'}
+            required={false}
+            onChange={e => {
+              setTemplateSummary(e.target.value);
+            }}
+            multiline
+            rows={3}
+          />
           <TextField
             label={'description'}
             required={false}
+            onChange={e => {
+              setTemplateDescription(e.target.value);
+            }}
             multiline
             rows={10}
           />
         </Stack>
         <DialogFooter>
-          <PrimaryButton text='Save' onClick={toggleHideDialog} />
+          <PrimaryButton text='Save' onClick={saveTemplate} />
           <DefaultButton text='Cancel' onClick={toggleHideDialog} />
         </DialogFooter>
       </Dialog>
