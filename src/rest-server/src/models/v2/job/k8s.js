@@ -1117,12 +1117,12 @@ const put = async (frameworkName, config, rawConfig) => {
     }
   }
 
-    // generate the user-extension-secret definition
-    const user = await userModel.getUser(userName);
-    const userExtension = user.extension;
-    const userSecretDef = userExtension
-      ? getUserSecretDef(frameworkName, userExtension)
-      : null;
+  // generate the user-extension-secret definition
+  const user = await userModel.getUser(userName);
+  const userExtension = user.extension;
+  const userSecretDef = userExtension
+    ? getUserSecretDef(frameworkName, userExtension)
+    : null;
 
   const frameworkDescription = generateFrameworkDescription(
     frameworkName,
