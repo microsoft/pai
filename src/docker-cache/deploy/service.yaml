@@ -6,10 +6,12 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - docker-cache
 
 template-list:
-  - marketplace-db.yaml
+  - docker-cache-config.yaml
+  - docker-cache-secret.yaml
+  - docker-cache.yaml
+  - docker-cache-service.yaml
   - start.sh
 
 start-script: start.sh
