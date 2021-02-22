@@ -1,0 +1,19 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry-cache-service
+  namespace: default
+  labels:
+    app: docker-registry-cache
+spec:
+  type: NodePort
+  selector:
+    app: docker-registry-cache
+  ports:
+  - port: {{ cluster_cfg["docker-cache"]["service_port"] }}
+    name: http
+    targetPort: {{ cluster_cfg["docker-cache"]["container_port"] }}
+    nodePort: {{ cluster_cfg["docker-cache"]["service_nodeport"] }}

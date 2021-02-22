@@ -21,6 +21,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - docker-cache
 
 template-list:
   - pylon.yaml
