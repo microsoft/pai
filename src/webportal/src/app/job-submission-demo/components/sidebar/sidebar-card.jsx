@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React from 'react';
 import { TooltipIcon } from '../controls/tooltip-icon';
 import { Box, Flex, Text } from '../../elements';

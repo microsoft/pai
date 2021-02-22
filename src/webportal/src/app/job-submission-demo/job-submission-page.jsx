@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React from 'react';
 import { connect } from 'react-redux';
 import { JobEditPage } from './job-edit-page';

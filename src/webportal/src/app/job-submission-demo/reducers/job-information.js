@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { JobProtocol } from '../models/job-protocol';
 
 const initialState = {

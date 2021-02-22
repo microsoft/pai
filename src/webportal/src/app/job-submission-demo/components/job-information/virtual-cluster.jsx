@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { Dropdown } from 'office-ui-fabric-react';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';

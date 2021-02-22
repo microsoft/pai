@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Flex, Box, Link } from '../../elements';

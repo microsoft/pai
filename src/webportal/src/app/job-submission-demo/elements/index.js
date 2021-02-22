@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import Box from './Box';
 import Button from './Button';
 import Flex from './Flex';

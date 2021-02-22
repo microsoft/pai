@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { SIDEBAR_PARAM, SIDEBAR_CONFIG } from '../utils/constants';
 
 const initialState = {

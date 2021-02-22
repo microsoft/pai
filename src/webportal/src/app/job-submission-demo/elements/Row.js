@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React, { isValidElement } from 'react';
 import Box from './Box';
 import PropTypes from 'prop-types';

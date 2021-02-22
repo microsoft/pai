@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { listHivedSkuTypes, listUserVirtualClusters } from '../utils/conn';
 

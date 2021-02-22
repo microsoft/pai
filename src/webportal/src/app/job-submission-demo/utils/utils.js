@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { isObject, isEmpty, isNil, isArrayLike } from 'lodash';
 
 export function removeEmptyProperties(obj) {

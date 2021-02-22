@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import styled from 'styled-components';
 import { color, layout, typography } from 'styled-system';
 

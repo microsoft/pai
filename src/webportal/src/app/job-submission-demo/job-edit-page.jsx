@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { isNil, get } from 'lodash';

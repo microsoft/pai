@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 const theme = {
   breakpoints: ['40em', '52em', '64em'],
 
