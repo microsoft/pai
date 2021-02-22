@@ -350,7 +350,7 @@ class Snapshot {
 }
 
 // Class Add-ons handles creation/patching/deletion of job add-ons.
-// Currently there are 4 types of add-ons: configSecret, userSecret, priorityClass, dockerSecret, and tokenSecret.
+// Currently there are 5 types of add-ons: configSecret, userSecret, priorityClass, dockerSecret, and tokenSecret.
 class AddOns {
   constructor(
     configSecretDef = null,

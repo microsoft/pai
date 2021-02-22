@@ -1136,8 +1136,8 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // generate the user-extension-secret definition
-  const user = userModel.getUser(userName)
-  const userExtension = user["extension"]
+  const user = userModel.getUser(userName);
+  const userExtension = user.extension;
   const userSecretDef = userExtension
     ? getUserSecretDef(userName, userExtension)
     : null;
