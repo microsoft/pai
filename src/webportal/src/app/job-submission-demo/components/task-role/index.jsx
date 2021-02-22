@@ -70,7 +70,7 @@ const PureTaskRole = ({ expandedFlag }) => {
             <FormItem
               label='Task retry count'
               tooltip={PROTOCOL_TOOLTIPS.policy}
->
+            >
               <TaskRetryCount />
             </FormItem>
           </Col>
