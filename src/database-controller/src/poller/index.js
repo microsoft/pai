@@ -145,7 +145,7 @@ async function poll() {
       attributes: [
         'name',
         'configSecretDef',
-        'userSecretDef',
+        'userExtensionSecretDef',
         'priorityClassDef',
         'dockerSecretDef',
         'tokenSecretDef',
@@ -166,7 +166,7 @@ async function poll() {
       const snapshot = new Snapshot(framework.snapshot);
       const addOns = new AddOns(
         framework.configSecretDef,
-        framework.userSecretDef,
+        framework.userExtensionSecretDef,
         framework.priorityClassDef,
         framework.dockerSecretDef,
         framework.tokenSecretDef,

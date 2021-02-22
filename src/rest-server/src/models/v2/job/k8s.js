@@ -868,9 +868,11 @@ const getConfigSecretDef = (frameworkName, secrets) => {
   };
 };
 
-const getUserSecretDef = (frameworkName, secrets) => {
+const getuserExtensionSecretDef = (frameworkName, secrets) => {
   const data = {
-    'userSecrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
+    'userExtensionSecrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString(
+      'base64',
+    ),
   };
   return {
     apiVersion: 'v1',
@@ -1120,8 +1122,8 @@ const put = async (frameworkName, config, rawConfig) => {
   // generate the user-extension-secret definition
   const user = await userModel.getUser(userName);
   const userExtension = user.extension;
-  const userSecretDef = userExtension
-    ? getUserSecretDef(frameworkName, userExtension)
+  const userExtensionSecretDef = userExtension
+    ? getuserExtensionSecretDef(frameworkName, userExtension)
     : null;
 
   const frameworkDescription = generateFrameworkDescription(
@@ -1191,7 +1193,7 @@ const put = async (frameworkName, config, rawConfig) => {
         frameworkRequest: frameworkDescription,
         submissionTime: submissionTime,
         configSecretDef: configSecretDef,
-        userSecretDef: userSecretDef,
+        userExtensionSecretDef: userExtensionSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
         tokenSecretDef: tokenSecretDef,

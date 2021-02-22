@@ -350,11 +350,11 @@ class Snapshot {
 }
 
 // Class Add-ons handles creation/patching/deletion of job add-ons.
-// Currently there are 5 types of add-ons: configSecret, userSecret, priorityClass, dockerSecret, and tokenSecret.
+// Currently there are 5 types of add-ons: configSecret, userExtensionSecret, priorityClass, dockerSecret, and tokenSecret.
 class AddOns {
   constructor(
     configSecretDef = null,
-    userSecretDef = null,
+    userExtensionSecretDef = null,
     priorityClassDef = null,
     dockerSecretDef = null,
     tokenSecretDef = null,
@@ -364,10 +364,10 @@ class AddOns {
     } else {
       this._configSecretDef = configSecretDef;
     }
-    if (userSecretDef !== null && !(userSecretDef instanceof Object)) {
-      this._userSecretDef = JSON.parse(userSecretDef);
+    if (userExtensionSecretDef !== null && !(userExtensionSecretDef instanceof Object)) {
+      this._userExtensionSecretDef = JSON.parse(userExtensionSecretDef);
     } else {
-      this._userSecretDef = userSecretDef;
+      this._userExtensionSecretDef = userExtensionSecretDef;
     }
     if (priorityClassDef !== null && !(priorityClassDef instanceof Object)) {
       this._priorityClassDef = JSON.parse(priorityClassDef);
@@ -400,13 +400,13 @@ class AddOns {
         }
       }
     }
-    if (this._userSecretDef) {
+    if (this._userExtensionSecretDef) {
       try {
-        await k8s.createSecret(this._userSecretDef);
+        await k8s.createSecret(this._userExtensionSecretDef);
       } catch (err) {
         if (err.response && err.response.statusCode === 409) {
           logger.warn(
-            `Secret ${this._userSecretDef.metadata.name} already exists.`,
+            `Secret ${this._userExtensionSecretDef.metadata.name} already exists.`,
           );
         } else {
           throw err;
@@ -460,9 +460,9 @@ class AddOns {
       k8s
         .patchSecretOwnerToFramework(this._configSecretDef, frameworkResponse)
         .catch(logError);
-    this._userSecretDef &&
+    this._userExtensionSecretDef &&
       k8s
-        .patchSecretOwnerToFramework(this._userSecretDef, frameworkResponse)
+        .patchSecretOwnerToFramework(this._userExtensionSecretDef, frameworkResponse)
         .catch(logError);
     this._dockerSecretDef &&
       k8s
@@ -478,8 +478,8 @@ class AddOns {
     // do not await for delete
     this._configSecretDef &&
       k8s.deleteSecret(this._configSecretDef.metadata.name).catch(logError);
-    this._userSecretDef &&
-      k8s.deleteSecret(this._userSecretDef.metadata.name).catch(logError);
+    this._userExtensionSecretDef &&
+      k8s.deleteSecret(this._userExtensionSecretDef.metadata.name).catch(logError);
     this._priorityClassDef &&
       k8s
         .deletePriorityClass(this._priorityClassDef.metadata.name)
@@ -495,8 +495,8 @@ class AddOns {
     if (this._configSecretDef) {
       update.configSecretDef = JSON.stringify(this._configSecretDef);
     }
-    if (this._userSecretDef) {
-      update.userSecretDef = JSON.stringify(this._userSecretDef);
+    if (this._userExtensionSecretDef) {
+      update.userExtensionSecretDef = JSON.stringify(this._userExtensionSecretDef);
     }
     if (this._priorityClassDef) {
       update.priorityClassDef = JSON.stringify(this._priorityClassDef);
