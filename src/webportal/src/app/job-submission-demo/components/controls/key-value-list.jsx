@@ -7,19 +7,19 @@ import {
   CheckboxVisibility,
   DetailsListLayoutMode,
   CommandBarButton,
-  getTheme,
   SelectionMode,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import { countBy, isEmpty } from 'lodash';
 import React, { useCallback } from 'react';
 import { DebouncedTextField } from './debounced-text-field';
-// import { dispatchResizeEvent } from '../../utils/utils';
+import { Flex } from '../../elements';
+import theme from '../../theme';
 
 export const KeyValueList = ({
   items,
   onChange,
-  secret,
+  isSecret,
   keyHeader,
   valueHeader,
 }) => {
@@ -67,7 +67,7 @@ export const KeyValueList = ({
   //   dispatchResizeEvent();
   // });
 
-  const { spacing } = getTheme();
+  const { space } = theme;
 
   const columns = [
     {
@@ -93,7 +93,7 @@ export const KeyValueList = ({
           <DebouncedTextField
             errorMessage={item.valueError}
             value={item.value}
-            type={secret && 'password'}
+            type={isSecret && 'password'}
             onChange={(e, val) => onValueChange(idx, val)}
           />
         );
@@ -104,20 +104,13 @@ export const KeyValueList = ({
       name: 'Remove',
       minWidth: 50,
       onRender: (item, idx) => (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-        >
+        <Flex alignItems='baseline' justifyContent='center' height='100%'>
           <IconButton
             key={`remove-button-${idx}`}
             iconProps={{ iconName: 'Delete' }}
             onClick={() => onRemove(idx)}
           />
-        </div>
+        </Flex>
       ),
     },
   ];
@@ -137,7 +130,7 @@ export const KeyValueList = ({
       </div>
       <div>
         <CommandBarButton
-          styles={{ root: { padding: spacing.s1 } }}
+          styles={{ root: { padding: space.s1 } }}
           iconProps={{ iconName: 'Add' }}
           onClick={onAdd}
         >
@@ -152,7 +145,7 @@ KeyValueList.propTypes = {
   items: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   // custom field
-  secret: PropTypes.bool,
+  isSecret: PropTypes.bool,
   keyHeader: PropTypes.string,
   valueHeader: PropTypes.string,
 };
@@ -167,19 +160,18 @@ export const getItemsWithError = items => {
       result.push(item);
     }
   }
-  // duplicate key
-  const keyCount = countBy(result, x => x.key);
-  for (const [idx, item] of result.entries()) {
-    if (keyCount[item.key] > 1) {
-      result[idx] = { ...item, keyError: 'Duplicated key' };
-    }
-  }
   // empty key
   for (const [idx, item] of result.entries()) {
-    if (isEmpty(item.key) && !isEmpty(item.value) && isEmpty(item.keyError)) {
+    if (isEmpty(item.key)) {
       result[idx] = { ...item, keyError: 'Empty key' };
     }
   }
-
+  // duplicate key
+  const keyCount = countBy(result, x => x.key);
+  for (const [idx, item] of result.entries()) {
+    if (keyCount[item.key] > 1 && isEmpty(item.keyError)) {
+      result[idx] = { ...item, keyError: 'Duplicated key' };
+    }
+  }
   return result;
 };

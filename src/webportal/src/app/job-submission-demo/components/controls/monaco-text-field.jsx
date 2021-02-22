@@ -3,7 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
   Label,
-  getTheme,
   DelayedRender,
   AnimationClassNames,
   FontSizes,
@@ -11,6 +10,7 @@ import {
 import PropTypes from 'prop-types';
 import MonacoEditor from '../../../components/monaco-editor';
 import { isEmpty, isNil, debounce } from 'lodash';
+import theme from '../../theme';
 
 export const MonacoTextField = props => {
   const {
@@ -23,10 +23,10 @@ export const MonacoTextField = props => {
     monacoRef,
     errorMessage,
   } = props;
-  const { palette, spacing, semanticColors } = getTheme();
+  const { colors, space } = theme;
   const borderColor = isEmpty(errorMessage)
-    ? palette.neutralTertiary
-    : semanticColors.errorText;
+    ? colors.neutralTertiary
+    : colors.errorText;
 
   const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange]);
   const onChangeWrapper = useCallback(
@@ -77,7 +77,7 @@ export const MonacoTextField = props => {
           minHeight: 0,
           border: 'solid 1px',
           borderColor: borderColor,
-          paddingTop: spacing.s1,
+          paddingTop: space.s1,
         }}
         completionItems={completionItems}
         monacoRef={monacoRef}
@@ -104,9 +104,9 @@ export const MonacoTextField = props => {
               className={AnimationClassNames.slideDownIn20}
               style={{
                 fontSize: FontSizes.small,
-                color: semanticColors.errorText,
+                color: colors.errorText,
                 margin: 0,
-                paddingTop: spacing.s2,
+                paddingTop: space.s2,
                 display: 'flex',
                 alignItems: 'center',
               }}

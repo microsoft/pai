@@ -16,6 +16,7 @@ import { MinSucceedInstances } from './min-succeed-instances';
 import { MoreInfo } from '../more-info';
 import { TaskRoleName } from './task-role-name';
 import PropTypes from 'prop-types';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 
 const PureTaskRole = ({ expandedFlag }) => {
   const [advancedFlag, handleAdvancedFlag] = useState(false);
@@ -23,7 +24,7 @@ const PureTaskRole = ({ expandedFlag }) => {
   const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
 
   return (
-    <FormSection title={<TabForm />}>
+    <FormSection title={<TabForm />} tooltip={PROTOCOL_TOOLTIPS.taskRole}>
       <Row gutter={20}>
         <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
           <FormItem label='Task role name'>
@@ -31,12 +32,15 @@ const PureTaskRole = ({ expandedFlag }) => {
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-          <FormItem label='Docker image'>
+          <FormItem
+            label='Docker image'
+            tooltip={PROTOCOL_TOOLTIPS.dockerImage}
+          >
             <DockerImage />
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-          <FormItem label='instances'>
+          <FormItem label='Instances'>
             <Instance />
           </FormItem>
         </Col>
@@ -63,17 +67,26 @@ const PureTaskRole = ({ expandedFlag }) => {
       {advancedFlag ? (
         <Row gutter={20}>
           <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
-            <FormItem label='Task retry count'>
+            <FormItem
+              label='Task retry count'
+              tooltip={PROTOCOL_TOOLTIPS.policy}
+>
               <TaskRetryCount />
             </FormItem>
           </Col>
           <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-            <FormItem label='Min failed instances'>
+            <FormItem
+              label='Min failed instances'
+              tooltip={PROTOCOL_TOOLTIPS.policy}
+            >
               <MinFailedInstances />
             </FormItem>
           </Col>
           <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-            <FormItem label='Min succeed instances'>
+            <FormItem
+              label='Min succeed instances'
+              tooltip={PROTOCOL_TOOLTIPS.policy}
+            >
               <MinSucceedInstances />
             </FormItem>
           </Col>

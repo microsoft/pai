@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 const PureSubmissionSection = ({ jobProtocol, ...restProps }) => {
   const onSubmit = () => {
+    // TO DO: command trim()
     console.log('submit jobProtocol:', jobProtocol);
   };
 

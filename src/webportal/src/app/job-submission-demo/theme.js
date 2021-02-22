@@ -67,6 +67,7 @@ const theme = {
     'light-silver': '#aaa',
     'moon-gray': '#ccc',
     'light-gray': '#eee',
+    neutralTertiary: '#c2c2c2',
     'near-white': '#f8f8f8',
     white: '#fff',
     'black-90': 'rgba(0,0,0,.9)',
@@ -93,6 +94,7 @@ const theme = {
     'white-05': 'rgba(255,255,255,.05)',
     'white-025': 'rgba(255,255,255,.025)',
     'white-0125': 'rgba(255,255,255,.0125)',
+    errorText: '#a80000',
   },
 };
 

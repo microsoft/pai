@@ -8,7 +8,8 @@ import { Box, Code } from '../../elements';
 import { FormSection } from '../form-page';
 import PropTypes from 'prop-types';
 
-const PureParameters = ({ dispatch, parameters }) => {
+const PureParameters = ({ dispatch, jobProtocol }) => {
+  const { parameters } = jobProtocol;
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ const PureParameters = ({ dispatch, parameters }) => {
       // update job protocol into store
       dispatch({
         type: 'SAVE_JOBPROTOCOL',
-        payload: { parameters: newParameters },
+        payload: { ...jobProtocol, parameters: newParameters },
       });
       // handleError(false);
       // setErrorMessage(ERROR_ID, null);
@@ -67,10 +68,10 @@ const PureParameters = ({ dispatch, parameters }) => {
 };
 
 export const Parameters = connect(({ jobInformation }) => ({
-  parameters: jobInformation.jobProtocol.parameters,
+  jobProtocol: jobInformation.jobProtocol,
 }))(PureParameters);
 
 PureParameters.propTypes = {
   dispatch: PropTypes.func,
-  parameters: PropTypes.object,
+  jobProtocol: PropTypes.object,
 };
