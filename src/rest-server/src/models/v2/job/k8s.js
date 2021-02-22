@@ -686,6 +686,7 @@ const generateTaskRole = (
 const generateFrameworkDescription = (
   frameworkName,
   virtualCluster,
+  userExtension,
   config,
   rawConfig,
 ) => {
@@ -770,6 +771,23 @@ const generateFrameworkDescription = (
         mountPath: '/usr/local/pai/secrets',
       });
     }
+    // mount user secrets to initContainers & job container if exist
+    if (userExtension) {
+      taskRoleDescription.task.pod.spec.volumes.push({
+        name: 'user-secrets',
+        secret: {
+          secretName: `${encodeName(frameworkName)}-usercred`,
+        },
+      });
+      taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+        name: 'user-secrets',
+        mountPath: '/usr/local/pai/secrets',
+      });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'user-secrets',
+        mountPath: '/usr/local/pai/secrets',
+      });
+    }
     // mount token-secrets to initContainers & job container
     taskRoleDescription.task.pod.spec.volumes.push({
       name: 'token-secrets',
@@ -843,6 +861,24 @@ const getConfigSecretDef = (frameworkName, secrets) => {
     kind: 'Secret',
     metadata: {
       name: `${encodeName(frameworkName)}-configcred`,
+      namespace: 'default',
+    },
+    data: data,
+    type: 'Opaque',
+  };
+};
+
+const getuserExtensionSecretDef = (frameworkName, secrets) => {
+  const data = {
+    'userExtensionSecrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString(
+      'base64',
+    ),
+  };
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-usercred`,
       namespace: 'default',
     },
     data: data,
@@ -1083,9 +1119,17 @@ const put = async (frameworkName, config, rawConfig) => {
     }
   }
 
+  // generate the user-extension-secret definition
+  const user = await userModel.getUser(userName);
+  const userExtension = user.extension;
+  const userExtensionSecretDef = userExtension
+    ? getuserExtensionSecretDef(frameworkName, userExtension)
+    : null;
+
   const frameworkDescription = generateFrameworkDescription(
     frameworkName,
     virtualCluster,
+    userExtension,
     config,
     rawConfig,
   );
@@ -1149,6 +1193,7 @@ const put = async (frameworkName, config, rawConfig) => {
         frameworkRequest: frameworkDescription,
         submissionTime: submissionTime,
         configSecretDef: configSecretDef,
+        userExtensionSecretDef: userExtensionSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
         tokenSecretDef: tokenSecretDef,
