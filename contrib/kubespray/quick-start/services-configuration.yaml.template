@@ -17,16 +17,16 @@ cluster:
     # if the registry is hub.docker, please fill this value with docker.io
     domain: {{ env["cfg"]['docker_registry_domain'] | default('docker.io') }}
     # If the docker registry doesn't require authentication, please comment username and password
-    {% if "docker_registry_username" in env["cfg"] %}
+    {%- if "docker_registry_username" in env["cfg"] %}
     username: {{ env["cfg"]["docker_registry_username"] }}
-    {% else %}
+    {%- else %}
     #username: <username>
-    {% endif %}
-    {% if "docker_registry_password" in env["cfg"] %}
+    {%- endif %}
+    {%- if "docker_registry_password" in env["cfg"] %}
     password: {{ env["cfg"]["docker_registry_password"] }}
-    {% else %}
+    {%- else %}
     #password: <password>
-    {% endif %}
+    {%- endif %}
 
     tag: {{ env["cfg"]['docker_image_tag'] }}
 
@@ -37,25 +37,28 @@ cluster:
 {% if env["cfg"]["enable_docker_cache"]|default(false) is sameas true %}
 docker-cache:
   enabled: {{ env["cfg"]["enable_docker_cache"] }}
-  {% if "docker_cache_storage_backend" in env["cfg"] %}
+  {%- if "docker_cache_storage_backend" in env["cfg"] %}
   storage_backend: {{ env["cfg"]["docker_cache_storage_backend"]}}
-    {% if env["cfg"]["docker_cache_storage_backend"] == "azure" %}
+    {%- if env["cfg"]["docker_cache_storage_backend"] == "azure" %}
   azure_account_name: {{ env["cfg"]["docker_cache_azure_account_name"] }}
   azure_account_key: {{ env["cfg"]["docker_cache_azure_account_key"] }}
+      {%- if env["cfg"]["docker_cache_azure_container_name"] %}
   azure_container_name: {{ env["cfg"]["docker_cache_azure_container_name"] }}
-    {% elif env["cfg"]["docker_cache_storage_backend"] == "filesystem" %}
+      {%- endif %}
+    {%- elif env["cfg"]["docker_cache_storage_backend"] == "filesystem" and env["cfg"]["docker_cache_fs_mount_path"]%}
   fs_mount_path: {{ env["cfg"]["docker_cache_fs_mount_path"]}}
-    {% else %}
-    {% endif %}
-  {% endif %}
-  {% if "docker_cache_remote_url" in env["cfg"] %}
+    {%- else %}
+    {%- endif %}
+  {%- endif %}
+  {%- if "docker_cache_remote_url" in env["cfg"] %}
   remote_url: {{ env["cfg"]["docker_cache_remote_url"] }}
-  {% endif %}
-  {% if "docker_cache_registry_htpasswd" in env["cfg"] %}
+  {%- endif %}
+  {%- if "docker_cache_registry_htpasswd" in env["cfg"] %}
   registry-htpasswd: {{ env["cfg"]["docker_cache_registry_htpasswd"] }}
-  {% endif %}
-{% else %}
-{% endif %}
+  {%- endif %}
+{%- else %}
+{%- endif %}
+
 
 rest-server:
 #  # launcher type. k8s or yarn
