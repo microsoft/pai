@@ -1,10 +1,11 @@
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime
 import logging
 import os
 import requests
 
 CLUSTER_QUERY_STRING = "avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))"
-JOB_QUERY_STRING = 'avg by (job_name) (avg_over_time(task_gpu_percent[7d]))'
+JOB_GPU_PERCENT = 'avg by (job_name) (avg_over_time(task_gpu_percent[7d]))'
+JOB_GPU_HOURS = 'sum by (job_name) (count_over_time(task_gpu_percent[7d]))'
 # user used gpu hours / total gpu hours
 USER_QUERY_STRING = \
     "(sum by (username) (sum_over_time(task_gpu_percent[7d]))) / (sum by (username) (count_over_time(task_gpu_percent[7d])*100)) * 100"
@@ -46,7 +47,7 @@ def datetime_to_hours(dt):
 
 
 @enable_request_debug_log
-def get_usage_info(job_usage_result, user_usage_result, rest_url):
+def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
     job_infos = {}
     user_infos = {}
     # get all jobs
@@ -60,19 +61,16 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
             "username": v["metric"]["username"],
             "usage": v["value"][1][:6] + "%", "resources_occupied": 0
         }
-    for v in job_usage_result["data"]["result"]:
+    for v in job_gpu_percent["data"]["result"]:
         job_name = v["metric"]["job_name"]
-
         matched_job = list(
             filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
             job_list))
-
         # ingore unfounded jobs
         if not matched_job:
             logging.warning("Job %s not found.", job_name)
             continue
         job_info = matched_job[0]
-
         # ignore jobs not started
         if not job_info["launchedTime"]:
             logging.warning("job not start, ignore it")
@@ -84,25 +82,27 @@ def get_usage_info(job_usage_result, user_usage_result, rest_url):
             "gpu_number": job_info["totalGpuNumber"]
         }
 
-        # get job duration, only the during within 7d counts
+        # get job duration
         job_infos[job_name]["start_time"] = datetime.fromtimestamp(
             int(job_info["launchedTime"]) / 1000,
             timezone.utc)
-        if job_infos[job_name]["start_time"] < datetime.now(timezone.utc) - timedelta(days = 7):
-            job_infos[job_name]["start_time_in_7d"] = datetime.now(timezone.utc) - timedelta(days = 7)
-        else:
-            job_infos[job_name]["start_time_in_7d"] = job_infos[job_name]["start_time"]
         # job has not finished
         if not job_info["completedTime"]:
-            job_infos[job_name]["duration"] = datetime.now(timezone.utc) - job_infos[job_name]["start_time_in_7d"]
+            job_infos[job_name]["duration"] = datetime.now(timezone.utc) - job_infos[job_name]["start_time"]
         # job has finished
         else:
             job_infos[job_name]["duration"] = datetime.fromtimestamp(
                 int(job_info["completedTime"]) / 1000,
-                timezone.utc) - job_infos[job_name]["start_time_in_7d"]
+                timezone.utc) - job_infos[job_name]["start_time"]
         job_infos[job_name]["status"] = job_info["state"]
 
-        job_infos[job_name]["resources_occupied"] = job_infos[job_name]["gpu_number"] * datetime_to_hours(job_infos[job_name]["duration"])
+        # get matched job gpu hours info
+        gpu_hours_info = list(
+            filter(lambda job: job["metric"]["job_name"] == job_name,
+            job_gpu_hours["data"]["result"]))
+        job_infos[job_name]["resources_occupied"] = float(gpu_hours_info[0]["value"][1]) / 120 # GPU * hours
+
+        # gpu hours by user
         username = job_info["username"]
         user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
 
@@ -143,10 +143,16 @@ def collect_metrics(url):
 
     # job info
     logging.info("Collecting job usage info...")
-    resp = requests.get(query_url, params={"query": JOB_QUERY_STRING})
+    # job gpu percent
+    resp = requests.get(query_url, params={"query": JOB_GPU_PERCENT})
     resp.raise_for_status()
-    job_usage_result = resp.json()
-    job_usage, user_usage = get_usage_info(job_usage_result, user_usage_result, rest_url)
+    job_gpu_percent = resp.json()
+    # job gpu hours
+    resp = requests.get(query_url, params={"query": JOB_GPU_HOURS})
+    resp.raise_for_status()
+    job_gpu_hours = resp.json()
+
+    job_usage, user_usage = get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url)
 
     return cluster_usage, job_usage, user_usage
 
@@ -204,6 +210,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "generatorURL": "alert/script"
         }
         alerts.append(alert)
+
     logging.info("Sending alerts to alert-manager...")
     resp = requests.post(post_url, json=alerts)
     resp.raise_for_status()
