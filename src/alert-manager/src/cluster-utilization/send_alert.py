@@ -15,6 +15,7 @@ ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs"
 
 TOKEN = os.environ.get('PAI_BEARER_TOKEN')
+PROMETHEUS_SCRAPE_INTERVAL = os.environ.get('PROMETHEUS_SCRAPE_INTERVAL')
 
 def enable_request_debug_log(func):
     def wrapper(*args, **kwargs):
@@ -100,7 +101,7 @@ def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
         gpu_hours_info = list(
             filter(lambda job: job["metric"]["job_name"] == job_name,
             job_gpu_hours["data"]["result"]))
-        job_infos[job_name]["resources_occupied"] = float(gpu_hours_info[0]["value"][1]) / 120 # GPU * hours
+        job_infos[job_name]["resources_occupied"] = float(gpu_hours_info[0]["value"][1]) * PROMETHEUS_SCRAPE_INTERVAL / 3600 # GPU * hours
 
         # gpu hours by user
         username = job_info["username"]
