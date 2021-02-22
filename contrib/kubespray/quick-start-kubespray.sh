@@ -38,5 +38,8 @@ ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml set-host-daemon-port-ran
 echo "Performing pre-installation..."
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml pre-installation.yml || exit $?
 
+echo "Performing docker-cache config distribution..."
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config-distribute.yml || exit $?
+
 echo "Starting kubernetes..."
 /bin/bash script/kubernetes-boot.sh || exit $?

@@ -1,0 +1,40 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-registry-cache
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry-cache
+  template:
+    metadata:
+      labels:
+        app: docker-registry-cache
+    spec:
+      containers:
+      - name: docker-registry-cache
+        image: registry:2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: registry-htpasswd
+            mountPath: /auth/
+            readOnly: True
+          - name: registry-config
+            mountPath: /etc/docker/registry/
+            readOnly: True
+        ports:
+          - name: http
+            containerPort: {{ cluster_cfg["docker-cache"]["container_port"] }}
+      volumes:
+        - name: registry-htpasswd
+          secret:
+            secretName: registry-htpasswd
+            defaultMode: 0400
+        - name: registry-config
+          configMap:
+            name: registry-config

@@ -263,7 +263,7 @@ def main():
         'workers': workers,
         'cfg': cluster_config,
         'head_node': head_node,
-        'hived': hived_config
+        'hived': hived_config,
     }
 
     map_table = {

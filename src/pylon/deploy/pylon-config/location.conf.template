@@ -165,6 +165,17 @@ location ~ ^/marketplace/(.*)$ {
 }
 {%- endif %}
 
+{%- if DOCKER_CACHE_PLUGIN %}
+# docker cache plugin
+location ~ ^/registry/cache$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/registry/cache/(.*)$ {
+  proxy_pass {{DOCKER_CACHE_PLUGIN}}/$1;
+}
+{%- endif %}
+
 # PAI web portal
 location ~ ^(.*)$ {
   proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
@@ -218,6 +229,11 @@ location ~ ^(.*)$ {
     '{{MARKETPLACE_WEBPORTAL_PLUGIN}}'
     '/marketplace';
 {%- endif %}
+{%- if DOCKER_CACHE_PLUGIN %}
+  sub_filter
+    '{{DOCKER_CACHE_PLUGIN}}'
+    '/registry/cache';
+ {%- endif %}
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
