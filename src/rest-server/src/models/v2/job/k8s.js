@@ -686,6 +686,7 @@ const generateTaskRole = (
 const generateFrameworkDescription = (
   frameworkName,
   virtualCluster,
+  userExtension,
   config,
   rawConfig,
 ) => {
@@ -771,7 +772,7 @@ const generateFrameworkDescription = (
       });
     }
     // mount user secrets to initContainers & job container if exist
-    if (config.secrets) {
+    if (userExtension) {
       taskRoleDescription.task.pod.spec.volumes.push({
         name: 'user-secrets',
         secret: {
@@ -1116,9 +1117,17 @@ const put = async (frameworkName, config, rawConfig) => {
     }
   }
 
+    // generate the user-extension-secret definition
+    const user = await userModel.getUser(userName);
+    const userExtension = user.extension;
+    const userSecretDef = userExtension
+      ? getUserSecretDef(frameworkName, userExtension)
+      : null;
+
   const frameworkDescription = generateFrameworkDescription(
     frameworkName,
     virtualCluster,
+    userExtension,
     config,
     rawConfig,
   );
@@ -1133,13 +1142,6 @@ const put = async (frameworkName, config, rawConfig) => {
   // generate the job config secret definition
   const configSecretDef = config.secrets
     ? getConfigSecretDef(frameworkName, config.secrets)
-    : null;
-
-  // generate the user-extension-secret definition
-  const user = userModel.getUser(userName);
-  const userExtension = user.extension;
-  const userSecretDef = userExtension
-    ? getUserSecretDef(userName, userExtension)
     : null;
 
   // create a job-specific application token
