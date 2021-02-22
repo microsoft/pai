@@ -1,22 +1,6 @@
 #!/bin/bash
 set -e
 
-export ANSIBLE_DISPLAY_OK_HOSTS=no
-export DISPLAY_SKIPPED_HOSTS=no
-
-while getopts "v:" opt; do
-  case $opt in
-    v)
-      export ANSIBLE_DISPLAY_OK_HOSTS=yes
-      export DISPLAY_SKIPPED_HOSTS=yes
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG"
-      exit 1
-      ;;
-  esac
-done
-
 # assume pwd is pai/contrib/kubespray
 LAYOUT="$PWD/config/layout.yaml"
 CLUSTER_CONFIG="$PWD/config/config.yaml"

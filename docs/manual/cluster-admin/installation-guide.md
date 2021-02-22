@@ -331,6 +331,12 @@ Please run the following script to deploy Kubernetes first. As the name explains
 /bin/bash quick-start-kubespray.sh
 ```
 
+By default, ansible logs of `skip` and `ok` hosts are not displayed. To view more complete ansible logs, run the script in `verbose` mode:
+
+``` bash
+/bin/bash quick-start-kubespray.sh -v
+```
+
 If there is any problem, please double-check the environment requirements first. Here we provide a requirement checker to help you verify:
 
 ``` bash

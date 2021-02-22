@@ -332,6 +332,12 @@ cd <pai-code-dir>/contrib/kubespray
 /bin/bash quick-start-kubespray.sh
 ```
 
+安装过程中默认不显示`skip`和`ok`类型的ansible log。如需查看更完全的ansible log，请使用`verbose`模式：
+
+``` bash
+/bin/bash quick-start-kubespray.sh -v
+```
+
 如果在安装过程中出现任何问题，请再次检查上述环境要求。我们也提供了一个脚本，帮助您进行检查：
 
 ``` bash
