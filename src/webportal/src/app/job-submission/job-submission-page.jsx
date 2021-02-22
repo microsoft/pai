@@ -462,18 +462,20 @@ export const JobSubmissionPage = ({
                   padding='0 0 s2'
                   styles={{ root: { height: '100%' } }}
                 >
-                  <Card>
-                    <Stack gap='m'>
-                      <div style={{ FontSizes: '16px', fontWeight: '600' }}>
-                        Template Selection
-                      </div>
-                      <Dropdown
-                        onChange={onTemplateChange}
-                        placeholder='Select a saved template'
-                        options={templateOptions}
-                      />
-                    </Stack>
-                  </Card>
+                  {config.saveTemplate && (
+                    <Card>
+                      <Stack gap='m'>
+                        <div style={{ FontSizes: '16px', fontWeight: '600' }}>
+                          Template Selection
+                        </div>
+                        <Dropdown
+                          onChange={onTemplateChange}
+                          placeholder='Select a saved template'
+                          options={templateOptions}
+                        />
+                      </Stack>
+                    </Card>
+                  )}
                   <JobInformation
                     jobInformation={jobInformation}
                     onChange={setJobInformation}

@@ -52,6 +52,7 @@ import {
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
+import config from '../../config/webportal.config';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml';
@@ -249,12 +250,14 @@ export const SubmissionSection = props => {
                   Submit
                 </PrimaryButton>
                 <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-                <DefaultButton
-                  disabled={!isEmpty(errorMessages)}
-                  onClick={toggleHideDialog}
-                >
-                  Save to Templates
-                </DefaultButton>
+                {config.saveTemplate && (
+                  <DefaultButton
+                    disabled={!isEmpty(errorMessages)}
+                    onClick={toggleHideDialog}
+                  >
+                    Save to Templates
+                  </DefaultButton>
+                )}
               </Stack>
             </Stack>
           </FormShortSection>
