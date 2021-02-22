@@ -228,8 +228,8 @@ class Snapshot {
       creationTime: this._snapshot.metadata.creationTimestamp
         ? new Date(this._snapshot.metadata.creationTimestamp)
         : null,
-      launchTime: this._snapshot.status.runTime
-        ? new Date(this._snapshot.status.runTime)
+      launchTime: (this._snapshot.status.runTime || this._snapshot.status.completionTime)
+        ? new Date(this._snapshot.status.runTime || this._snapshot.status.completionTime)
         : null,
       completionTime: this._snapshot.status.completionTime
         ? new Date(this._snapshot.status.completionTime)
