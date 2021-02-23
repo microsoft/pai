@@ -9,6 +9,7 @@ service_type: "k8s"
 # db_host: postgres
 # db_port: 9291
 server-port: 9292
+# idp_url: <OpenPAI rest-server url>
 
 azure_storage:
   type: blob
