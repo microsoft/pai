@@ -791,20 +791,22 @@ const generateFrameworkDescription = (
       });
     }
     // mount token-secrets to initContainers & job container
-    taskRoleDescription.task.pod.spec.volumes.push({
-      name: 'token-secrets',
-      secret: {
-        secretName: `${encodeName(frameworkName)}-tokencred`,
-      },
-    });
-    taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
-    taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
+    if (CREATE_JOB_SPECIFIC_TOKEN) {
+      taskRoleDescription.task.pod.spec.volumes.push({
+        name: 'token-secrets',
+        secret: {
+          secretName: `${encodeName(frameworkName)}-tokencred`,
+        },
+      });
+      taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+    }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
