@@ -1,9 +1,6 @@
 #!/bin/bash
 
-export ANSIBLE_DISPLAY_OK_HOSTS=no
-export DISPLAY_SKIPPED_HOSTS=no
-
-while getopts "v:" opt; do
+if getopts "v" opt; then
   case $opt in
     v)
       export ANSIBLE_DISPLAY_OK_HOSTS=yes
@@ -14,7 +11,11 @@ while getopts "v:" opt; do
       exit 1
       ;;
   esac
-done
+else
+    export ANSIBLE_DISPLAY_OK_HOSTS=no
+    export DISPLAY_SKIPPED_HOSTS=no
+    export ANSIBLE_CALLBACK_WHITELIST=""
+fi
 
 # assume pwd is pai/contrib/kubespray
 LAYOUT="$PWD/config/layout.yaml"
