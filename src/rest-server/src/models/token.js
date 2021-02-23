@@ -17,7 +17,6 @@
 
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
-const { Op } = require('sequelize');
 const { secret, tokenExpireTime } = require('@pai/config/token');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
@@ -28,21 +27,27 @@ const { encodeName } = require('@pai/models/v2/utils/name');
 // job-specific tokens and other tokens are saved in different namespaces
 const userTokenNamespace =
   process.env.PAI_USER_TOKEN_NAMESPACE || 'pai-user-token';
-const jobTokenNamespace =
-  process.env.PAI_JOB_TOKEN_NAMESPACE || 'pai-job-token';
 
 // create namespace if not exists
 if (process.env.NODE_ENV !== 'test') {
   k8sModel.createNamespace(userTokenNamespace);
-  k8sModel.createNamespace(jobTokenNamespace);
 }
 
-const sign = async (username, application, expiration) => {
+const sign = async (
+  username,
+  application,
+  expiration,
+  jobSpecific = 'false',
+  frameworkName = '',
+) => {
+  const encodedFrameworkName = encodeName(frameworkName);
   return new Promise((resolve, reject) => {
     jwt.sign(
       {
         username,
         application,
+        jobSpecific, // indicate if the token is for a specific job only
+        encodedFrameworkName,
       },
       secret,
       expiration != null ? { expiresIn: expiration } : {},
@@ -58,32 +63,8 @@ const sign = async (username, application, expiration) => {
  * @param {Object} data - id -> token format data object (data stored in k8s secret)
  * @returns {Object} Purged data in the same format
  */
-const purge = async (data, jobSpecific) => {
+const purge = (data) => {
   const result = {};
-
-  if (jobSpecific) {
-    // get non-completed frameworks from db
-    const frameworkNames = Object.keys(data);
-    const names = await databaseModel.Framework.findAll({
-      attributes: ['name'],
-      where: {
-        name: {
-          [Op.in]: frameworkNames,
-        },
-        subState: {
-          [Op.ne]: 'Completed',
-        },
-      },
-    });
-    // job-tokens of finished jobs will be removed
-    data = Object.keys(data).reduce((filtered, key) => {
-      if (names.indexOf(key) !== -1) {
-        filtered[key] = data[key];
-      }
-      return filtered;
-    }, {});
-  }
-
   for (const [key, val] of Object.entries(data)) {
     try {
       // expired tokens will be removed
@@ -97,14 +78,13 @@ const purge = async (data, jobSpecific) => {
   return result;
 };
 
-const list = async (username, jobSpecific = false) => {
-  const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
+const list = async (username) => {
+  const namespace = userTokenNamespace;
   const tokens = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (tokens === null) {
     return {};
   }
-
-  const purged = await purge(tokens, jobSpecific);
+  const purged = purge(tokens);
   if (Object.keys(tokens).length !== Object.keys(purged).length) {
     await k8sSecret.replace(namespace, username, purged, { encode: 'hex' });
   }
@@ -124,9 +104,18 @@ const create = async (
   } else {
     expiration = expiration || tokenExpireTime;
   }
-  const token = await sign(username, application, expiration);
-  const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
-  const key = jobSpecific ? encodeName(frameworkName) : uuid();
+  const token = await sign(
+    username,
+    application,
+    expiration,
+    jobSpecific,
+    frameworkName,
+  );
+  if (jobSpecific) {
+    return token;
+  }
+  const namespace = userTokenNamespace;
+  const key = uuid();
   const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     await k8sSecret.create(
@@ -136,25 +125,29 @@ const create = async (
       { encode: 'hex' },
     );
   } else {
-    const result = await purge(item, jobSpecific);
+    const result = purge(item, jobSpecific);
     result[key] = token;
     await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
   }
   return token;
 };
 
-const revoke = async (token, jobSpecific = false) => {
-  const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
+const revoke = async (token) => {
+  const namespace = userTokenNamespace;
   const payload = jwt.verify(token, secret);
   const username = payload.username;
   if (!username) {
     throw new Error('Token is invalid');
   }
+  if (payload.jobSpecific) {
+    logger.info('No need to revoke job specific token.');
+    return;
+  }
   const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     throw new Error('Token is invalid');
   }
-  const result = await purge(item, jobSpecific);
+  const result = purge(item);
   for (const [key, val] of Object.entries(result)) {
     if (val === token) {
       delete result[key];
@@ -163,10 +156,10 @@ const revoke = async (token, jobSpecific = false) => {
   await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
 };
 
-const batchRevoke = async (username, filter, jobSpecific = false) => {
-  const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
+const batchRevoke = async (username, filter) => {
+  const namespace = userTokenNamespace;
   const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
-  const result = await purge(item || {}, jobSpecific);
+  const result = purge(item || {});
   for (const [key, val] of Object.entries(result)) {
     if (filter(val)) {
       delete result[key];
@@ -177,18 +170,34 @@ const batchRevoke = async (username, filter, jobSpecific = false) => {
 
 const verify = async (token) => {
   const payload = jwt.verify(token, secret);
+  logger.debug(payload);
   const username = payload.username;
   if (!username) {
     throw new Error('Token is invalid');
   }
-  // both user tokens & job tokens are valid
-  for (const namespace of [userTokenNamespace, jobTokenNamespace]) {
-    const tokens = await k8sSecret.get(namespace, username, { encode: 'hex' });
-    if (tokens === null) {
-      continue;
+  // job specific tokens
+  if (payload.jobSpecific) {
+    // get non-completed frameworks from db
+    const encodedFrameworkName = payload.encodedFrameworkName;
+    const framework = await databaseModel.Framework.findOne({
+      attributes: ['subState'],
+      where: { name: encodedFrameworkName },
+    });
+    if (framework && framework.subState !== 'Completed') {
+      logger.info('Job specific token verified.');
+      return payload;
+    } else {
+      throw new Error(
+        'Job specific token not verification failed, check job existence & status.',
+      );
     }
-    const jobSpecific = Boolean(namespace === jobTokenNamespace);
-    const tokensPurged = await purge(tokens, jobSpecific);
+  }
+
+  // user tokens
+  const namespace = userTokenNamespace;
+  const tokens = await k8sSecret.get(namespace, username, { encode: 'hex' });
+  if (tokens !== null) {
+    const tokensPurged = purge(tokens, payload.jobSpecific);
     for (const [, val] of Object.entries(tokensPurged)) {
       if (val === token) {
         logger.info('token verified');
