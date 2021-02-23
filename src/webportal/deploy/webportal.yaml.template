@@ -60,7 +60,7 @@ spec:
 {%- if 'save_template' in cluster_cfg['webportal'] and cluster_cfg['cluster']['common']['marketplace'] == "true" %}
           value: "{{ cluster_cfg["webportal"]["save_template"] }}"
 {%- else %}
-          value: false
+          value: "false"
 {%- endif %}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
