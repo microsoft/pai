@@ -46,6 +46,8 @@ const {
 
 const Sequelize = require('sequelize');
 
+const CREATE_JOB_SPECIFIC_TOKEN = false; // this feature is currently disabled
+
 const convertFrameworkSummary = (framework) => {
   return {
     debugId: framework.name,
@@ -1147,16 +1149,19 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // create a job-specific application token
-  // this token will be revoked after fromework completed
-  const token = await tokenModel.create(
-    userName,
-    true,
-    undefined,
-    true,
-    frameworkName,
-  );
-  // generate the application token secret definition
-  const tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  let tokenSecretDef = null;
+  if (CREATE_JOB_SPECIFIC_TOKEN) {
+    // this token will be revoked after fromework completed
+    const token = await tokenModel.create(
+      userName,
+      true,
+      undefined,
+      true,
+      frameworkName,
+    );
+    // generate the application token secret definition
+    tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  }
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
