@@ -462,7 +462,7 @@ export const JobSubmissionPage = ({
                   padding='0 0 s2'
                   styles={{ root: { height: '100%' } }}
                 >
-                  {config.saveTemplate && (
+                  {config.saveTemplate === 'true' && (
                     <Card>
                       <Stack gap='m'>
                         <div style={{ FontSizes: '16px', fontWeight: '600' }}>

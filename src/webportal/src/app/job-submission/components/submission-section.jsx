@@ -250,7 +250,7 @@ export const SubmissionSection = props => {
                   Submit
                 </PrimaryButton>
                 <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
-                {config.saveTemplate && (
+                {config.saveTemplate === 'true' && (
                   <DefaultButton
                     disabled={!isEmpty(errorMessages)}
                     onClick={toggleHideDialog}
