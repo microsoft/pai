@@ -46,6 +46,8 @@ const {
 
 const Sequelize = require('sequelize');
 
+const CREATE_JOB_SPECIFIC_TOKEN = false; // this feature is currently disabled
+
 const convertFrameworkSummary = (framework) => {
   return {
     debugId: framework.name,
@@ -789,20 +791,22 @@ const generateFrameworkDescription = (
       });
     }
     // mount token-secrets to initContainers & job container
-    taskRoleDescription.task.pod.spec.volumes.push({
-      name: 'token-secrets',
-      secret: {
-        secretName: `${encodeName(frameworkName)}-tokencred`,
-      },
-    });
-    taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
-    taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
+    if (CREATE_JOB_SPECIFIC_TOKEN) {
+      taskRoleDescription.task.pod.spec.volumes.push({
+        name: 'token-secrets',
+        secret: {
+          secretName: `${encodeName(frameworkName)}-tokencred`,
+        },
+      });
+      taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+    }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -1134,16 +1138,19 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // create a job-specific application token
-  // this token will be revoked after fromework completed
-  const token = await tokenModel.create(
-    userName,
-    true,
-    undefined,
-    true,
-    frameworkName,
-  );
-  // generate the application token secret definition
-  const tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  let tokenSecretDef = null;
+  if (CREATE_JOB_SPECIFIC_TOKEN) {
+    // this token will be revoked after fromework completed
+    const token = await tokenModel.create(
+      userName,
+      true,
+      undefined,
+      true,
+      frameworkName,
+    );
+    // generate the application token secret definition
+    tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  }
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
