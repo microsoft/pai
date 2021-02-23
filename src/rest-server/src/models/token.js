@@ -37,7 +37,7 @@ const sign = async (
   username,
   application,
   expiration,
-  jobSpecific = 'false',
+  jobSpecific = false,
   frameworkName = '',
 ) => {
   const encodedFrameworkName = encodeName(frameworkName);
@@ -125,7 +125,7 @@ const create = async (
       { encode: 'hex' },
     );
   } else {
-    const result = purge(item, jobSpecific);
+    const result = purge(item);
     result[key] = token;
     await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
   }
@@ -170,7 +170,6 @@ const batchRevoke = async (username, filter) => {
 
 const verify = async (token) => {
   const payload = jwt.verify(token, secret);
-  logger.debug(payload);
   const username = payload.username;
   if (!username) {
     throw new Error('Token is invalid');
@@ -197,7 +196,7 @@ const verify = async (token) => {
   const namespace = userTokenNamespace;
   const tokens = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (tokens !== null) {
-    const tokensPurged = purge(tokens, payload.jobSpecific);
+    const tokensPurged = purge(tokens);
     for (const [, val] of Object.entries(tokensPurged)) {
       if (val === token) {
         logger.info('token verified');
