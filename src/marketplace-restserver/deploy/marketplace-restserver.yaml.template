@@ -47,6 +47,12 @@ spec:
 {% else %}
           value: '{{ cluster_cfg["marketplace-db"]["port"] }}'
 {% endif %}
+        - name: IDP_URL
+{% if 'idp_url' in cluster_cfg["marketplace-restserver"] %}
+          value: {{ cluster_cfg["marketplace-restserver"]["idp_url"] }}
+{% else %}
+          value: {{ cluster_cfg['rest-server']['uri'] }}
+{% endif %}
         - name: NODE_ENV
           value: production
         - name: PORT
