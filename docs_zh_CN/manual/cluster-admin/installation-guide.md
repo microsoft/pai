@@ -332,7 +332,7 @@ cd <pai-code-dir>/contrib/kubespray
 /bin/bash quick-start-kubespray.sh
 ```
 
-安装过程中默认不显示`skip`和`ok`类型的ansible log，并且关闭所有callback插件。如需查看更完全的或自定义的ansible log，请使用`verbose`模式：
+安装过程中默认不显示`skip`和`ok`类型的ansible log。如需查看更完全的ansible log，请使用`verbose`模式：
 
 ``` bash
 /bin/bash quick-start-kubespray.sh -v

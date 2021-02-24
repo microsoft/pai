@@ -5,6 +5,7 @@ if getopts "v" opt; then
     v)
       export ANSIBLE_DISPLAY_OK_HOSTS=yes
       export DISPLAY_SKIPPED_HOSTS=yes
+      export ANSIBLE_CALLBACK_WHITELIST="profile_tasks"
       ;;
     \?)
       echo "Invalid option: -$OPTARG"
