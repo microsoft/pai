@@ -35,12 +35,15 @@ import {
   StackItem,
   Toggle,
   ColorClassNames,
+  Dialog,
+  DialogFooter,
+  TextField,
 } from 'office-ui-fabric-react';
 
 import { JobProtocol } from '../models/job-protocol';
 import { JobBasicInfo } from '../models/job-basic-info';
 import { JobTaskRole } from '../models/job-task-role';
-import { submitJob } from '../utils/conn';
+import { submitJob, createTemplate } from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
@@ -49,6 +52,7 @@ import {
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
+import config from '../../config/webportal.config';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml';
@@ -78,6 +82,14 @@ export const SubmissionSection = props => {
 
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
+  const [hideDialog, setHideDialog] = useState(true);
+  const [templateName, setTemplateName] = useState('');
+  const [templateSummary, setTemplateSummary] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
+
+  const toggleHideDialog = () => {
+    setHideDialog(!hideDialog);
+  };
 
   const monaco = useRef(null);
 
@@ -182,6 +194,29 @@ export const SubmissionSection = props => {
     }
   };
 
+  const saveTemplate = async event => {
+    if (isNil(templateName) || templateName === '') {
+      setHideDialog(!hideDialog);
+      alert('Template name is required!');
+      return;
+    }
+    const protocol = cloneDeep(jobProtocol);
+    const template = {};
+    template.name = templateName;
+    template.summary = templateSummary;
+    template.description = templateDescription;
+    template.protocol = protocol.toYaml();
+    template.source = 'pai';
+    template.author = user;
+    try {
+      await createTemplate(template);
+      alert('create successfullly');
+      setHideDialog(!hideDialog);
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   const _submitJob = async event => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
@@ -215,6 +250,14 @@ export const SubmissionSection = props => {
                   Submit
                 </PrimaryButton>
                 <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+                {config.saveTemplate === 'true' && (
+                  <DefaultButton
+                    disabled={!isEmpty(errorMessages)}
+                    onClick={toggleHideDialog}
+                  >
+                    Save to Templates
+                  </DefaultButton>
+                )}
               </Stack>
             </Stack>
           </FormShortSection>
@@ -228,6 +271,50 @@ export const SubmissionSection = props => {
           </Stack>
         </Stack>
       </Stack>
+      <Dialog
+        hidden={hideDialog}
+        onDismiss={toggleHideDialog}
+        dialogContentProps={{
+          title: <span>Save to template</span>,
+        }}
+        minWidth={500}
+        modalProps={{
+          isBlocking: false,
+          styles: { main: { maxWidth: 900 } },
+        }}
+      >
+        <Stack>
+          <TextField
+            label={'name'}
+            onChange={e => {
+              setTemplateName(e.target.value);
+            }}
+            required={true}
+          />
+          <TextField
+            label={'summary'}
+            required={false}
+            onChange={e => {
+              setTemplateSummary(e.target.value);
+            }}
+            multiline
+            rows={3}
+          />
+          <TextField
+            label={'description'}
+            required={false}
+            onChange={e => {
+              setTemplateDescription(e.target.value);
+            }}
+            multiline
+            rows={10}
+          />
+        </Stack>
+        <DialogFooter>
+          <PrimaryButton text='Save' onClick={saveTemplate} />
+          <DefaultButton text='Cancel' onClick={toggleHideDialog} />
+        </DialogFooter>
+      </Dialog>
       <MonacoPanel
         isOpen={isEditorOpen}
         onDismiss={_closeEditor}
