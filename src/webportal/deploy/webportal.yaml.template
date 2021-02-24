@@ -57,8 +57,8 @@ spec:
 {% endif %}
 {%- endif %}
         - name: SAVE_TEMPLATE
-{%- if 'save-template' in cluster_cfg['webportal'] and cluster_cfg['cluster']['common']['marketplace'] == "true" %}
-          value: "{{ cluster_cfg["webportal"]["save-template"] }}"
+{%- if cluster_cfg['webportal']['save-template'] and cluster_cfg['cluster']['common']['marketplace'] == "true" %}
+          value: "true"
 {%- else %}
           value: "false"
 {%- endif %}
