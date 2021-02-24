@@ -25,4 +25,4 @@ enable-job-transfer: false
 marketplace: true
 
 # Will add job template feature if set true.
-save-template: false
+save-template: true
