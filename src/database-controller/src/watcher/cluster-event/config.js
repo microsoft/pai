@@ -21,6 +21,9 @@ const configSchema = Joi.object()
     maxDiskUsagePercent: Joi.number()
       .integer()
       .required(),
+    watchTimeoutSeconds: Joi.number()
+      .integer()
+      .required(),
   })
   .required();
 
@@ -31,6 +34,7 @@ const config = {
   diskPath: process.env.DISK_PATH,
   diskCheckIntervalSecond: 60,
   maxDiskUsagePercent: parseInt(process.env.MAX_DISK_USAGE_PERCENT),
+  watchTimeoutSeconds: parseInt(process.env.WATCH_TIMEOUT_SECONDS),
 };
 
 const { error, value } = Joi.validate(config, configSchema);

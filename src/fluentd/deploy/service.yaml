@@ -20,6 +20,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - docker-cache
 
 template-list:
   - fluentd.yaml

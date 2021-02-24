@@ -38,7 +38,7 @@ import t from '../components/tachyons.scss';
 initTheme();
 initializeIcons();
 
-const BREAKPOINT = 600;
+const BREAKPOINT = 1200;
 
 const Layout = () => {
   const [mobileShowSidebar, setMobileShowSidebar] = useState(false);

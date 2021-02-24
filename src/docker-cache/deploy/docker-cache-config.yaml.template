@@ -1,0 +1,47 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+  namespace: default
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      delete:
+        enabled: true
+      {%- if cluster_cfg["docker-cache"]["storage_backend"] == "azure" %}
+      azure:
+        accountname: {{ cluster_cfg["docker-cache"]["azure_account_name"] }}
+        accountkey: {{ cluster_cfg["docker-cache"]["azure_account_key"] }}
+        container: {{ cluster_cfg["docker-cache"]["azure_container_name"] }}
+        # realm:  core.windows.net
+      {%- elif cluster_cfg["docker-cache"]["storage_backend"] == "filesystem" %}
+      filesystem:
+        rootdirectory: {{ cluster_cfg["docker-cache"]["fs_mount_path"] }}
+      {%- else %}
+      {%- endif %}
+    http:
+      addr: {{ cluster_cfg["docker-cache"]["registry_listener"] }}
+      headers:
+        X-Content-Type-Options: [nosniff]
+    {%- if cluster_cfg["docker-cache"]["registry-htpasswd"] != '' %}
+    auth:
+      htpasswd:
+        realm: basic-realm
+        path: /auth/htpasswd # /etc/registry
+    {%- endif %}
+    proxy:
+      remoteurl: {{ cluster_cfg["docker-cache"]["remote_url"] }}
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3

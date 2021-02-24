@@ -1,0 +1,18 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+enabled: false
+storage_backend: "azure"
+azure_account_name: ""
+azure_account_key: ""
+azure_container_name: dockerregistry
+fs_mount_path: "/var/lib/registry"
+registry_listener: ":5000"
+container_port: 5000
+service_port: 5000
+service_nodeport: 30500
+remote_url: https://registry-1.docker.io
+registry-htpasswd: '' 
+# registry-htpasswd default value can be dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==,
+# which is "username: test password: test" encoded by htpasswd and base64
+# htpasswd is an apache tool for generate basic auth credentials

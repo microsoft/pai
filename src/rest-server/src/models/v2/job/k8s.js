@@ -46,6 +46,8 @@ const {
 
 const Sequelize = require('sequelize');
 
+const CREATE_JOB_SPECIFIC_TOKEN = false; // this feature is currently disabled
+
 const convertFrameworkSummary = (framework) => {
   return {
     debugId: framework.name,
@@ -64,8 +66,7 @@ const convertFrameworkSummary = (framework) => {
     retryDelayTime: framework.retryDelayTime,
     submissionTime: new Date(framework.submissionTime).getTime(),
     createdTime: new Date(framework.creationTime).getTime() || null,
-    launchedTime:
-      new Date(framework.runTime || framework.completionTime).getTime() || null,
+    launchedTime: new Date(framework.launchTime).getTime() || null,
     completedTime: new Date(framework.completionTime).getTime() || null,
     appExitCode: framework.appExitCode,
     virtualCluster: framework.virtualCluster
@@ -687,6 +688,7 @@ const generateTaskRole = (
 const generateFrameworkDescription = (
   frameworkName,
   virtualCluster,
+  userExtension,
   config,
   rawConfig,
 ) => {
@@ -754,7 +756,7 @@ const generateFrameworkDescription = (
       taskRoleDescription.task.pod.spec.priorityClassName =
         'pai-job-minimal-priority';
     }
-    // mount job secrets to initContainers & job container if exist
+    // mount job config secrets to initContainers & job container if exist
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
         name: 'job-secrets',
@@ -771,21 +773,40 @@ const generateFrameworkDescription = (
         mountPath: '/usr/local/pai/secrets',
       });
     }
+    // mount user secrets to initContainers & job container if exist
+    if (userExtension) {
+      taskRoleDescription.task.pod.spec.volumes.push({
+        name: 'user-extension-secrets',
+        secret: {
+          secretName: `${encodeName(frameworkName)}-usercred`,
+        },
+      });
+      taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+        name: 'user-extension-secrets',
+        mountPath: '/usr/local/pai/user-extension-secrets',
+      });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'user-extension-secrets',
+        mountPath: '/usr/local/pai/user-extension-secrets',
+      });
+    }
     // mount token-secrets to initContainers & job container
-    taskRoleDescription.task.pod.spec.volumes.push({
-      name: 'token-secrets',
-      secret: {
-        secretName: `${encodeName(frameworkName)}-tokencred`,
-      },
-    });
-    taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
-    taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
-      name: 'token-secrets',
-      mountPath: '/usr/local/pai/token-secrets',
-    });
+    if (CREATE_JOB_SPECIFIC_TOKEN) {
+      taskRoleDescription.task.pod.spec.volumes.push({
+        name: 'token-secrets',
+        secret: {
+          secretName: `${encodeName(frameworkName)}-tokencred`,
+        },
+      });
+      taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'token-secrets',
+        mountPath: '/usr/local/pai/token-secrets',
+      });
+    }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -807,6 +828,24 @@ const getPriorityClassDef = (frameworkName, priority) => {
   return priorityClass;
 };
 
+const getK8sSecretDef = (
+  name,
+  data,
+  type = 'Opaque',
+  namespace = 'default',
+) => {
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: name,
+      namespace: namespace,
+    },
+    data: data,
+    type: type,
+  };
+};
+
 const getDockerSecretDef = (frameworkName, auths) => {
   const cred = {
     auths: {},
@@ -821,50 +860,37 @@ const getDockerSecretDef = (frameworkName, auths) => {
       auth: Buffer.from(`${username}:${password}`).toString('base64'),
     };
   }
-  return {
-    apiVersion: 'v1',
-    kind: 'Secret',
-    metadata: {
-      name: `${encodeName(frameworkName)}-regcred`,
-      namespace: 'default',
-    },
-    data: {
-      '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
-    },
-    type: 'kubernetes.io/dockerconfigjson',
+  const data = {
+    '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
   };
+  const name = `${encodeName(frameworkName)}-regcred`;
+  return getK8sSecretDef(name, data, 'kubernetes.io/dockerconfigjson');
 };
 
 const getConfigSecretDef = (frameworkName, secrets) => {
+  const name = `${encodeName(frameworkName)}-configcred`;
   const data = {
     'secrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
   };
-  return {
-    apiVersion: 'v1',
-    kind: 'Secret',
-    metadata: {
-      name: `${encodeName(frameworkName)}-configcred`,
-      namespace: 'default',
-    },
-    data: data,
-    type: 'Opaque',
+  return getK8sSecretDef(name, data);
+};
+
+const getUserExtensionSecretDef = (frameworkName, userExtension) => {
+  const name = `${encodeName(frameworkName)}-usercred`;
+  const data = {
+    'userExtensionSecrets.yaml': Buffer.from(
+      yaml.safeDump(userExtension),
+    ).toString('base64'),
   };
+  return getK8sSecretDef(name, data);
 };
 
 const getTokenSecretDef = (frameworkName, token) => {
+  const name = `${encodeName(frameworkName)}-tokencred`;
   const data = {
     token: Buffer.from(token).toString('base64'),
   };
-  return {
-    apiVersion: 'v1',
-    kind: 'Secret',
-    metadata: {
-      name: `${encodeName(frameworkName)}-tokencred`,
-      namespace: 'default',
-    },
-    data: data,
-    type: 'Opaque',
-  };
+  return getK8sSecretDef(name, data);
 };
 
 const list = async (
@@ -1084,9 +1110,17 @@ const put = async (frameworkName, config, rawConfig) => {
     }
   }
 
+  // generate the user-extension-secret definition
+  const user = await userModel.getUser(userName);
+  const userExtension = user.extension;
+  const userExtensionSecretDef = userExtension
+    ? getUserExtensionSecretDef(frameworkName, userExtension)
+    : null;
+
   const frameworkDescription = generateFrameworkDescription(
     frameworkName,
     virtualCluster,
+    userExtension,
     config,
     rawConfig,
   );
@@ -1104,16 +1138,19 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // create a job-specific application token
-  // this token will be revoked after fromework completed
-  const token = await tokenModel.create(
-    userName,
-    true,
-    undefined,
-    true,
-    frameworkName,
-  );
-  // generate the application token secret definition
-  const tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  let tokenSecretDef = null;
+  if (CREATE_JOB_SPECIFIC_TOKEN) {
+    // this token will be revoked after fromework completed
+    const token = await tokenModel.create(
+      userName,
+      true,
+      undefined,
+      true,
+      frameworkName,
+    );
+    // generate the application token secret definition
+    tokenSecretDef = getTokenSecretDef(frameworkName, token);
+  }
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -1150,6 +1187,7 @@ const put = async (frameworkName, config, rawConfig) => {
         frameworkRequest: frameworkDescription,
         submissionTime: submissionTime,
         configSecretDef: configSecretDef,
+        userExtensionSecretDef: userExtensionSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
         tokenSecretDef: tokenSecretDef,

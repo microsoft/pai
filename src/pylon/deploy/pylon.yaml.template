@@ -91,6 +91,8 @@ spec:
             - name: MARKETPLACE_WEBPORTAL_PLUGIN
               value: {{ cluster_cfg['marketplace-webportal']['uri']}}
 {% endif %}
+            - name: DOCKER_CACHE_PLUGIN
+              value: {{ cluster_cfg['docker-cache']['uri']}}
           ports:
             - name: pylon
               containerPort: 80
