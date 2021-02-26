@@ -90,7 +90,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
         <div>
           <div className={t.mt1}>
             <TextField
-              label='Title (Please give the SSH key a name):'
+              label='Title (Please give the SSH public key a name):'
               required={true}
               errorMessage={inputTitleError}
               onChange={e => {
@@ -102,7 +102,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
           </div>
           <div className={t.mt1}>
             <TextField
-              label='SSH Public key:'
+              label='SSH public key:'
               required={true}
               errorMessage={inputValueError}
               onChange={e => {
