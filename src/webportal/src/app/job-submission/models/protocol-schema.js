@@ -91,8 +91,7 @@ export const prerequisitesSchema = Joi.object()
     }),
     uri: Joi.when('type', {
       is: 'data',
-      then: Joi.array()
-        .items(Joi.string()),
+      then: Joi.array().items(Joi.string()),
       otherwise: Joi.string(),
     }),
     version: [Joi.string(), Joi.number()],
