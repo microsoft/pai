@@ -12,8 +12,22 @@ import {
   DialogFooter,
   TextField,
 } from 'office-ui-fabric-react';
+import sshpk from 'sshpk';
 
 import t from '../../../components/tachyons.scss';
+
+const validateSSHPublicKey = keyString => {
+  try {
+    const key = sshpk.parseKey(keyString, 'ssh');
+    if (sshpk.Key.isKey(key)) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
 
 const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
   const [error, setError] = useState('');
@@ -37,10 +51,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
     } else {
       surefireTitle = true;
     }
-    if (
-      value.trim() === '' ||
-      !value.trim().match(/^ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3}.*$/)
-    ) {
+    if (value.trim() === '' || !validateSSHPublicKey(value.trim())) {
       setInputValueError(
         'Please input correct SSH Public key, it should be starting with ssh-rsa.',
       );
