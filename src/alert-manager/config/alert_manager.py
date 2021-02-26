@@ -64,8 +64,7 @@ class AlertManager(object):
             result["alert-handler"]["email-configs"]["templates"] = self.get_email_templates()
 
         # check if `pai-bearer-token` is properly configured
-        if result.get("alert-handler") is not None and \
-            result["pai-bearer-token"] is not None:
+        if result.get("pai-bearer-token") is not None:
             token_configured = True
         # legacy: to be compatible with pai version <= v1.5
         elif result.get("alert-handler") is not None and \
