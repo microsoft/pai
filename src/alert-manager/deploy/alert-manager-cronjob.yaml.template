@@ -40,7 +40,7 @@ spec:
             - name: PAI_BEARER_TOKEN
               value: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
             - name: PROMETHEUS_SCRAPE_INTERVAL
-              value: {{ cluster_cfg["prometheus"]["scrape_interval"] }}
+              value: "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
           imagePullSecrets:
           - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
           restartPolicy: OnFailure

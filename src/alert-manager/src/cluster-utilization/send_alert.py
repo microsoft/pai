@@ -15,7 +15,7 @@ ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs"
 
 TOKEN = os.environ.get('PAI_BEARER_TOKEN')
-PROMETHEUS_SCRAPE_INTERVAL = os.environ.get('PROMETHEUS_SCRAPE_INTERVAL')
+PROMETHEUS_SCRAPE_INTERVAL = int(os.environ.get('PROMETHEUS_SCRAPE_INTERVAL'))
 
 def enable_request_debug_log(func):
     def wrapper(*args, **kwargs):
