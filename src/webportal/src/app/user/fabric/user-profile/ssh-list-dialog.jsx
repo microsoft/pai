@@ -53,7 +53,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
     }
     if (value.trim() === '' || !validateSSHPublicKey(value.trim())) {
       setInputValueError(
-        'Please input correct SSH Public key, it should be starting with ssh-rsa.',
+        'Please input correct SSH Public key.',
       );
     } else {
       surefireValue = true;
@@ -104,7 +104,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
           </div>
           <div className={t.mt1}>
             <TextField
-              label='Value (SSH Public key, starts with ssh-rsa):'
+              label='SSH Public key:'
               required={true}
               errorMessage={inputValueError}
               onChange={e => {
