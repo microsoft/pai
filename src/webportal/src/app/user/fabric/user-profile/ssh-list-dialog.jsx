@@ -52,9 +52,7 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
       surefireTitle = true;
     }
     if (value.trim() === '' || !validateSSHPublicKey(value.trim())) {
-      setInputValueError(
-        'Please input correct SSH Public key.',
-      );
+      setInputValueError('Please input correct SSH Public key.');
     } else {
       surefireValue = true;
     }
