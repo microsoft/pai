@@ -64,6 +64,7 @@ class Webportal:
             'plugins': [apply_config(plugin) for plugin in plugins],
             'webportal-address': master_ip,
             'enable-job-transfer': self.service_configuration['enable-job-transfer'],
+            'marketplace': self.service_configuration['marketplace'],
             'save-template': self.service_configuration['save-template'],
         }
 
