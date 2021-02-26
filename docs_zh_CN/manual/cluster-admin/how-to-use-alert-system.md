@@ -74,9 +74,9 @@ prometheus:
 ```yaml
 alert-manager:
   port: 9093
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
   alert-handler:
     port: 9095
-    pai-bearer-token: 'your-application-token-for-pai-rest-server'
     email-configs:
       admin-receiver: addr-of-admin-receiver@example.com
       smtp-host: smtp.office365.com

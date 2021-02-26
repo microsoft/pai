@@ -99,14 +99,14 @@ data:
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/?template={{ template }}'
         send_resolved: false
         http_config:
-          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+          bearer_token: {{ cluster_cfg["alert-manager"]["pai-bearer-token"] }}
       {% endif %}
 
       {% if (receiver["actions"]["stop-jobs"] is defined) and ('stop-jobs' in cluster_cfg["alert-manager"]["actions-available"]) %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/stop-jobs'
         send_resolved: false
         http_config:
-          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+          bearer_token: {{ cluster_cfg["alert-manager"]["pai-bearer-token"] }}
       {% endif %}
 
       {% if (receiver["actions"]["tag-jobs"] is defined) and ('tag-jobs' in cluster_cfg["alert-manager"]["actions-available"]) %}
@@ -114,7 +114,7 @@ data:
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/tag-jobs/{{ tag }}'
         send_resolved: false
         http_config:
-          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+          bearer_token: {{ cluster_cfg["alert-manager"]["pai-bearer-token"] }}
       {% endfor %}
       {% endif %}
 
