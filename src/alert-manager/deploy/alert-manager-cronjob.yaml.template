@@ -38,7 +38,7 @@ spec:
               value: "{{ cluster_cfg['pylon']['uri']}}"
     {%- endif %}
             - name: PAI_BEARER_TOKEN
-              value: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+              value: {{ cluster_cfg["alert-manager"]["pai-bearer-token"] }}
             - name: PROMETHEUS_SCRAPE_INTERVAL
               value: "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
           imagePullSecrets:

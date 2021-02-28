@@ -77,9 +77,9 @@ The alert actions and the matching rules are realized in the `alert-manager` ser
 ```yaml
 alert-manager:
   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
   alert-handler:
     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-    pai-bearer-token: 'your-application-token-for-pai-rest-server'
     email-configs: # email-notification will only be enabled when this field is not empty
       admin-receiver: addr-of-admin-receiver@example.com
       smtp-host: smtp.office365.com

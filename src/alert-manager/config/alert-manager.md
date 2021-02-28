@@ -17,9 +17,9 @@ you should configure `alert-manager` in your `service-configuration.yaml` like f
 ``` yaml
 alert-manager:
   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
   alert-handler: # alert-handler will only be enabled when this field is not empty
     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-    pai-bearer-token: 'your-application-token-for-pai-rest-server'
     email-configs: # email-notification will only be enabled when this field is not empty
       admin-receiver: addr-of-admin-receiver@example.com
       smtp-host: smtp.office365.com
@@ -54,6 +54,7 @@ After parsing, if you properly configured `email-configs` and `pai-bearer-token`
 ``` yaml
 alert-manager: 
   port: 9093
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
   actions-available:
   - webportal-notification
   - cordon-nodes
@@ -65,7 +66,6 @@ alert-manager:
     log-level: info
     port: 9095
     configured: True
-    pai-bearer-token: 'your-application-token-for-pai-rest-server'
     email-configs: # email-notification will only be enabled when this field is not empty
       admin-receiver: addr-of-admin-receiver@example.com
       smtp-host: smtp.office365.com
