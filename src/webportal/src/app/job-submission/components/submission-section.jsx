@@ -208,6 +208,7 @@ export const SubmissionSection = props => {
     template.protocol = protocol.toYaml();
     template.source = 'pai';
     template.type = 'template';
+    template.isPrivate = true;
     template.author = user;
     try {
       await createTemplate(template);
