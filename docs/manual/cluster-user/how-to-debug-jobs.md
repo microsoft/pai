@@ -6,45 +6,37 @@ This document describes how to use SSH and TensorBoard plugin to debug jobs.
 
 ## How to use SSH
 
-OpenPAI provides an SSH plugin for you to connect to job containers. To use SSH, you can either create an SSH key pair or use your pre-generated keys.
+OpenPAI provides an SSH plugin for you to connect to job containers.
+With SSH keys, you can connect to job containers as root user.
+To use SSH, you can either use your pre-saved keys for all the jobs or create an SSH key pair for a specific job.
 
-**Option 1. Create an SSH Key Pair**
+- Check existing SSH keys on the user profile page, you can add public keys in the `SSH Public Keys` section.
+The SSH keys saved here can be reused in all the jobs, so we recommend you to save your frequently-used SSH keys here to avoid generating keys and copy-pasting keys for different jobs;
 
-It is feasible to create a new SSH key pair when you submit the job. First, open the `Tools` panel, enable the SSH plugin, then click `SSH Key Generator`:
+  <img src="./imgs/view-profile.png" width="100%" height="100%" />
 
-   <img src="./imgs/ssh-click-generator.png" width="60%" height="60%" />
-
-The generator will generate one public key and one private key for you. Please download SSH private key, then click the `Use Public Key` button to use this key pair in your job. 
-
-
-   <img src="./imgs/ssh-generator.png" width="60%" height="60%" />
-
-After job submission, you can ssh to job containers as user root with the downloaded private key through container IP and SSH port. The `View SSH Info` button will give you the corresponding command:
-
+- When submitting jobs, open the `Tools` panel on the right and click `Enable User SSH`;
+- If you have no pre-saved SSH public keys or you want to use a new SSH key pair for this job, click `Generator`, a pair of SSH keys will be generated.
+Please download the SSH private key, then click the `Use Public Key` button to use this key pair in this job. You can also generate the SSH key pair by yourself and paste the public key here.
+- You will be able to connect to the job containers with **all the SSH private keys which correspond to the public keys you have saved on the user profile page** and also **the private key you have generated for the job**.
+- To view connecting information, click the `View SSH Info` button, 
 
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
-To be detailed, you should refer to the `Use a pre-downloaded SSH private key` section. If you are using Windows, the following command is for you:
+   you will get the corresponding commands:
+   ```bash
+   1. Use your default SSH private key:
 
-```bash
-ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
-```
+   ssh -p <ssh-port> root@<container-ip>
 
-On a Unix-like system, the command is:
+   2. Use a pre-downloaded SSH private key:
 
-```bash
-chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> <container-ip>
-```
+   On Windows:
+   ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
 
-**Option 2. Use your Own Keys**
-
-If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the `.ssh` subfolder under your user folder (`C:\Users\<your-user-name>` on Windows and `~` on a Unix-like system). There are an `id_rsa.pub` file and an `id_rsa` file in such a folder, which contains the public key and the private key, respectively. 
-
-To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. There is no need to use the key generator.
-
-   <img src="./imgs/copy-ssh-public-key.png" width="60%" height="60%" />
-
-After submission, you can use `ssh -p <ssh-port> root@<container-ip>` to connect to the job container, directly.
+   On Unix-like System:
+   chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
+   ```
 
 ## How to use TensorBoard Plugin
 
