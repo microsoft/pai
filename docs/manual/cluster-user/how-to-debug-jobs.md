@@ -11,12 +11,15 @@ With SSH keys, you can connect to job containers as root user.
 To use SSH, you can either use your pre-saved keys for all the jobs or create an SSH key pair for a specific job.
 
 - Check existing SSH keys on the user profile page, you can add public keys in the `SSH Public Keys` section.
-The SSH keys saved here can be reused in all the jobs, so we recommend you to save your frequently-used SSH keys here to avoid generating keys and copy-pasting keys for different jobs ;
+The SSH keys saved here can be reused in all the jobs, so we recommend you to save your frequently-used SSH keys here to avoid generating keys and copy-pasting keys for different jobs;
+
+  <img src="./imgs/view-profile.png" width="100%" height="100%" />
+
 - When submitting jobs, open the `Tools` panel on the right and click `Enable User SSH`;
 - If you have no pre-saved SSH public keys or you want to use a new SSH key pair for this job, click `Generator`, a pair of SSH keys will be generated.
 Please download the SSH private key, then click the `Use Public Key` button to use this key pair in this job. You can also generate the SSH key pair by yourself and paste the public key here.
 - You will be able to connect to the job containers with **all the SSH private keys which correspond to the public keys you have saved on the user profile page** and also **the private key you have generated for the job**.
-- To check connecting information, click the `View SSH Info` button, 
+- To view connecting information, click the `View SSH Info` button, 
 
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 

@@ -6,45 +6,36 @@
 
 ## 如何使用SSH
 
-OpenPAI提供SSH插件来帮助您连接到任务容器。 要使用SSH，您可以创建一个SSH密钥对，或使用自己预先生成的密钥。
+OpenPAI提供SSH插件来帮助您连接到任务容器。
+通过使用SSH密钥，您可以作为root用户连接到任务容器。
+要使用SSH，您可以使用提前保存的密钥或者为任务单独创建一个SSH密钥对。
 
-**选项1.创建SSH密钥对**
+- 在用户个人资料页面上检查现有的SSH密钥，您可以在`SSH Public Keys`部分中添加公钥。
+此处保存的SSH密钥可以在所有任务中重复使用，因此我们建议您在此处保存常用的SSH密钥，以避免为不同的任务生成密钥和复制粘贴密钥。
 
-提交任务时，可以先创建一个新的SSH密钥对。 首先，打开`Tools`面板，启用SSH插件，然后单击`SSH Key Generator`：
+  <img src="./imgs/view-profile.png" width="100%" height="100%" />
 
-   <img src="./imgs/ssh-click-generator.png" width="60%" height="60%" />
-
-生成器将为您生成一个公钥和一个私钥。 请下载SSH私钥，然后单击`Use Public Key`按钮以在您的任务容器中使用此密钥对。 
-
-
-   <img src="./imgs/ssh-generator.png" width="60%" height="60%" />
-
-提交作业后，您可以凭借之前下载的私钥通过容器IP和SSH端口登录容器。 `View SSH Info`按钮将为您提供相应的命令：
-
-
+- 提交任务时，打开右侧的`Tools`面板，然后单击`Enable User SSH`;
+- 如果您没有预先保存的SSH公钥，或者想为此任务使用新的SSH密钥对，请单击`Generator`，将生成一对SSH密钥。
+请下载SSH私钥，然后单击`Use Public Key`按钮以在此任务中使用此密钥对。您也可以自己生成SSH密钥对，并将公钥粘贴到此处。
+- 您将能够使用**与您在用户个人资料页面上保存的公钥相对应的所有SSH私钥**以及**为该任务生成的私钥**连接到任务容器。
+- 要查看连接信息，请点击`View SSH Info`按钮，
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
-在SSH Info中，您应该参考`Use a pre-downloaded SSH private key`部分。如果您使用的是Windows，则可使用以下命令：
+   you will get the corresponding commands:
+   ```bash
+   1. Use your default SSH private key:
 
-```bash
-ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
-```
+   ssh -p <ssh-port> root@<container-ip>
 
-在类Unix系统上，命令为：
+   2. Use a pre-downloaded SSH private key:
 
-```bash
-chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> <container-ip>
-```
+   On Windows:
+   ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
 
-**选项2.使用您自己的密钥**
-
-如果您熟悉SSH身份验证机制，那么您可能已经在个人文件夹（Windows系统中为`C:\Users\<your-user-name>`，类Unix的系统中为`~`）下的`.ssh`子文件夹中生成了一个公共密钥和一个私有密钥。该文件夹中有一个id_rsa.pub文件和一个id_rsa文件，分别包含公钥和私钥。
-
-要使用它们，请打开 `id_rsa.pub`并将其内容复制到SSH插件，然后提交任务。无需使用上述密钥生成器。
-
-   <img src="./imgs/copy-ssh-public-key.png" width="60%" height="60%" />
-
-提交后，您可以使用`ssh -p <ssh-port> root@<container-ip>`直接连接到作业容器。
+   On Unix-like System:
+   chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
+   ```
 
 ## 如何使用TensorBoard插件
 
