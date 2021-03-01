@@ -173,7 +173,7 @@ prerequisites:
   - name: string # required, unique name to find the prerequisite (from local or marketplace)
     type: "dockerimage | script | data | output" # for survey purpose (except dockerimage), useless for backend
     plugin: string # optional, the executor to handle current prerequisite; only support com.microsoft.pai.runtimeplugin.cmd for now
-    require: [] # optional, other prerequisites on which the current one depends
+    require: [] # optional, other prerequisites on which the current one depends; will be parsed by backend automatically
     failurePolicy: "ignore | fail" # optional, same default as runtime plugin
     uri: string | array # optional, for backward compatibility
     # plugin-specific properties
