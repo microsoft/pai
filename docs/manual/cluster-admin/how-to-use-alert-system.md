@@ -271,3 +271,11 @@ alert-manager:
     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
     schedule: "0 0 * * *" # daily report at UTC 00:00
 ```
+
+To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
