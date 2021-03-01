@@ -104,6 +104,91 @@ You can also export and import YAML files using the `Export` and `Import` button
 
 To see a full reference of job protocol, please check [job protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
 
+## Use Prerequisites
+
+[OpenPAI protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml) support users to specify different types of prerequisites (e.g. dockerimage, data, and script) and then reference them in each task role. We consider prerequisites as *sharable* parts in the job protocol. For example, one dataset can be defined as a prerequisite, and can be used by multiple jobs.
+
+Here's one example to use prerequisites:
+
+```yaml
+protocolVersion: 2
+name: test_prerequisites
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: script
+    name: install-git
+    plugin: com.microsoft.pai.runtimeplugin.cmd
+    callbacks:
+      - event: taskStarts
+        commands:
+          - apt update
+          - apt install -y  git
+  - type: data
+    name: covid-19-data
+    plugin: com.microsoft.pai.runtimeplugin.cmd
+    callbacks:
+      - event: taskStarts
+        commands:
+          - mkdir -p /dataset/covid-19
+          - >-
+            git clone https://github.com/ieee8023/covid-chestxray-dataset.git
+            /dataset/covid-19
+  - type: dockerimage
+    uri: 'ubuntu:18.04'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    prerequisites:
+      - install-git
+      - covid-19-data
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 3
+      memoryMB: 29065
+    commands:
+      - ls -la /dataset/covid-19
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
+```
+
+In the top-level `prerequisites` field, we define two prerequisites: one is `install-git`, and the other is `covid-19-data`. `covid-19-data` downloads a dataset to the folder `/dataset/covid-19`. `install-git` is a prerequisites to install `git`.
+
+In the `taskRoles.taskrole.prerequisites` field, we reference the two prerequisites in such order: 1. `install-git` 2. `covid-19-data`. Thus `install-git` will be executed before `covid-19-data` when the corresponding task starts. After the two prerequisites are executed, the user will be able to use the dataset in `/dataset/covid-19`.
+
+The full spec is as follows:
+
+```yaml
+prerequisites:
+  - name: string # required, unique name to find the prerequisite (from local or marketplace)
+    type: "dockerimage | script | data | output" # for survey purpose (except dockerimage), useless for backend
+    plugin: string # optional, the executor to handle current prerequisite; only support com.microsoft.pai.runtimeplugin.cmd for now
+    require: [] # optional, other prerequisites on which the current one depends
+    failurePolicy: "ignore | fail" # optional, same default as runtime plugin
+    uri: string | array # optional, for backward compatibility
+    # plugin-specific properties
+    # Other parameters for the plugin can be inserted here.
+    # For example, "callbacks" is a parameter for com.microsoft.pai.runtimeplugin.cmd.
+
+taskRoles:
+  taskrole:
+    prerequisites: # specified prerequisites will be used in the task role.
+      - prerequisite-1 # on taskStarts, will execute in order
+      - prerequisite-2 # on taskSucceeds, will execute in reverse order
+```
+
+In the future, OpenPAI will provide a convenient way to manage and share different kinds of prerequisites among cluster users. 
+
 ## Distributed Job Examples
 
 ### TensorFlow CIFAR10
