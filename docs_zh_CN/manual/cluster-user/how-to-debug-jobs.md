@@ -20,9 +20,10 @@ OpenPAI提供SSH插件来帮助您连接到任务容器。
 请下载SSH私钥，然后单击`Use Public Key`按钮以在此任务中使用此密钥对。您也可以自己生成SSH密钥对，并将公钥粘贴到此处。
 - 您将能够使用**与您在用户个人资料页面上保存的公钥相对应的所有SSH私钥**以及**为该任务生成的私钥**连接到任务容器。
 - 要查看连接信息，请点击`View SSH Info`按钮，
+
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
-   you will get the corresponding commands:
+   您将获得相应的命令：
    ```bash
    1. Use your default SSH private key:
 
