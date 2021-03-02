@@ -1,7 +1,7 @@
 {
   "nodes" : {
 {% for host in cluster_cfg['layout']['machine-list'] if 'computing-device' in cluster_cfg['layout']['machine-sku'][cluster_cfg['layout']['machine-list'][host]['machine-type']] %}
-    "{{cluster_cfg['layout']['machine-list'][ host ]['nodename']}}" : {
+    "{{cluster_cfg['layout']['machine-list'][ host ]['hostname']}}" : {
         "gpuType" : "{{ cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][ host ][ 'machine-type' ] ]['computing-device']['type'] }}",
         "gpuCount" : {{ cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][ host ][ 'machine-type' ] ]['computing-device']['count'] }}
     }{% if not loop.last %},{% endif %}
