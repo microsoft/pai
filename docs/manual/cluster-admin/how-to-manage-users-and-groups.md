@@ -55,7 +55,7 @@ In this section, we will cover how to set up the integration step by step.
 <div align="center">
 <img src="./imgs/aad/redirect_uri.png" alt="redirect uri" style="float: center; margin-right:10px;" />
 </div>
-- Certificates & secrets: create a new client secret. Mark the secret value as `${secret_value`. 
+- Certificates & secrets: create a new client secret. Mark the secret value as `${secret_value}`. 
 **Copy the new client secret value. You won't be able to retrieve it after you perform anotheroperation or leave this blade.** 
   <div align="center">
   <img src="./imgs/aad/cert_secret.png" alt="cert secret" style="float: center; margin-right:10px;"   />
@@ -71,10 +71,10 @@ If the Azure active directory is created by yourself and you will manage the gro
   <div align="center">
   <img src="./imgs/aad/api_permissions.png" alt="api permissions" style="float: center; margin-right: 10px;" />
   </div>
-  - Quickstart: get the following value:
-      - Application (client) ID, mark it as `${app_id}`
-      - Directory (tenant) ID, mark it as `${tenant_id}`
-      - In the endpoints' view, you will find the OpenID Connect metadata document and mark it as   `${well_known}`
+- Quickstart: get the following value:
+    - Application (client) ID, mark it as `${app_id}`
+    - Directory (tenant) ID, mark it as `${tenant_id}`
+    - In the endpoints' view, you will find the OpenID Connect metadata document and mark it as   `${well_known}`
   <div align="center">
   <img src="./imgs/aad/quick_start.png" alt="quick start" style="float: center; margin-right:10px;"   />
   </div>
