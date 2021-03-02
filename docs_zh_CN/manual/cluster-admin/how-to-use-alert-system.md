@@ -232,3 +232,34 @@ alert-manager:
 ./paictl.py config push -p /cluster-configuration -m service
 ./paictl.py service start -n alert-manager
 ```
+
+## Cluster GPU Utilization Report
+
+我们提供了将群集GPU使用率报告定期发送给管理员用户的功能。
+
+该报告包括以下方面的统计信息：
+- 集群GPU利用率
+- 用户GPU利用率
+- 任务GPU利用率
+
+要启用此功能，您应该在`services-configuration.yml`中配置`alert-manager`字段。
+`pai-bearer-token`和`cluster-utilization`->`schedule`是此功能的必要字段。
+有关`schedule`字段的语法，请参阅[定时计划语法](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax)。
+例如，`"0 0 * * *"`表示每日在UTC 00:00发送报告。
+同时请确保已启用[`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施。 
+
+```yaml
+alert-manager:
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
+  cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
+    # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+    schedule: "0 0 * * *" # daily report at UTC 00:00
+```
+
+为使配置生效，请在dev box容器中使用以下命令重启`alert-manager`服务：
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
