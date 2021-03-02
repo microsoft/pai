@@ -104,6 +104,92 @@ PAI_CONTAINER_HOST_<port-label>_PORT_LIST
 
 任务协议的完整参考资料请查阅 [任务协议](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml)。
 
+## 使用 Prerequisites
+
+[OpenPAI 的任务协议](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml) 支持用户在每个task role中使用不同种类的 prerequisites （例如 dockerimage、data 和 script）。prerequisites 是在任务协议中*可分享*的模块。例如，一个数据集可以被定义为一个 prerequisite ，并且被不同的任务使用。
+
+这里是一个使用 prerequisites 的例子：
+
+```yaml
+protocolVersion: 2
+name: test_prerequisites
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: script
+    name: install-git
+    plugin: com.microsoft.pai.runtimeplugin.cmd
+    callbacks:
+      - event: taskStarts
+        commands:
+          - apt update
+          - apt install -y  git
+  - type: data
+    name: covid-19-data
+    plugin: com.microsoft.pai.runtimeplugin.cmd
+    callbacks:
+      - event: taskStarts
+        commands:
+          - mkdir -p /dataset/covid-19
+          - >-
+            git clone https://github.com/ieee8023/covid-chestxray-dataset.git
+            /dataset/covid-19
+  - type: dockerimage
+    uri: 'ubuntu:18.04'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    prerequisites:
+      - install-git
+      - covid-19-data
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 3
+      memoryMB: 29065
+    commands:
+      - ls -la /dataset/covid-19
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
+```
+
+在最高层的 `prerequisites` 域中，我们定义了两个 prerequisites：一个是 `install-git`，另外一个是 `covid-19-data`。`covid-19-data` 将一个数据集下载到文件夹 `/dataset/covid-19` 。而`install-git` 是一个安装 `git` 的 prerequisites。
+
+在 `taskRoles.taskrole.prerequisites` 域中，我们使用下面的顺序引用了这两个 prerequisites：1. `install-git` 2. `covid-19-data`。因此，`install-git` 将会先于 `covid-19` 执行。在这两个 prerequisites 被成功执行后，用户就可以使用 `/dataset/covid-19` 中的数据了。
+
+完整的 prerequisites 定义如下：
+
+```yaml
+prerequisites:
+  - name: string # required, unique name to find the prerequisite (from local or marketplace)
+    type: "dockerimage | script | data | output" # for survey purpose (except dockerimage), useless for backend
+    plugin: string # optional, the executor to handle current prerequisite; only support com.microsoft.pai.runtimeplugin.cmd for now
+    require: [] # optional, other prerequisites on which the current one depends; will be parsed by backend automatically
+    failurePolicy: "ignore | fail" # optional, same default as runtime plugin
+    uri: string | array # optional, for backward compatibility
+    # plugin-specific properties
+    # Other parameters for the plugin can be inserted here.
+    # For example, "callbacks" is a parameter for com.microsoft.pai.runtimeplugin.cmd.
+
+taskRoles:
+  taskrole:
+    prerequisites: # specified prerequisites will be used in the task role.
+      - prerequisite-1 # on taskStarts, will execute in order
+      - prerequisite-2 # on taskSucceeds, will execute in reverse order
+```
+
+在未来，OpenPAI 会提供更方便的方法来让集群用户管理和分享不同种类的 prerequisites。
+
+
 ## 分布式任务示例
 
 ### TensorFlow CIFAR10
