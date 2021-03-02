@@ -18,7 +18,7 @@ spec:
       hostNetwork: true
       containers:
       - name: marketplace-restserver
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}marketplace-restserver:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}pai-marketplace-restserver:latest
         imagePullPolicy: Always
         env:
         - name: DB_HOST
