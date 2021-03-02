@@ -31,7 +31,7 @@ OpenPAI支持2种身份验证模式来管理用户和组：
 
 在本节中，我们将逐步介绍如何设置AAD认证模式。 
 
-### Preparation
+### 准备工作
 
 - 如果您在基础认证模式下已经设置过一些用户，您需要手动将他们迁移至AAD。一旦AAD认证设置成功，您将不能使用原先的基础认证。
 - 要设置AAD，请先按照[这里](./basic-management-operations.md#how-to-set-up-https)的说明为OpenPAI设置HTTPS访问。
@@ -42,20 +42,24 @@ OpenPAI支持2种身份验证模式来管理用户和组：
   <div align="center">
   <img src="./imgs/aad/path_create_aad.png" alt="path create aad" style="float: center; margin-right: 10px;" />
   </div>
+
 - 为您的应用设置一个名称，并完成注册。
   <div align="center">
   <img src="./imgs/aad/aad_app_reg.png" alt="New Registration Picture" style="float: center;  margin-right: 10px;" />
   </div>
+
 - 找到您刚刚注册的应用并打开。
   <div align="center">
   <img src="./imgs/aad/app_registered.png" alt="app registered" style="float: center;margin-right:  10px;" />
   </div>
+
 - Authentication: 设置OpenPAI的跳转URI。跳转URI应该是 `https:/pylon_address/rest-server/api/v1/authn/oidc/return`
 <div align="center">
 <img src="./imgs/aad/redirect_uri.png" alt="redirect uri" style="float: center; margin-right:10px;" />
 </div>
+
 - Certificates & secrets: 创建一个新的client serect。 将secret value记为 `${secret_value}`. 
-**复制新的client secret值。执行其他操作或离开此页面后，您将无法再获取它。** 
+**复制新的client secret值。执行其他操作或离开此页面后，您将无法再获取它**
   <div align="center">
   <img src="./imgs/aad/cert_secret.png" alt="cert secret" style="float: center; margin-right:10px;"   />
   </div>
@@ -65,10 +69,12 @@ OpenPAI支持2种身份验证模式来管理用户和组：
   <div align="center">
   <img src="./imgs/aad/secret_value.png" alt="secret value" style="float: center; margin-right:10px;  " />
   </div>
+
 - API permissions: 请如下图所示添加权限。如果Azure AD是由您刚刚创建的，那么您可以自己设置权限，否则需要让您的管理员进行设置。
   <div align="center">
   <img src="./imgs/aad/api_permissions.png" alt="api permissions" style="float: center; margin-right: 10px;" />
   </div>
+
 - Quickstart: 记住下面的值
     - Application (client) ID： 记为`${app_id}`
     - Directory (tenant) ID， 记为`${tenant_id}`
