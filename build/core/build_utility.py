@@ -51,7 +51,7 @@ class DockerClient:
 
 
     def docker_image_build(self, image_name, dockerfile_path, build_path):
-        cmd = "docker build -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
+        cmd = "docker build --pull -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
         execute_shell(cmd)
 
 
