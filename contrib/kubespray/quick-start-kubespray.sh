@@ -4,7 +4,7 @@ if getopts "v" opt; then
   case $opt in
     v)
       export ANSIBLE_DISPLAY_OK_HOSTS=yes
-      export DISPLAY_SKIPPED_HOSTS=yes
+      export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes
       export ANSIBLE_CALLBACK_WHITELIST="profile_tasks"
       ;;
     \?)
@@ -14,7 +14,7 @@ if getopts "v" opt; then
   esac
 else
     export ANSIBLE_DISPLAY_OK_HOSTS=no
-    export DISPLAY_SKIPPED_HOSTS=no
+    export ANSIBLE_DISPLAY_SKIPPED_HOSTS=no
     export ANSIBLE_CALLBACK_WHITELIST=""
 fi
 
