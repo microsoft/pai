@@ -16,7 +16,7 @@ This manual is for cluster administrators to learn the installation and uninstal
 6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
 7. [How to Set Up Marketplace](./how-to-set-up-marketplace.md)
 8. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-9. [How to Set Up Docker Image Cache](./how-to-set-up-image-cache.md)
+9. [How to Set Up Docker Image Cache](./how-to-set-up-docker-image-cache.md)
 10. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
 11. [How to Use Alert System](./how-to-use-alert-system.md)
 12. [Troubleshooting](./troubleshooting.md)

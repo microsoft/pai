@@ -1,6 +1,6 @@
 # How to Set Up Docker Image Cache
 
-[Docker Image Cache](https://docs.docker.com/registry/recipes/mirror/), implemented as docker-cache service in OpenPAI, can help admin avoid [dockerhub rate limit](https://www.docker.com/increase-rate-limits), which make deployment of service or user sumbitted job pending for a while. Docker Image Cache basically set as a pull-through cache which use [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) or linux filesystem as storage backend. Futhermore, with utility script to distribute docker-cache config, admins can easily switch to use their own docker registry or pull-through cache.
+[Docker Image Cache](https://docs.docker.com/registry/recipes/mirror/), implemented as docker-cache service in OpenPAI, can help admin avoid [dockerhub rate limit](https://www.docker.com/increase-rate-limits), which make deployment of service or user sumbitted job pending for a while. Docker Image Cache basically set as a pull-through cache which use [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) or linux filesystem as storage backend. Furthermore, with utility script to distribute docker-cache config, admins can easily switch to use their own docker registry or pull-through cache.
 
 
 ## Set Up Docker Image Cache in Installation
