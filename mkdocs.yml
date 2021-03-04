@@ -21,6 +21,7 @@ nav:
       - How to Set Up Storage: manual/cluster-admin/how-to-set-up-storage.md
       - How to Set Up Virtual Clusters: manual/cluster-admin/how-to-set-up-virtual-clusters.md
       - How to Add and Remove Nodes: manual/cluster-admin/how-to-add-and-remove-nodes.md
+      - How to Set Up Docker Image Cache: manual/cluster-admin/how-to-set-up-image-cache.md
       - How to Customize Cluster by Plugins: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
       - How to Use Alert System: manual/cluster-admin/how-to-use-alert-system.md
       - Troubleshooting: manual/cluster-admin/troubleshooting.md
