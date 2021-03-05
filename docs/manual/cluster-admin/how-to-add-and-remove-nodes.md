@@ -4,40 +4,36 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
 
 ## Preparation
 
-### On Nodes to Add
+### For Adding Nodes
 
 If you are going to remove nodes, you can skip this section.
 
 - To add worker nodes, please check if the nodes meet [The Worker Requirements](./installation-guide.md##installation-requirements).
 
-- If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
+- If you have configured any PV/PVC storage, please confirm the nodes meet PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
 
 - You may need to change docker daemon config and restart docker daemon on those nodes.
 
-### On Dev Machine
+- On your dev box machine, modify `<config-folder>/layout.yaml`. Add new nodes into `machine-list`, create a new `machine-sku` if necessary. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
 
-- Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `<config-folder>`.
+  ```yaml
+  machine-list:
+    - hostname: new-worker-node--0
+      hostip: x.x.x.x
+      machine-type: xxx-sku
+      pai-worker: "true"
 
-- Modify `layout.yaml`. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
+    - hostname: new-worker-node-1
+      hostip: x.x.x.x
+      machine-type: xxx-sku
+      pai-worker: "true"
+  ```
 
-  - If you are going to add nodes, add new nodes into `machine-list`, create a new `machine-sku` if necessary.
+### For Hived Scheduler
 
-    ```yaml
-    machine-list:
-      - hostname: new-worker-node--0
-        hostip: x.x.x.x
-        machine-type: xxx-sku
-        pai-worker: "true"
+If you are using Kubernetes default scheduler, you can skip this section.
 
-      - hostname: new-worker-node-1
-        hostip: x.x.x.x
-        machine-type: xxx-sku
-        pai-worker: "true"
-    ```
-  
-  - If you are going to remove nodes, remove nodes from `machine-list`, delete the empty `machine-sku` if necessary.
-
-- If you are using hived scheduler, you should modify its settings in `services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
+- On your dev box machine, modify hived scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. 
 
 ## Use Paictl to Add / Remove Nodes
 
@@ -72,7 +68,7 @@ If you are going to remove nodes, you can skip this section.
 
 
     ```bash  
-    ./paictl.py node add -n <node1> <node2> ...
+    ./paictl.py node remove -n <node1> <node2> ...
     ```
 
 - Start related services.
