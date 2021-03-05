@@ -2,154 +2,81 @@
 
 OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing devices (e.g. TPU, NPU) into the cluster.
 
-## How to Add Nodes
+## Preparation
 
-### Preparation
+### On Nodes to Add
 
-To add worker nodes, please check if the nodes meet [the worker requirements](./installation-guide.md##installation-requirements).
+If you are going to remove nodes, you can skip this section.
 
-Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./installation-guide.md#keep-a-folder).
+- To add worker nodes, please check if the nodes meet [The Worker Requirements](./installation-guide.md##installation-requirements).
 
-### Add the Nodes into Kubernetes
+- If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
 
-Find the file `~/pai-deploy/kubespray/inventory/pai/hosts.yml`, and follow the steps below to modify it. 
+- You may need to change docker daemon config and restart docker daemon on those nodes.
 
-Supposing you want to add 2 worker nodes into your cluster and their hostnames are `new-worker-node-0` and `new-worker-node-1`.  Add these 2 nodes into the `hosts.yml`. An example:
+### On Dev Machine
 
-```yaml
-all:
-  hosts:
-    origin1:
-      ip: x.x.x.37
-      access_ip: x.x.x.37
-      ansible_host: x.x.x.37
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    origin2:
-      ...
-    origin3:
-      ...
-    origin4:
-      ...
+- Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `<config-folder>`.
 
-############# Example start ################### 
-    new-worker-node-0:
-      ip: x.x.x.x
-      access_ip: x.x.x.x
-      ansible_host: x.x.x.x
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    new-worker-node-1:
-      ip: x.x.x.x
-      access_ip: x.x.x.x
-      ansible_host: x.x.x.x
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-#############  Example end  ###################
+- Modify `layout.yaml`. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
 
-  children:
-    kube-master:
-      hosts:
-        origin1:
-    kube-node:
-      hosts:
-        origin1:
-        origin2:
-        origin3:
-        origin4:
+  - If you are going to add nodes, add new nodes into `machine-list`, create a new `machine-sku` if necessary.
 
-############# Example start ################### 
-        new-worker-node-0:
-        new-worker-node-1:
-############## Example end #################### 
+    ```yaml
+    machine-list:
+      - hostname: new-worker-node--0
+        hostip: x.x.x.x
+        machine-type: xxx-sku
+        pai-worker: "true"
 
-    gpu:
-      hosts:
-        origin4:
+      - hostname: new-worker-node-1
+        hostip: x.x.x.x
+        machine-type: xxx-sku
+        pai-worker: "true"
+    ```
+  
+  - If you are going to remove nodes, remove nodes from `machine-list`, delete the empty `machine-sku` if necessary.
 
-############# Example start ################### 
-#### If the worker doesn't have GPU, please don't add them here.
-        new-worker-node-0:
-        new-worker-node-1:
-############## Example end #################### 
+- If you are using hived scheduler, you should modify its settings in `services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
 
-    etcd:
-      hosts:
-        origin1:
-        origin2:
-        origin3:
-    k8s-cluster:
-      children:
-        kube-node:
-        kube-master:
-    calico-rr:
-      hosts: {}
-``` 
+## Use Paictl to Add / Remove Nodes
 
-Go into folder `~/pai-deploy/kubespray/`, run:
+- Log in to your dev box machine and go into your dev box docker container. If you don't have a dev box docker container, [launch one](./basic-management-operations.md##pai-service-management-and-paictl).
 
-```bash
-ansible-playbook -i inventory/pai/hosts.yml cluster.yml -b --become-user=root --limit=new-worker-node-0,new-worker-node-1 -e "@inventory/pai/openpai.yml"
-```
+  ```bash
+  sudo docker exec -it <your-dev-box> bash
+  ```
 
-The nodes to add are specified with the `--limit` flag.
+- Stop related services.
 
-### Update OpenPAI Service Configuration
+  ```bash
+  ./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
+  ```
 
-Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
+- Push the latest configuration.
 
-- Add the new node into `machine-list` field in `layout.yaml`, create a new `machine-sku` if necessary. Refer to [layout.yaml](./installation-guide.md#layoutyaml-format) for schema requirements.
+  ```bash
+  ./paictl.py config push -p <config-folder> -m service
+  ```
 
-```yaml
-machine-list:
-  - hostname: new-worker-node--0
-    hostip: x.x.x.x
-    machine-type: xxx-sku
-    pai-worker: "true"
+- Add nodes to and/or remove nodes from kubernetes.
 
-  - hostname: new-worker-node-1
-    hostip: x.x.x.x
-    machine-type: xxx-sku
-    pai-worker: "true"
-```
+  - To add nodes:
 
-- If you are using hived scheduler, you should modify its setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
 
-- Stop the service, push the latest configuration, and then start related services:
+    ```bash  
+    ./paictl.py node add -n <node1> <node2> ...
+    ```
 
-```bash
-./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
-./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
-```
+  - To remove nodes:
 
-If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
 
-## How to Remove Nodes
+    ```bash  
+    ./paictl.py node add -n <node1> <node2> ...
+    ```
 
-Please refer to the operation of adding nodes. They are very similar.
+- Start related services.
 
-To remove nodes from the cluster, there is no need to modify `hosts.yml`. 
-Go into `~/pai-deploy/kubespray/`, run
-
-```bash
-ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=worker-node-to-remove-0,worker-node-to-remove-1" -e "@inventory/pai/openpai.yml"
-``` 
-
-The nodes to remove are specified with the `-e` flag.
-
-Modify the `layout.yaml` and `services-configuration.yaml`.
-
-Stop the service, push the latest configuration, and then start related services:
-
-```bash
-./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
-./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
-```
+  ```bash
+  ./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
+  ```
