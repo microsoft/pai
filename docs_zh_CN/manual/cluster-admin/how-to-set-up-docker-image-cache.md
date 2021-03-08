@@ -77,10 +77,9 @@ docker_cache_fs_mount_path: "/var/lib/registry"
 
 ### htpasswd 解释
 
-The *htpasswd* authentication backed allows you to configure basic authentication using an [Apache htpasswd file](https://httpd.apache.org/docs/2.4/programs/htpasswd.html).
-The only supported password format is bcrypt. Entries with other hash types are ignored. The htpasswd file is loaded once, at startup. If the file is invalid, the registry will display an error and will not start. 
+*htpasswd* 授权后端允许使用 [Apache htpasswd file](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) 作为 basic auth 的配置。*htpasswd* 支持的 password 格式是 *bcrypt*。其它 hash 类别的表项会被虎烈。htpasswd 文件在启动时加载，如果 registry 显示错误，则不会启动。 
 
-In docker-cache service, we use htpasswd info as k8s secret, which means `docker_cache_htpasswd` need base64 encoded htpasswd file content.
+在 docker-cache 服务中，我们使用将 htpasswd 信息作为 k8s secret 引入，因此需要对 htpasswd 文件内容做 base64 编码。.
 
 ## 为已部署的集群配置 Docker 镜像缓存
 
@@ -105,7 +104,6 @@ ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config
 
 ### 使用自定义 registry 的配置
 
-For those who want to deploy a registry separate with OpenPAI cluster, a simple way is to modify `./contrib/kubespray/docker-cache-config-distribute.yml`, which is a playbook which is responsible to modify docker daemon config in each node. The playbook uses `30500` port of `kube-master` node by default. To use customized registry, only thing need to be changed is to replace `{{ hostvars[groups['kube-master'][0]]['ip'] }}:30500` with custom registry `<ip>:<port>` string.
 对于希望 OpenPAI 集群使用自定义的 registry 的用户，一个简单的方式时修改`./contrib/kubespray/docker-cache-config-distribute.yml`，该 playbook 负责修改集群内每个节点的 docker daemon 配置。在默认设置下，该 playbook 会添加 kube-master 节点的 30500 端口作为 docker-cache service 的入口。想使用自定义的 registry，仅需要修改该文件中的 `{{ hostvars[groups['kube-master'][0]]['ip'] }}:30500` 为相应的 `<ip>:<port>` 字符串即可。
 
 ```yaml
