@@ -5,7 +5,7 @@ import json
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("host", default="localhost", help="host addr of docker cache registry")
+    parser.add_argument("host", default="localhost:30500", help="host addr of docker cache registry")
     return parser.parse_args()
 
 
@@ -26,7 +26,7 @@ def main():
     with open(str(backup_path), 'w') as f:
         json.dump(current_config, f)
 
-    docker_cache_mirror = "http://{}:30500".format(args.host)
+    docker_cache_mirror = "http://{}".format(args.host)
     if "registry-mirrors" in current_config:
         if docker_cache_mirror not in current_config["registry-mirrors"]:
             current_config["registry-mirrors"].append(docker_cache_mirror)
