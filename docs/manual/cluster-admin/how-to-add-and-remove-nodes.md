@@ -2,154 +2,90 @@
 
 OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add CPU workers, GPU workers, and other computing devices (e.g. TPU, NPU) into the cluster.
 
-## How to Add Nodes
+## Preparation
 
-### Preparation
+### Pre-checks on Nodes to Add
 
-To add worker nodes, please check if the nodes meet [the worker requirements](./installation-guide.md##installation-requirements).
+*Note*: If you are going to remove nodes, you can skip this section.
 
-Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./installation-guide.md#keep-a-folder).
+- To add worker nodes, please check if the nodes meet [The Worker Requirements](./installation-guide.md##installation-requirements).
 
-### Add the Nodes into Kubernetes
+- If you have configured any PV/PVC storage, please confirm the nodes meet PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
 
-Find the file `~/pai-deploy/kubespray/inventory/pai/hosts.yml`, and follow the steps below to modify it. 
+- If you are going to add nodes that have been deleted before, you may need to restart docker daemon on those nodes.
 
-Supposing you want to add 2 worker nodes into your cluster and their hostnames are `new-worker-node-0` and `new-worker-node-1`.  Add these 2 nodes into the `hosts.yml`. An example:
+### Pull & Modify Cluster Settings 
 
-```yaml
-all:
-  hosts:
-    origin1:
-      ip: x.x.x.37
-      access_ip: x.x.x.37
-      ansible_host: x.x.x.37
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    origin2:
-      ...
-    origin3:
-      ...
-    origin4:
-      ...
+- Log in to your dev box machine and go into your dev box docker container, change directory to `/pai`. If you don't have a dev box docker container, [launch one](./basic-management-operations.md##pai-service-management-and-paictl).
 
-############# Example start ################### 
-    new-worker-node-0:
-      ip: x.x.x.x
-      access_ip: x.x.x.x
-      ansible_host: x.x.x.x
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    new-worker-node-1:
-      ip: x.x.x.x
-      access_ip: x.x.x.x
-      ansible_host: x.x.x.x
-      ansible_ssh_user: "username"
-      ansible_ssh_pass: "your-password-here"
-      ansible_become_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-#############  Example end  ###################
+  ```bash
+  sudo docker exec -it <your-dev-box> bash
+  cd /pai
+  ```
 
-  children:
-    kube-master:
-      hosts:
-        origin1:
-    kube-node:
-      hosts:
-        origin1:
-        origin2:
-        origin3:
-        origin4:
+- Use `paictl.py` to pull service config to a certain folder.
 
-############# Example start ################### 
-        new-worker-node-0:
-        new-worker-node-1:
-############## Example end #################### 
+  ```bash
+  ./paictl.py config pull -o <config-folder>
+  ```
 
-    gpu:
-      hosts:
-        origin4:
+- Modify `<config-folder>/layout.yaml`. Add new nodes into `machine-list`, create a new `machine-sku` if necessary. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
 
-############# Example start ################### 
-#### If the worker doesn't have GPU, please don't add them here.
-        new-worker-node-0:
-        new-worker-node-1:
-############## Example end #################### 
+    *Note*: If you are going to remove nodes, you can skip this step.
 
-    etcd:
-      hosts:
-        origin1:
-        origin2:
-        origin3:
-    k8s-cluster:
-      children:
-        kube-node:
-        kube-master:
-    calico-rr:
-      hosts: {}
-``` 
+  ```yaml
+  machine-list:
+    - hostname: new-worker-node--0
+      hostip: x.x.x.x
+      machine-type: xxx-sku
+      pai-worker: "true"
 
-Go into folder `~/pai-deploy/kubespray/`, run:
+    - hostname: new-worker-node-1
+      hostip: x.x.x.x
+      machine-type: xxx-sku
+      pai-worker: "true"
+  ```
 
-```bash
-ansible-playbook -i inventory/pai/hosts.yml cluster.yml -b --become-user=root --limit=new-worker-node-0,new-worker-node-1 -e "@inventory/pai/openpai.yml"
-```
+- Modify HiveD scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details.
 
-The nodes to add are specified with the `--limit` flag.
+    *Note*: If you are using Kubernetes default scheduler, you can skip this step.
 
-### Update OpenPAI Service Configuration
+## Use Paictl to Add / Remove Nodes
 
-Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
+*Note*: All the following operations should be performed in the dev box docker container on the dev box machine.
 
-- Add the new node into `machine-list` field in `layout.yaml`, create a new `machine-sku` if necessary. Refer to [layout.yaml](./installation-guide.md#layoutyaml-format) for schema requirements.
+*Note*：When removing nodes, the `layout.yaml` saved in Kubernetes will be automatically modified after the deletion is successful. We recommend backing up the `<config-folder>` in the file system of your dev box machine in case your dev box docker container stops.
 
-```yaml
-machine-list:
-  - hostname: new-worker-node--0
-    hostip: x.x.x.x
-    machine-type: xxx-sku
-    pai-worker: "true"
+- Stop related services.
 
-  - hostname: new-worker-node-1
-    hostip: x.x.x.x
-    machine-type: xxx-sku
-    pai-worker: "true"
-```
+  ```bash
+  ./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
+  ```
 
-- If you are using hived scheduler, you should modify its setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. If you are using Kubernetes default scheduler, you can skip this step.
+- Push the latest configuration.
 
-- Stop the service, push the latest configuration, and then start related services:
+  ```bash
+  ./paictl.py config push -p <config-folder> -m service
+  ```
 
-```bash
-./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
-./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
-```
+- Add nodes to and/or remove nodes from kubernetes.
 
-If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
+  - To add nodes:
 
-## How to Remove Nodes
 
-Please refer to the operation of adding nodes. They are very similar.
+    ```bash  
+    ./paictl.py node add -n <node1> <node2> ...
+    ```
 
-To remove nodes from the cluster, there is no need to modify `hosts.yml`. 
-Go into `~/pai-deploy/kubespray/`, run
+  - To remove nodes:
 
-```bash
-ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=worker-node-to-remove-0,worker-node-to-remove-1" -e "@inventory/pai/openpai.yml"
-``` 
 
-The nodes to remove are specified with the `-e` flag.
+    ```bash  
+    ./paictl.py node remove -n <node1> <node2> ...
+    ```
 
-Modify the `layout.yaml` and `services-configuration.yaml`.
+- Start related services.
 
-Stop the service, push the latest configuration, and then start related services:
-
-```bash
-./paictl.py service stop -n cluster-configuration hivedscheduler rest-server job-exporter
-./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
-```
+  ```bash
+  ./paictl.py service start -n cluster-configuration hivedscheduler rest-server job-exporter
+  ```
