@@ -46,7 +46,7 @@
 
 - name: "Check NVIDIA GPU card number is matched or not"
   set_fact:
-    unmet_requirements: "{{ unmet_requirements + [\"NVIDIA GPU card number is not matched: {{ computing_device_count }} specified but only {{ nvidia_gpu_count.stdout|trim }} found\"] }}"
+    unmet_requirements: "{{ unmet_requirements + [\"NVIDIA GPU card number is not matched: {{ computing_device_count }} specified but {{ nvidia_gpu_count.stdout|trim }} found\"] }}"
   changed_when: false
   check_mode: false
   environment: {}
