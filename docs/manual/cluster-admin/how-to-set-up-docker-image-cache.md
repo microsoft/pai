@@ -20,7 +20,7 @@ During installation, the only effort you need to perform is change `config.yaml`
 * `docker_cache_remote_url`: pull-through cache remote URL, should be modified if you want to specify the other remote docker registry rather than Docker Hub, default is "https://registry-1.docker.io/".
 * `docker_cache_htpasswd`: htpasswd auth info with base64 encoded, should be used with SSL when docker-cache cache some private registry as an access control method.
 
-### `config.yaml` example with azure
+### `config.yaml` example with Azure
 
 ``` yaml
 # ...
@@ -47,7 +47,7 @@ docker_cache_azure_account_key: "forexample"
 
 Make sure the setting of `enable_docker_cache` was `true`, and finish the [installation](./installation-guide.md), the docker-cache will be set up.
 
-### `config.yaml` example with filesystem
+### `config.yaml` example with file system
 
 ``` yaml
 # ...
