@@ -1,26 +1,27 @@
-# How to Set Up Docker Image Cache
+# 如何设置 Docker 镜像缓存
 
-[Docker Image Cache](https://docs.docker.com/registry/recipes/mirror/), implemented as docker-cache service in OpenPAI, can help admin avoid [Docker Hub rate limit](https://www.docker.com/increase-rate-limits), which makes deployment of service or user sumbitted job pending for a while. Docker Image Cache is basically set as a pull-through cache which uses [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) or linux filesystem as storage backend. Furthermore, with utility script to distribute docker-cache config, admins can easily switch to use their own docker registry or pull-through cache.
+[Docker 镜像缓存](https://docs.docker.com/registry/recipes/mirror/), 在 OpenPAI 中实现为 `docker-cache` 服务, 可以帮助 admin 避免 [Docker Hub rate limit](https://www.docker.com/increase-rate-limits)。Docker Hub rate limit 会造成部署服务或用户提交任务在超过限制时等待。Docker 镜像缓存被配置为一个以 [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) 或 Linux 文件系统为存储后端的 pull-through 缓存。此外, 通过提供的 docker-cache 配置分发脚本, admin 可以方便地使用自己地 docker registry 或者 pull-through cache。
 
-Docker image cache provides 3 different approaches:
-1. Boot a cache service with Azure Blob Storage backend;
-2. Boot a cache service with Linux file system backend;
-3. Use customized registry with cluster.
+Docker 镜像缓存提供了三种使用方式：
+1. 启动一个使用 Azure Blob Storage 作为存储后端的缓存服务;
+2. 启动一个使用 Linux 文件系统作为存储后端的缓存服务;
+3. 使用自定义的 registry。
 
-## Set Up Docker Image Cache during Installation
+## 安装时配置 Docker 镜像缓存
 
 During installation, the only effort you need to perform is change `config.yaml` in `contrib/kubespray/config.yaml`. Those setting with "docker_cache" substring are related in "OpenPAI Customized Settings" section. 
+在安装时，启用 Docker 镜像缓存只需要修改 `contrib/kubespray/config.yaml` 中的 `config.yaml`。"OpenPAI Customized Settings"段中，有"docker_cache"字段的是相关配置。
 
-* `enable_docker_cache`: true if you want to enable docker-cache service, default is false, which makes all following params won't take effect.
-* `docker_cache_storage_backend`: storage backend type selector, "azure" is for [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/), "filesystem" is for linux filesystem.
-* `docker_azure_account_name`: required when storage backend is "azure", should be your azure blob storage accountname.
-* `docker_azure_account_key`: required when storage backend is "azure", should be your azure blob storage base64 encoded account key.
-* `docker_cache_azure_container_name`: required when storage backend is "azure", should be modified if you want to specify container name your docker-cache use, default is "dockerregistry".
-* `docker_cache_fs_mount_path`: required when storage backend is "filesystem", should be modified if you want to specify path your docker-cache use, default is "/var/lib/registry".
-* `docker_cache_remote_url`: pull-through cache remote url, should be modified if you want to specify other docker remote registry rather than Docker Hub, default is "https://registry-1.docker.io/".
-* `docker_cache_htpasswd`: htpasswd auth info with base64 encoded, should be use with ssl when docker-cache cache some private registry as an access control method.
+* `enable_docker_cache`: 如果希望使用 docker-cache 服务需要设置为 true，默认为 false 并让后续的所有其它配置失效。
+* `docker_cache_storage_backend`: 存储后端类型选择参数, "azure" 使用 [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/), "filesystem" 使用 Linux 文件系统.
+* `docker_azure_account_name`: 在存储后端类型为 "azure" 时必须填写，内容为你的 azure blob storage account name.
+* `docker_azure_account_key`: 在存储后端类型为 "azure" 时必须填写，内容为 azure blob storage base64 encoded account key.
+* `docker_cache_azure_container_name`: 在存储后端类型为 "azure" 时必须填写，在修改为特定的 container 名称时才需要修改，默认 container 名称为 "dockerregistry".
+* `docker_cache_fs_mount_path`: 在存储后端类型为 "filesystem" 时必须填写, 在修改为特定的路径时才需要修改，默认为 "/var/lib/registry".
+* `docker_cache_remote_url`: pull-through cache 所缓存的远程 registry 链接, 在修改为非 Docker Hub 的远程 registry 时才需要修改，默认为 "https://registry-1.docker.io/".
+* `docker_cache_htpasswd`: base64 编码的 htpasswd 授权信息作为访问控制方法，如果使用 htpasswd 作为授权方式最好提供 ssl 保护。
 
-### `config.yaml` example with azure
+### 使用 Azure Blob Storage 的 `config.yaml` 示例
 
 ``` yaml
 # ...
@@ -45,9 +46,9 @@ docker_cache_azure_account_key: "forexample"
 
 ```
 
-Make sure the setting of `enable_docker_cache` was `"true"` (include the quotation marks), and finish the [installation](./installation-guide.md), the docker-cache will be set up.
+确保 `enable_docker_cache` 配置为 `"true"`，并完成[安装](./installation-guide.md)，docker-cache 服务应该就可以正常启动了。
 
-### `config.yaml` example with filesystem
+### 使用 Linux 文件系统的 `config.yaml` 示例
 
 ``` yaml
 # ...
@@ -72,18 +73,18 @@ docker_cache_fs_mount_path: "/var/lib/registry"
 
 ```
 
-Make sure the setting of `enable_docker_cache` was `"true"` (include the quotation marks), and finish the [installation](./installation-guide.md), the docker-cache will be set up.
+确保 `enable_docker_cache` 配置为 `"true"`，并完成[安装](./installation-guide.md)，docker-cache 服务应该就可以正常启动了。
 
-### htpasswd explained
+### htpasswd 解释
 
 The *htpasswd* authentication backed allows you to configure basic authentication using an [Apache htpasswd file](https://httpd.apache.org/docs/2.4/programs/htpasswd.html).
 The only supported password format is bcrypt. Entries with other hash types are ignored. The htpasswd file is loaded once, at startup. If the file is invalid, the registry will display an error and will not start. 
 
 In docker-cache service, we use htpasswd info as k8s secret, which means `docker_cache_htpasswd` need base64 encoded htpasswd file content.
 
-## Set Up Docker Image Cache for deployed cluster
+## 为已部署的集群配置 Docker 镜像缓存
 
-For those who already deployed the cluster, there is no need to re-install the cluster totally to enable docker-cache service. The suggested way is to modify `config.yaml`, and use the following commands to upgrade.
+对于已经部署的集群，启用 docker-cache 服务并不需要重新安装集群。更推荐的方式是修改`config.yaml`，并通过如下命令升级。
 
 ```bash
 echo "pai" > cluster-id # "pai" is default cluster-id, need to change if you changed in deployment
@@ -102,9 +103,10 @@ echo "Performing docker-cache config distribution..."
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config-distribute.yml || exit $?
 ```
 
-### Use Customized Registry Configuration
+### 使用自定义 registry 的配置
 
 For those who want to deploy a registry separate with OpenPAI cluster, a simple way is to modify `./contrib/kubespray/docker-cache-config-distribute.yml`, which is a playbook which is responsible to modify docker daemon config in each node. The playbook uses `30500` port of `kube-master` node by default. To use customized registry, only thing need to be changed is to replace `{{ hostvars[groups['kube-master'][0]]['ip'] }}:30500` with custom registry `<ip>:<port>` string.
+对于希望 OpenPAI 集群使用自定义的 registry 的用户，一个简单的方式时修改`./contrib/kubespray/docker-cache-config-distribute.yml`，该 playbook 负责修改集群内每个节点的 docker daemon 配置。在默认设置下，该 playbook 会添加 kube-master 节点的 30500 端口作为 docker-cache service 的入口。想使用自定义的 registry，仅需要修改该文件中的 `{{ hostvars[groups['kube-master'][0]]['ip'] }}:30500` 为相应的 `<ip>:<port>` 字符串即可。
 
 ```yaml
 - hosts: all
