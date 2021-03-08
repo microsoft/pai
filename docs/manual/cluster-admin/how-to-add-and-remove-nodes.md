@@ -14,11 +14,24 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
 
 - If you are going to add nodes that have been deleted before, you may need to restart docker daemon on those nodes.
 
-### Modify Cluster Settings 
+### Pull & Modify Cluster Settings 
 
--  On your dev box machine, modify `<config-folder>/layout.yaml`. Add new nodes into `machine-list`, create a new `machine-sku` if necessary. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
+- Log in to your dev box machine and go into your dev box docker container, change directory to `/pai`. If you don't have a dev box docker container, [launch one](./basic-management-operations.md##pai-service-management-and-paictl).
 
-    *Note*: If you are going to remove nodes, you can skip this step. The `layout.yaml` will be automatically modified after the deletion is successful.
+  ```bash
+  sudo docker exec -it <your-dev-box> bash
+  cd /pai
+  ```
+
+- Use `paictl.py` to pull service config to a certain folder.
+
+  ```bash
+  ./paictl.py config pull -o <config-folder>
+  ```
+
+- Modify `<config-folder>/layout.yaml`. Add new nodes into `machine-list`, create a new `machine-sku` if necessary. Refer to [layout.yaml format](./installation-guide.md#layoutyaml-format) for schema requirements.
+
+    *Note*: If you are going to remove nodes, you can skip this step.
 
   ```yaml
   machine-list:
@@ -33,24 +46,15 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
       pai-worker: "true"
   ```
 
-- On your dev box machine, modify hived scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details.
+- Modify HiveD scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details.
 
     *Note*: If you are using Kubernetes default scheduler, you can skip this step.
 
 ## Use Paictl to Add / Remove Nodes
 
-- Log in to your dev box machine and go into your dev box docker container. If you don't have a dev box docker container, [launch one](./basic-management-operations.md##pai-service-management-and-paictl). Change directory to `/pai`.
+*Note*: All the following operations should be performed in the dev box docker container on the dev box machine.
 
-  ```bash
-  sudo docker exec -it <your-dev-box> bash
-  cd /pai
-  ```
-
-- When removing nodes, the `layout.yaml` will be automatically modified after the deletion is successful. Backup it in case of need.
-
-  ```bash
-  cp <config-folder>/layout.yaml <config-folder>/layout.yaml.bak
-  ```
+*Note*：When removing nodes, the `layout.yaml` saved in Kubernetes will be automatically modified after the deletion is successful. We recommend backing up the `<config-folder>` in the file system of your dev box machine in case your dev box docker container stops.
 
 - Stop related services.
 
