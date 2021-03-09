@@ -9,7 +9,8 @@
 
 - Introduce an optional docker cache in cluster #5290
 
-- A regular GPU utilization report can be set up for admins #5281
+- A regular GPU utilization report can be set up for admins #5281, #5294, #5324, #5331
+  - #5324 introduces a schema change for `pai-bearer-token` in the `alert-manager` section. The old configuration still works but is deprecated. If you have configured `pai-bearer-token` of `alert-manager`, please refer to #5331 to modify the previous configuration.
 
 - Users can save frequently-used SSH publish keys on the profile page #5223
 
