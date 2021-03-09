@@ -12,7 +12,9 @@ USER_QUERY_STRING = \
 
 QUERY_PREFIX = "/prometheus/api/v1/query"
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
-REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs"
+# only the jobs that are running or completed within 7d should be included
+# currently, we just set the limit to max
+REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs?limit=50000"
 
 TOKEN = os.environ.get('PAI_BEARER_TOKEN')
 PROMETHEUS_SCRAPE_INTERVAL = int(os.environ.get('PROMETHEUS_SCRAPE_INTERVAL'))
