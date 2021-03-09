@@ -27,9 +27,11 @@ echo "Install necessray packages"
 
 echo "Install Python3 and pip"
 sudo apt-get -y update
-sudo apt-get -y install software-properties-common python3 python3-dev
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo python3 get-pip.py
+sudo apt-get -y install software-properties-common python3 python3-dev python3-pip
+# "apt-get install python3" will install python3.5 on Ubuntu 16.04
+# The lastest pip doesn't support python3.5.
+# Here we use a fixed version number to ensure compatibility.
+sudo python3 -m pip install pip==20.3.4
 
 echo "Install python packages"
 sudo python3 -m pip install paramiko # need paramiko for ansible-playbook
