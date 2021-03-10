@@ -6,7 +6,7 @@
 
 - Marketplace related update
   - Please see [Marketplace](https://github.com/microsoft/openpaimarketplace/releases/tag/v1.6.0) for more details
-  - **Warning** Marketplace v1.6.0 has breaking change, upgrade from previous should follow the [Marketplace upgrade guide](https://openpaimarketplace.readthedocs.io/en/v1.6.0/admin/deploy_v1.6.0_later.html#deployment-in-a-openpai-cluster)
+  - **Warning** Marketplace v1.6.0 has some breaking change, upgrade from previous should follow the [Marketplace upgrade guide](https://openpaimarketplace.readthedocs.io/en/v1.6.0/admin/deploy_v1.6.0_later.html#deployment-in-a-openpai-cluster)
 
 - Introduce an optional docker cache in cluster #5290
 
