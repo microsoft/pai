@@ -8,9 +8,9 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
 
 *注意*：如果您只需要删除结点，请跳过这一节。
 
-- 确认您要添加的worker结点符合[安装要求](./installation-guide.md##installation-requirements).
+- 确认您要添加的worker结点符合[安装要求](./installation-guide.md##installation-requirements)。
 
-- 如果您创建PV了PVC, 请确认要添加的worker结点符合[数据存储要求](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes)。
+- 如果您创建了PV或PVC, 请确认要添加的worker结点符合[数据存储要求](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes)。
 
 - 如果准备添加的结点曾被删除过，您可能需要重启它们的Docker守护进程。
 
@@ -72,13 +72,11 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
 
   - 添加结点：
 
-
     ```bash  
     ./paictl.py node add -n <结点1> <结点2> ...
     ```
 
   - 删除结点：
-
 
     ```bash  
     ./paictl.py node remove -n <结点1> <结点2> ...

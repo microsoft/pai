@@ -36,6 +36,7 @@ from deployment.clusterCmd import ClusterCmd
 from deployment.serviceCmd import ServiceCmd
 from deployment.machineCmd import MachineCmd
 from deployment.utilityCmd import UtilityCmd
+from deployment.nodeCmd import NodeCmd
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,11 @@ def main(args):
     utility_parser = sub_parser.add_parser("utility")
     utility_cmd = UtilityCmd()
     utility_cmd.register(utility_parser)
+
+    # create the parser for "node" command
+    node_parser = sub_parser.add_parser("node")
+    node_cmd = NodeCmd()
+    node_cmd.register(node_parser)
 
     # execute the command: call the "handler" with parsed arguments
     parserd = parser.parse_args(args)

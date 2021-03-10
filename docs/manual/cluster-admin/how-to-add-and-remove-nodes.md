@@ -72,13 +72,11 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
 
   - To add nodes:
 
-
     ```bash  
     ./paictl.py node add -n <node1> <node2> ...
     ```
 
   - To remove nodes:
-
 
     ```bash  
     ./paictl.py node remove -n <node1> <node2> ...
