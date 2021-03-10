@@ -25,10 +25,14 @@ from ..common import linux_shell
 
 class add_node:
     
-    def __init__(self, kube_config_path=None, node_list=None):
+    def __init__(self, kube_config_path=None, node_list=None, verbose=False):
         self._logger = logging.getLogger(__name__)
         self._kube_config_path = kube_config_path
         self._node_list = node_list
+        if verbose:
+            self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=yes && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes && export ANSIBLE_CALLBACK_WHITELIST=\"profile_tasks\" &&"
+        else:
+            self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=no && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=no && export ANSIBLE_CALLBACK_WHITELIST=\"\" &&"
     
     def run(self):
         temp_kubespray_folder = temp_kubespray.temp_kubespray()
@@ -36,8 +40,9 @@ class add_node:
         node_list_string = ",".join(self._node_list)
         self._logger.info("Begin to add nodes: {}".format(node_list_string))
         linux_shell.execute_shell_raise(
-            shell_cmd="cd {} && ansible-playbook -i {} scale.yml -b --become-user=root -e \"@{}\" -e \"node={}\"".format(
+            shell_cmd="cd {} && {} ansible-playbook -i {} scale.yml -b --become-user=root -e \"@{}\" -e \"node={}\"".format(
                 temp_kubespray_folder.get_folder_path(),
+                self._ansible_callback_vars,
                 temp_config_folder.get_hosts_yml_path(),
                 temp_config_folder.get_openpai_yml_path(),
                 node_list_string
