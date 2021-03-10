@@ -27,8 +27,7 @@ class temp_kubespray:
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
-        # self._path = os.path.join(os.environ['HOME'], '.kubespray-' + str(time.time()))
-        self._path = os.path.join(os.environ['HOME'], '.kubespray')
+        self._path = os.path.join(os.environ['HOME'], '.kubespray-' + str(time.time()))
         self._clone_kubespray()
         self._modify_files()
     
@@ -53,12 +52,12 @@ class temp_kubespray:
         with open(os.path.join(self._path, "roles/remove-node/post-remove/tasks/main.yml"), "w") as f2:
             yaml.dump(data2, f2, default_flow_style=False)
     
-    # def __del__(self):
-    #     self._logger.info("Remove temporary downloaded Kubespray folder")
-    #     linux_shell.execute_shell_raise(
-    #         shell_cmd="rm -r {}".format(self._path),
-    #         error_msg="Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._path)
-    #     )
+    def __del__(self):
+        self._logger.info("Remove temporary downloaded Kubespray folder")
+        linux_shell.execute_shell_raise(
+            shell_cmd="rm -r {}".format(self._path),
+            error_msg="Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._path)
+        )
     
     def get_folder_path(self):
         return self._path

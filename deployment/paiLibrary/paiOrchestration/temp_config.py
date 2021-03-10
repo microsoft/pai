@@ -31,8 +31,7 @@ class temp_config:
         self._kube_config_path = None
         if kube_config_path != None:
             self._kube_config_path = os.path.expanduser(kube_config_path)
-        # self._path = os.path.join(os.environ['HOME'], '.pai-config-' + str(time.time()))
-        self._path = os.path.join(os.environ['HOME'], '.pai-config')
+        self._path = os.path.join(os.environ['HOME'], '.pai-config-' + str(time.time()))
         self._pull_config_files()
         self._generate_config_files()
     
@@ -55,12 +54,12 @@ class temp_config:
             error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
         )
     
-    # def __del__(self):
-    #     self._logger.info("Remove temporary config folder")
-    #     linux_shell.execute_shell_raise(
-    #         shell_cmd="rm -r {}".format(self._path),
-    #         error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
-    #     )
+    def __del__(self):
+        self._logger.info("Remove temporary config folder")
+        linux_shell.execute_shell_raise(
+            shell_cmd="rm -r {}".format(self._path),
+            error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
+        )
     
     def get_hosts_yml_path(self):
         return os.path.join(self._path, "hosts.yml")
