@@ -34,7 +34,7 @@
   - Create a new page for yaml editor #5172
 
 - Marketplace related update
-  - Please see [Marketplace release](https://github.com/microsoft/openpaimarketplace/issues/152) for more details
+  - Please see https://github.com/microsoft/openpaimarketplace/issues/152 for more details
 
 - Support different types of computing hardware #5138
 
