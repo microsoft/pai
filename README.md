@@ -6,7 +6,7 @@
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-**OpenPAI [v1.5.0](./RELEASE_NOTE.md#Jan-2021-version-150) has been released!**
+**OpenPAI [v1.6.0](./RELEASE_NOTE.md#Mar-2021-version-160) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
 

@@ -1,5 +1,30 @@
 # OpenPAI Release Note
 
+## Mar 2021 (version 1.6.0)
+
+- Job protocol update: Add prerequisites #5145
+
+- Marketplace related update
+  - Please see https://github.com/microsoft/openpaimarketplace/issues/201 for more details
+
+- Introduce an optional docker cache in cluster #5290
+
+- A regular GPU utilization report can be set up for admins #5281, #5294, #5324, #5331
+  - #5324 introduces a schema change for `pai-bearer-token` in the `alert-manager` section. The old configuration still works but is deprecated. If you have configured `pai-bearer-token` of `alert-manager`, please refer to #5331 to modify the previous configuration.
+
+- Users can save frequently-used SSH publish keys on the profile page #5223
+
+- Improve log experience #5271 #5272 
+
+- Reduce ansible logs when deploy #5305
+
+- Bug Fixes:
+  - Database controller: Tolerant to wrong framework spec #5284
+  - Database controller: Remove sensitive fields in db #5289
+  - Database controller: Fix memory leak #5309
+  - Set correct launchTime in rest-server #5307
+  - Database may use unmounted host path #5343
+
 ## Jan 2021 (version 1.5.0)
 
 - Improve Web Portal Experience 
