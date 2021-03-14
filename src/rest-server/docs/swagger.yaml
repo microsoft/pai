@@ -14,6 +14,7 @@ info:
     Version 2.2.1: a user can add/delete tags to/from his/her own jobs
     version 2.2.2: add get task logs api
     version 2.2.3: set .jobStatus.appId nullable in get jobAttempt schema
+    version 2.2.4: support sorting by completionTime in get the list of jobs
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
