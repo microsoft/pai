@@ -93,6 +93,7 @@ const list = asyncHandler(async (req, res) => {
           'totalTaskNumber',
           'totalGpuNumber',
           'state',
+          'completionTime',
         ].includes(field)
       ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
@@ -101,6 +102,9 @@ const list = asyncHandler(async (req, res) => {
             order.push(['userName', ordering]);
           } else if (field === 'vc') {
             order.push(['virtualCluster', ordering]);
+          } else if (field === 'completionTime') {
+            const orderingWithNulls = ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
+            order.push(['completionTime', orderingWithNulls]);
           } else {
             order.push([field, ordering]);
           }
