@@ -23,8 +23,8 @@ import temp_kubespray
 from ..common import linux_shell
 
 
-class add_node:
-    
+class AddNode:
+
     def __init__(self, kube_config_path=None, node_list=None, verbose=False):
         self._logger = logging.getLogger(__name__)
         self._kube_config_path = kube_config_path
@@ -33,7 +33,7 @@ class add_node:
             self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=yes && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes && export ANSIBLE_CALLBACK_WHITELIST=\"profile_tasks\" &&"
         else:
             self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=no && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=no && export ANSIBLE_CALLBACK_WHITELIST=\"\" &&"
-    
+
     def run(self):
         temp_kubespray_folder = temp_kubespray.temp_kubespray()
         temp_config_folder = temp_config.temp_config(self._kube_config_path)
@@ -49,4 +49,3 @@ class add_node:
             ),
             error_msg="Failed to add nodes: {}".format(node_list_string)
         )
-        

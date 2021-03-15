@@ -21,10 +21,10 @@ from paiLibrary.paiOrchestration import add_node
 
 
 class NodeCmd():
-    
+
     def __init__(self):
         self._logger = logging.getLogger(__name__)
-    
+
     def register(self, parser):
         node_parser = parser.add_subparsers(help="Node operations")
 
@@ -44,10 +44,10 @@ class NodeCmd():
 
         add_arguments(add_parser)
         add_arguments(remove_parser)
-    
+
     def _add_node(self, args):
-        add_node.add_node(args.kube_config_path, args.node_list, args.verbose).run()
-    
+        add_node.AddNode(args.kube_config_path, args.node_list, args.verbose).run()
+
     def _remove_node(self, args):
         self._logger.warning("--------------------------------------------------------")
         self._logger.warning("------------------- Not Implemented --------------------")
