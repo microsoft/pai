@@ -1,4 +1,4 @@
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 import logging
 import os
 import requests
@@ -14,7 +14,7 @@ QUERY_PREFIX = "/prometheus/api/v1/query"
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 # only the jobs that are running or completed within 7d should be included
 # currently, we just set the limit to max
-REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs?limit=50000"
+REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs?order=completionTime,DESC"
 
 TOKEN = os.environ.get('PAI_BEARER_TOKEN')
 PROMETHEUS_SCRAPE_INTERVAL = int(os.environ.get('PROMETHEUS_SCRAPE_INTERVAL'))
@@ -49,15 +49,39 @@ def datetime_to_hours(dt):
     return dt.days * 24 + dt.seconds / 3600
 
 
+def check_timestamp_within_7d(timestamp):
+    """
+    check if a timestamp is within 7 days
+    """
+    return datetime.fromtimestamp(int(timestamp/1000), timezone.utc) + timedelta(days=7) < datetime.now(timezone.utc)
+
+
+def get_jobs_in_7d(rest_url):
+    """
+    Returns all jobs within 7 days
+    """
+    jobs_in_7d = []
+
+    offset = 0
+    limit = 5000
+    headers = {'Authorization': "Bearer {}".format(TOKEN)}
+    while True:
+        resp = requests.get(rest_url+"limit={}&offset={}".format(limit, offset), headers=headers)
+        resp.raise_for_status()
+        jobs = resp.json()
+        jobs_in_7d += jobs
+        if not jobs or jobs[-1]["completedTime"] is not None and check_timestamp_within_7d(jobs[-1]["completedTime"]) :
+            break
+        offset += limit
+
+    return jobs_in_7d
+
+
 @enable_request_debug_log
 def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
     job_infos = {}
     user_infos = {}
-    # get all jobs
-    headers = {'Authorization': "Bearer {}".format(TOKEN)}
-    resp = requests.get(rest_url, headers=headers)
-    resp.raise_for_status()
-    job_list = resp.json()
+    job_list = get_jobs_in_7d(rest_url)
 
     for v in user_usage_result["data"]["result"]:
         user_infos[v["metric"]["username"]] = {
