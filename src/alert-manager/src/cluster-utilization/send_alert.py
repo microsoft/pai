@@ -53,7 +53,7 @@ def check_timestamp_within_7d(timestamp):
     """
     check if a timestamp is within 7 days
     """
-    return datetime.fromtimestamp(int(timestamp/1000), timezone.utc) + timedelta(days=7) < datetime.now(timezone.utc)
+    return datetime.fromtimestamp(int(timestamp/1000), timezone.utc) > datetime.now(timezone.utc) - timedelta(days=7)
 
 
 def get_jobs_in_7d(rest_url):
@@ -70,7 +70,7 @@ def get_jobs_in_7d(rest_url):
         resp.raise_for_status()
         jobs = resp.json()
         jobs_in_7d += jobs
-        if not jobs or jobs[-1]["completedTime"] is not None and check_timestamp_within_7d(jobs[-1]["completedTime"]) :
+        if not jobs or (jobs[-1]["completedTime"] is not None and not check_timestamp_within_7d(jobs[-1]["completedTime"])) :
             break
         offset += limit
 
