@@ -103,7 +103,8 @@ const list = asyncHandler(async (req, res) => {
           } else if (field === 'vc') {
             order.push(['virtualCluster', ordering]);
           } else if (field === 'completionTime') {
-            const orderingWithNulls = ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
+            const orderingWithNulls =
+              ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
             order.push(['completionTime', orderingWithNulls]);
           } else {
             order.push([field, ordering]);
