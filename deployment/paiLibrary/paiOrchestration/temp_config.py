@@ -24,7 +24,7 @@ from ..common import linux_shell
 from ...confStorage.download import download_configuration
 
 
-class temp_config:
+class TempConfig:
 
     def __init__(self, kube_config_path=None):
         self._logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class temp_config:
         self._path = os.path.join(os.environ['HOME'], '.pai-config-' + str(time.time()))
         self._pull_config_files()
         self._generate_config_files()
-    
+
     def _pull_config_files(self):
         self._logger.info("Pull config from k8s cluster: `layout.yaml` and `services-configuration.yaml`")
         get_handler = download_configuration(
@@ -42,7 +42,7 @@ class temp_config:
             kube_config_path=self._kube_config_path
         )
         get_handler.run()
-    
+
     def _generate_config_files(self):
         self._logger.info("Generate config files: `hosts.yml` and `openpai.yml`")
         linux_shell.execute_shell_raise(
@@ -53,16 +53,16 @@ class temp_config:
             ),
             error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
         )
-    
+
     def __del__(self):
         self._logger.info("Remove temporary config folder")
         linux_shell.execute_shell_raise(
             shell_cmd="rm -r {}".format(self._path),
             error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
         )
-    
+
     def get_hosts_yml_path(self):
         return os.path.join(self._path, "hosts.yml")
-    
+
     def get_openpai_yml_path(self):
         return os.path.join(self._path, "openpai.yml")

@@ -35,8 +35,8 @@ class AddNode:
             self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=no && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=no && export ANSIBLE_CALLBACK_WHITELIST=\"\" &&"
 
     def run(self):
-        temp_kubespray_folder = temp_kubespray.temp_kubespray()
-        temp_config_folder = temp_config.temp_config(self._kube_config_path)
+        temp_kubespray_folder = temp_kubespray.TempKubespray()
+        temp_config_folder = temp_config.TempConfig(self._kube_config_path)
         node_list_string = ",".join(self._node_list)
         self._logger.info("Begin to add nodes: {}".format(node_list_string))
         linux_shell.execute_shell_raise(
