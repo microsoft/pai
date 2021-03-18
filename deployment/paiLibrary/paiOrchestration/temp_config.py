@@ -18,6 +18,7 @@
 import os
 import time
 import yaml
+import shutil
 import logging
 import tempfile
 
@@ -58,10 +59,10 @@ class TempConfig:
     def __del__(self):
         self._logger.info("Remove temporary config folder")
         try:
-            os.removedirs(self._tmp_dir)
+            shutil.rmtree(self._tmp_dir)
         except Exception as e:
-            self.logger.error(str(e))
-            self.logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
+            self._logger.error(str(e))
+            self._logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
 
     def get_hosts_yml_path(self):
         return os.path.join(self._tmp_dir, "hosts.yml")

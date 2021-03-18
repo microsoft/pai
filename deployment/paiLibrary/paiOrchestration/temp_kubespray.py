@@ -18,6 +18,7 @@
 import os
 import time
 import yaml
+import shutil
 import logging
 import tempfile
 
@@ -59,10 +60,10 @@ class TempKubespray:
     def __del__(self):
         self._logger.info("Remove temporary downloaded Kubespray folder")
         try:
-            os.removedirs(self._tmp_dir)
+            shutil.rmtree(self._tmp_dir)
         except Exception as e:
-            self.logger.error(str(e))
-            self.logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
+            self._logger.error(str(e))
+            self._logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
 
     def get_folder_path(self):
         return self._tmp_dir
