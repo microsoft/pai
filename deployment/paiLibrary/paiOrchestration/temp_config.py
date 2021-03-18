@@ -19,6 +19,7 @@ import os
 import time
 import yaml
 import logging
+import tempfile
 
 from ..common import linux_shell
 from ...confStorage.download import download_configuration
@@ -31,14 +32,14 @@ class TempConfig:
         self._kube_config_path = None
         if kube_config_path != None:
             self._kube_config_path = os.path.expanduser(kube_config_path)
-        self._path = os.path.join(os.environ['HOME'], '.pai-config-' + str(time.time()))
+        self._tmp_dir = tempfile.mkdtemp(prefix='.pai-config-', dir=tempfile.gettempdir())
         self._pull_config_files()
         self._generate_config_files()
 
     def _pull_config_files(self):
         self._logger.info("Pull config from k8s cluster: `layout.yaml` and `services-configuration.yaml`")
         get_handler = download_configuration(
-            config_output_path=self._path,
+            config_output_path=self._tmp_dir,
             kube_config_path=self._kube_config_path
         )
         get_handler.run()
@@ -47,22 +48,23 @@ class TempConfig:
         self._logger.info("Generate config files: `hosts.yml` and `openpai.yml`")
         linux_shell.execute_shell_raise(
             shell_cmd="cd ./contrib/kubespray/ && python3 ./script/k8s_generator.py -l {} -c {} -o {}".format(
-                os.path.join(self._path, "layout.yaml"),
-                os.path.join(self._path, "services-configuration.yaml"),
-                self._path
+                os.path.join(self._tmp_dir, "layout.yaml"),
+                os.path.join(self._tmp_dir, "services-configuration.yaml"),
+                self._tmp_dir
             ),
-            error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
+            error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._tmp_dir)
         )
 
     def __del__(self):
         self._logger.info("Remove temporary config folder")
-        linux_shell.execute_shell_raise(
-            shell_cmd="rm -r {}".format(self._path),
-            error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._path)
-        )
+        try:
+            os.removedirs(self._tmp_dir)
+        except Exception as e:
+            self.logger.error(str(e))
+            self.logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
 
     def get_hosts_yml_path(self):
-        return os.path.join(self._path, "hosts.yml")
+        return os.path.join(self._tmp_dir, "hosts.yml")
 
     def get_openpai_yml_path(self):
-        return os.path.join(self._path, "openpai.yml")
+        return os.path.join(self._tmp_dir, "openpai.yml")
