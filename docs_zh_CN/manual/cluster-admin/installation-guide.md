@@ -163,7 +163,7 @@ cd pai
 checkout到某一个tag，来选择需要安装的OpenPAI版本：
 
 ```bash
-git checkout v1.5.0
+git checkout v1.6.0
 ```
 
 接下来，请编辑`<pai-code-dir>/contrib/kubespray/config`目录下的`layout.yaml`和`config.yaml`文件。
@@ -221,7 +221,7 @@ machine-list:
 ``` yaml
 user: forexample
 password: forexample
-docker_image_tag: v1.5.0
+docker_image_tag: v1.6.0
 
 # Optional
 
