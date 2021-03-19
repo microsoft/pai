@@ -56,11 +56,18 @@ def check_timestamp_within_7d(timestamp):
     return datetime.fromtimestamp(int(timestamp/1000), timezone.utc) > datetime.now(timezone.utc) - timedelta(days=7)
 
 
-def get_jobs_in_7d(rest_url):
+def get_related_jobs(rest_url):
     """
-    Returns all jobs within 7 days
+    Returns all related jobs
+
+    Returns:
+    --------
+    list
+        All the jobs completed within 7 days will be included in the list.
+        Jobs completed before 7 days may also be included.
+        The list may contain duplicated jobs.
     """
-    jobs_in_7d = []
+    jobs_related = []
 
     offset = 0
     limit = 5000
@@ -69,19 +76,20 @@ def get_jobs_in_7d(rest_url):
         resp = requests.get(rest_url+"limit={}&offset={}".format(limit, offset), headers=headers)
         resp.raise_for_status()
         jobs = resp.json()
-        jobs_in_7d += jobs
+        jobs_related += jobs
+        # no more jobs or the last job in the list completed before 7 days
         if not jobs or (jobs[-1]["completedTime"] is not None and not check_timestamp_within_7d(jobs[-1]["completedTime"])) :
             break
         offset += limit
 
-    return jobs_in_7d
+    return jobs_related
 
 
 @enable_request_debug_log
 def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
     job_infos = {}
     user_infos = {}
-    job_list = get_jobs_in_7d(rest_url)
+    jobs_related = get_related_jobs(rest_url)
 
     for v in user_usage_result["data"]["result"]:
         user_infos[v["metric"]["username"]] = {
@@ -92,7 +100,7 @@ def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
         job_name = v["metric"]["job_name"]
         matched_job = list(
             filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
-            job_list))
+            jobs_related))
         # ingore unfounded jobs
         if not matched_job:
             logging.warning("Job %s not found.", job_name)

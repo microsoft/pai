@@ -263,6 +263,7 @@ authentication:
 #           summary: "{% raw %}{{$labels.job_name}}{% endraw %} has a job gpu percent lower than 30% for 1 hour"
 #           description: Monitor job level gpu utilization in certain virtual clusters.
 
+
 # uncomment following if you want to change customize grafana
 # grafana:
 #   port: 3000
