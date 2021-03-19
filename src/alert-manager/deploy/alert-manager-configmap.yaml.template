@@ -41,10 +41,6 @@ data:
         match:
           report_type: cluster-usage
 
-      - receiver: fix-nvidia-gpu-low-perf
-        match:
-          alertname: NodeGpuLowPerfState
-
       {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
       - receiver: {{ route.receiver}}
@@ -77,15 +73,6 @@ data:
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template=cluster-usage'
         send_resolved: false
       {% endif %}
-
-    - name: fix-nvidia-gpu-low-perf
-      webhook_configs:
-      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
-        send_resolved: true
-      {% endif %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/fix-nvidia-gpu-low-perf'
-        send_resolved: false
 
     - name: pai-cordon-nodes
       webhook_configs:
@@ -133,6 +120,11 @@ data:
 
       {% if (receiver["actions"]["cordon-nodes"] is defined) and ('cordon-nodes' in cluster_cfg["alert-manager"]["actions-available"]) %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
+        send_resolved: false
+      {% endif %}
+
+      {% if (receiver["actions"]["fix-nvidia-gpu-low-perf"] is defined) and ('fix-nvidia-gpu-low-perf' in cluster_cfg["alert-manager"]["actions-available"]) %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/fix-nvidia-gpu-low-perf'
         send_resolved: false
       {% endif %}
     

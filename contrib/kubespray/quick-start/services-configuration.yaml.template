@@ -232,6 +232,9 @@ authentication:
 #     - receiver: pai-email-admin-user-and-stop-job
 #       match:
 #         alertname: PAIJobGpuPercentLowerThan0_3For1h
+#     - receiver: pai-email-admin-and-fix-nvidia-gpu-low-perf
+#       match:
+#         alertname: NodeGpuLowPerfState
 #   customized-receivers: # receivers are combination of several actions
 #   - name: "pai-email-admin-user-and-stop-job"
 #     actions:
@@ -244,6 +247,11 @@ authentication:
 #       tag-jobs:
 #         tags:
 #         - 'stopped-by-alert-manager'
+#   - name: "pai-email-admin-and-fix-nvidia-gpu-low-perf"
+#     actions:
+#       email-admin:
+#       fix-nvidia-gpu-low-perf:
+
 
 # uncomment following if you want to customize prometheus
 # prometheus:
