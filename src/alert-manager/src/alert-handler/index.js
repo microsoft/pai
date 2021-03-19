@@ -23,6 +23,7 @@ require('module-alias/register');
 const express = require('express');
 const bearerToken = require('express-bearer-token');
 const actions = require('@alert-handler/routes/actions');
+const nodeController = require('@alert-handler/controllers/node');
 const logger = require('@alert-handler/common/logger');
 
 const app = express();
@@ -36,3 +37,9 @@ const port = parseInt(process.env.SERVER_PORT);
 app.listen(port, () => {
   logger.info(`alert-handler listening at http://localhost:${port}`);
 });
+
+// check completed jobs which were used to fix NvidiaGPULowPerf issue every 1 hour
+setInterval(
+  nodeController.cleanCompletedfixNvidiaGPULowPerfJobs,
+  60 * 60 * 1000,
+);
