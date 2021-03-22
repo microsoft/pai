@@ -102,6 +102,8 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
+  ssl:
+    port: 443
 
 hivedscheduler:
   config: |
