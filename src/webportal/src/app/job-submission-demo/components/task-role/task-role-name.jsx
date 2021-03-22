@@ -5,8 +5,14 @@ import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { TextField } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
-const PureTaskRoleName = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureTaskRoleName = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+  onTaskRoleSelect,
+}) => {
   const { taskRoles } = jobProtocol;
 
   const onChange = (_, val) => {
@@ -21,17 +27,13 @@ const PureTaskRoleName = ({ dispatch, jobProtocol, currentTaskRole }) => {
       }
       return res;
     }, {});
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         taskRoles: newTaskRoles,
-      },
-    });
-    dispatch({
-      type: 'SAVE_CURRENT_TASKROLE',
-      payload: val,
-    });
+      }),
+    );
+    onTaskRoleSelect(val);
   };
 
   return (
@@ -39,13 +41,30 @@ const PureTaskRoleName = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 };
 
-export const TaskRoleName = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureTaskRoleName);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+  onTaskRoleSelect: key => {
+    dispatch({
+      type: 'SAVE_CURRENT_TASKROLE',
+      payload: key,
+    });
+  },
+});
+
+export const TaskRoleName = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureTaskRoleName);
 
 PureTaskRoleName.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
+  onTaskRoleSelect: PropTypes.func,
 };

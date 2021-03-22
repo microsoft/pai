@@ -53,12 +53,13 @@ const SidebarContent = styled(Box)(
 );
 
 const UnwrapperedSidebar = ({
-  dispatch,
   expandedFlag,
   currentSideList,
   currentSideKey,
+  onExpandedFlagChange,
+  onSideItemSelect,
 }) => {
-  const [isModalOpen, toggleModalOpen] = useState(false);
+  const [modalVisible, toggleModalVisible] = useState(false);
 
   const getCurrentSideComponent = currentKey => {
     switch (currentKey) {
@@ -71,27 +72,13 @@ const UnwrapperedSidebar = ({
     }
   };
 
-  const toggleExpandedKey = () => {
-    dispatch({
-      type: 'TOGGLE_EXPANDED_FLAG',
-      payload: !expandedFlag,
-    });
-  };
-
-  const onSidebarSelect = key => {
-    dispatch({
-      type: 'TOGGLE_CURRENT_SIDEBAR',
-      payload: key,
-    });
-  };
-
   return (
     <Flex>
       <SidebarContent expandable={expandedFlag}>
         {getCurrentSideComponent(currentSideKey)}
       </SidebarContent>
       <Flex p='m' flexDirection='column' bg='near-white'>
-        <Link onClick={toggleExpandedKey}>
+        <Link onClick={() => onExpandedFlagChange(!expandedFlag)}>
           <Icon iconName={expandedFlag ? 'ChevronLeft' : 'ChevronRight'} />
         </Link>
         <Box flex={1}>
@@ -102,34 +89,53 @@ const UnwrapperedSidebar = ({
                   mt='m'
                   mb='m'
                   selected={currentSideKey === item.key}
-                  onClick={onSidebarSelect.bind(this, item.key)}
+                  onClick={() => onSideItemSelect(item.key)}
                 >
                   {item.text}
                 </SidebarItem>
               ),
           )}
         </Box>
-        <Link onClick={() => toggleModalOpen(true)}>
+        <Link onClick={() => toggleModalVisible(true)}>
           <Icon iconName='Settings' />
         </Link>
       </Flex>
       <ConfigPanel
-        isOpen={isModalOpen}
-        onDismiss={() => toggleModalOpen(false)}
+        isOpen={modalVisible}
+        onDismiss={() => toggleModalVisible(false)}
       />
     </Flex>
   );
 };
 
-export const Sidebar = connect(({ global }) => ({
-  expandedFlag: global.expandedFlag,
-  currentSideKey: global.currentSideKey,
-  currentSideList: global.currentSideList,
-}))(UnwrapperedSidebar);
+const mapStateToProps = state => ({
+  expandedFlag: state.SideInfo.expandedFlag,
+  currentSideKey: state.SideInfo.currentSideKey,
+  currentSideList: state.SideInfo.currentSideList,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onExpandedFlagChange: flag =>
+    dispatch({
+      type: 'TOGGLE_EXPANDED_FLAG',
+      payload: flag,
+    }),
+  onSideItemSelect: current =>
+    dispatch({
+      type: 'TOGGLE_CURRENT_SIDEBAR',
+      payload: current,
+    }),
+});
+
+export const Sidebar = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(UnwrapperedSidebar);
 
 UnwrapperedSidebar.propTypes = {
-  dispatch: PropTypes.func,
   expandedFlag: PropTypes.bool,
   currentSideList: PropTypes.array,
   currentSideKey: PropTypes.string,
+  onExpandedFlagChange: PropTypes.func,
+  onSideItemSelect: PropTypes.func,
 };

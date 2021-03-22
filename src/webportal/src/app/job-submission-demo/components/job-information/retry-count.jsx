@@ -2,44 +2,47 @@
 // Licensed under the MIT License.
 import React from 'react';
 import { connect } from 'react-redux';
-import { SpinButton } from 'office-ui-fabric-react';
-import { debounce, get } from 'lodash';
+import { get } from 'lodash';
+import { FormSpinButton } from '../controls/form-spin-button';
+import { JobProtocol } from '../../models/job-protocol';
 import PropTypes from 'prop-types';
 
 const RETRY_COUNT_MIN = 0;
 
-const PureRetryCount = ({ dispatch, jobProtocol }) => {
+const PureRetryCount = ({ jobProtocol, onJobProtocolChange }) => {
   const jobRetryCount = get(jobProtocol, 'jobRetryCount', 0);
 
   const onChange = value => {
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
-        ...jobProtocol,
-        jobRetryCount: Math.max(RETRY_COUNT_MIN, value),
-      },
-    });
+    onJobProtocolChange(
+      new JobProtocol({ ...jobProtocol, jobRetryCount: value }),
+    );
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
-
   return (
-    <SpinButton
+    <FormSpinButton
       min={RETRY_COUNT_MIN}
       step={1}
       value={jobRetryCount}
-      onIncrement={debounce(onIncrement, 200)}
-      onDecrement={debounce(onDecrement, 200)}
+      onChange={onChange}
     />
   );
 };
 
-export const RetryCount = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-}))(PureRetryCount);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const RetryCount = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureRetryCount);
 
 PureRetryCount.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
+  onJobProtocolChange: PropTypes.func,
 };

@@ -5,11 +5,13 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const PureVirtualCluster = ({
-  dispatch,
   jobProtocol,
   availableVirtualClusters,
+  onJobProtocolChange,
+  fetchHivedSkuTypes,
 }) => {
   const virtualCluster = get(jobProtocol, 'defaults.virtualCluster', 'default');
 
@@ -20,20 +22,16 @@ const PureVirtualCluster = ({
   const vcIndex = options.findIndex(val => val.text === virtualCluster);
 
   const onChange = (_, item) => {
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         defaults: { ...jobProtocol.defaults, virtualCluster: item.text },
-      },
-    });
+      }),
+    );
   };
 
   useEffect(() => {
-    dispatch({
-      type: 'fetchHivedSkuTypes',
-      payload: { virtualCluster },
-    });
+    fetchHivedSkuTypes(virtualCluster);
   }, [virtualCluster]);
 
   return (
@@ -46,13 +44,26 @@ const PureVirtualCluster = ({
   );
 };
 
-export const VirtualCluster = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  availableVirtualClusters: jobInformation.availableVirtualClusters,
-}))(PureVirtualCluster);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  availableVirtualClusters: state.JobExtraInfo.availableVirtualClusters,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+  fetchHivedSkuTypes: virtualCluster =>
+    dispatch({ type: 'fetchHivedSkuTypes', payload: { virtualCluster } }),
+});
+
+export const VirtualCluster = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureVirtualCluster);
 
 PureVirtualCluster.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   availableVirtualClusters: PropTypes.array,
+  onJobProtocolChange: PropTypes.func,
+  fetchHivedSkuTypes: PropTypes.func,
 };

@@ -29,10 +29,25 @@ const PureSKUType = ({ availableHivedSkuTypes }) => {
   );
 };
 
-export const SKUType = connect(({ jobInformation }) => ({
-  availableHivedSkuTypes: jobInformation.availableHivedSkuTypes,
-}))(PureSKUType);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+  availableHivedSkuTypes: state.JobExtraInfo.availableHivedSkuTypes,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const SKUType = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureSKUType);
 
 PureSKUType.propTypes = {
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
   availableHivedSkuTypes: PropTypes.object,
+  onJobProtocolChange: PropTypes.func,
 };

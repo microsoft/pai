@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-const PureSubmissionSection = ({ jobProtocol, ...restProps }) => {
+const PureSubmissionSection = ({ jobProtocol }) => {
   const onSubmit = () => {
     // TO DO: command trim()
     console.log('submit jobProtocol:', jobProtocol);
@@ -18,9 +18,16 @@ const PureSubmissionSection = ({ jobProtocol, ...restProps }) => {
   );
 };
 
-export const SubmissionSection = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-}))(PureSubmissionSection);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+});
+
+const mapDispatchToProps = {};
+
+export const SubmissionSection = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureSubmissionSection);
 
 PureSubmissionSection.propTypes = {
   jobProtocol: PropTypes.object,

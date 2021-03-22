@@ -17,7 +17,7 @@ const PureJobInformation = ({ expandedFlag }) => {
   const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
 
   return (
-    <FormSection title='Job Information' mb='l1'>
+    <FormSection title='Job Information'>
       <Row gutter={20}>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
           <FormItem label='Job name'>
@@ -44,9 +44,16 @@ const PureJobInformation = ({ expandedFlag }) => {
   );
 };
 
-export const JobInformation = connect(({ global }) => ({
-  expandedFlag: global.expandedFlag,
-}))(PureJobInformation);
+const mapStateToProps = state => ({
+  expandedFlag: state.SideInfo.expandedFlag,
+});
+
+const mapDispatchToProps = {};
+
+export const JobInformation = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureJobInformation);
 
 PureJobInformation.propTypes = {
   expandedFlag: PropTypes.bool,

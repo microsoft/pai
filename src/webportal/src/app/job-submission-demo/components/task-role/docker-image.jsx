@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { DEFAULT_DOCKER_URI, DOCKER_OPTIONS } from '../../utils/constants';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const getDockerImageUri = (prerequisites, dockerImage) => {
   const prerequisite = prerequisites.find(
@@ -27,7 +28,11 @@ const getDockerImageOptionKey = uri => {
   return dockerOption.key;
 };
 
-const PureDockerImage = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureDockerImage = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+}) => {
   const { taskRoles, prerequisites } = jobProtocol;
   const { dockerImage } = taskRoles[currentTaskRole] || {};
   const uri = getDockerImageUri(prerequisites, dockerImage);
@@ -39,13 +44,12 @@ const PureDockerImage = ({ dispatch, jobProtocol, currentTaskRole }) => {
       }
       return prerequisite;
     });
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         prerequisites: _prerequisites,
-      },
-    });
+      }),
+    );
   };
 
   return (
@@ -58,13 +62,23 @@ const PureDockerImage = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 };
 
-export const DockerImage = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureDockerImage);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const DockerImage = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureDockerImage);
 
 PureDockerImage.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
 };

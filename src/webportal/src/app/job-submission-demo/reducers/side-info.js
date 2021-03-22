@@ -3,7 +3,6 @@
 import { SIDEBAR_PARAM, SIDEBAR_CONFIG } from '../utils/constants';
 
 const initialState = {
-  currentTabKey: 'ui',
   expandedFlag: false,
   currentSideKey: SIDEBAR_PARAM,
   currentSideList: SIDEBAR_CONFIG.map(item => ({
@@ -12,23 +11,18 @@ const initialState = {
   })),
 };
 
-export const global = (state = initialState, action) => {
+export const SideInfo = (state = initialState, action) => {
   let currentSideList = [];
   switch (action.type) {
-    case 'TOGGLE_CURRENT_TAB':
+    case 'TOGGLE_EXPANDED_FLAG':
       return {
         ...state,
-        currentTabKey: action.payload || 'ui',
+        expandedFlag: action.payload || false,
       };
     case 'TOGGLE_CURRENT_SIDEBAR':
       return {
         ...state,
         currentSideKey: action.payload || SIDEBAR_PARAM,
-      };
-    case 'TOGGLE_EXPANDED_FLAG':
-      return {
-        ...state,
-        expandedFlag: action.payload || false,
       };
     case 'UPDATE_SIDEBAR_CONFIG':
       currentSideList = action.payload || [];

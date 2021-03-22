@@ -1,17 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, get } from 'lodash';
-import { SpinButton } from 'office-ui-fabric-react';
+import { get } from 'lodash';
+import { FormSpinButton } from '../controls/form-spin-button';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const SUCCEED_INSTANCES_MIN = -1;
 
 const PureMinSucceedInstances = ({
-  dispatch,
   jobProtocol,
   currentTaskRole,
+  onJobProtocolChange,
 }) => {
   const minSucceedInstances = get(
     jobProtocol,
@@ -20,9 +22,8 @@ const PureMinSucceedInstances = ({
   );
 
   const onChange = value => {
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         taskRoles: {
           ...jobProtocol.taskRoles,
@@ -34,31 +35,37 @@ const PureMinSucceedInstances = ({
             },
           },
         },
-      },
-    });
+      }),
+    );
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
-
   return (
-    <SpinButton
+    <FormSpinButton
       min={SUCCEED_INSTANCES_MIN}
       step={1}
       value={minSucceedInstances}
-      onIncrement={debounce(onIncrement)}
-      onDecrement={debounce(onDecrement)}
+      onChange={onChange}
     />
   );
 };
 
-export const MinSucceedInstances = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureMinSucceedInstances);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const MinSucceedInstances = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureMinSucceedInstances);
 
 PureMinSucceedInstances.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
 };

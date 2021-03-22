@@ -49,17 +49,19 @@ export class JobProtocol {
   // remove protocol empty properties and prune the blank line in the commands
   static safePruneProtocol(protocol) {
     const prunedProtocol = removeEmptyProperties(protocol);
-    const taskRoles = cloneDeep(prunedProtocol.taskRoles);
-    Object.keys(taskRoles).forEach(taskRoleName => {
-      const taskRoleContent = taskRoles[taskRoleName];
-      if (isEmpty(taskRoleContent.commands)) {
-        return;
-      }
-      taskRoleContent.commands = taskRoleContent.commands.filter(
-        line => !isEmpty(line),
-      );
-    });
-    prunedProtocol.taskRoles = taskRoles;
+    if (prunedProtocol.taskRoles) {
+      const taskRoles = cloneDeep(prunedProtocol.taskRoles);
+      Object.keys(taskRoles).forEach(taskRoleName => {
+        const taskRoleContent = taskRoles[taskRoleName];
+        if (isEmpty(taskRoleContent.commands)) {
+          return;
+        }
+        taskRoleContent.commands = taskRoleContent.commands.filter(
+          line => !isEmpty(line),
+        );
+      });
+      prunedProtocol.taskRoles = taskRoles;
+    }
     return prunedProtocol;
   }
 

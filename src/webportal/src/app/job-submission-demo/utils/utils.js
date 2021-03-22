@@ -22,6 +22,7 @@ export function removeEmptyProperties(obj) {
     ) {
       return;
     }
+    console.log(key, onCheckingElement);
 
     delete newObj[key];
   });

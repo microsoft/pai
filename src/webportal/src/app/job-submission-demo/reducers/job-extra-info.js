@@ -1,27 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { JobProtocol } from '../models/job-protocol';
-
 const initialState = {
-  jobProtocol: new JobProtocol({}),
-  currentTaskRole: 'taskrole',
+  currentTaskRole: 'taskRole',
   availableVirtualClusters: [],
   availableHivedSkuTypes: [],
 };
 
-export const jobInformation = (state = initialState, action) => {
+export const JobExtraInfo = (state = initialState, action) => {
   switch (action.type) {
-    case 'SAVE_JOBPROTOCOL':
-      return {
-        ...state,
-        jobProtocol:
-          new JobProtocol({ ...action.payload }) ||
-          new JobProtocol({ ...state.jobProtocol }),
-      };
     case 'SAVE_CURRENT_TASKROLE':
       return {
         ...state,
-        currentTaskRole: action.payload || 'taskRole',
+        currentTaskRole: action.payload || 0,
       };
     case 'SAVE_VIRTUAL_CLUSTERS':
       return {
