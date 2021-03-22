@@ -7,8 +7,9 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import { Box, Code } from '../../elements';
 import { FormSection } from '../form-page';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
-const PureParameters = ({ dispatch, jobProtocol }) => {
+const PureParameters = ({ jobProtocol, onJobProtocolChange }) => {
   const { parameters } = jobProtocol;
   const [items, setItems] = useState([]);
 
@@ -36,10 +37,9 @@ const PureParameters = ({ dispatch, jobProtocol }) => {
         newParameters[item.key] = item.value;
       }
       // update job protocol into store
-      dispatch({
-        type: 'SAVE_JOBPROTOCOL',
-        payload: { ...jobProtocol, parameters: newParameters },
-      });
+      onJobProtocolChange(
+        new JobProtocol({ ...jobProtocol, parameters: newParameters }),
+      );
       // handleError(false);
       // setErrorMessage(ERROR_ID, null);
     } else {
@@ -67,11 +67,21 @@ const PureParameters = ({ dispatch, jobProtocol }) => {
   );
 };
 
-export const Parameters = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-}))(PureParameters);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const Parameters = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureParameters);
 
 PureParameters.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
+  onJobProtocolChange: PropTypes.func,
 };

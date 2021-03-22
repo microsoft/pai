@@ -24,7 +24,11 @@ const PureTaskRole = ({ expandedFlag }) => {
   const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
 
   return (
-    <FormSection title={<TabForm />} tooltip={PROTOCOL_TOOLTIPS.taskRole}>
+    <FormSection
+      title='Task role'
+      extra={<TabForm />}
+      tooltip={PROTOCOL_TOOLTIPS.taskRole}
+    >
       <Row gutter={20}>
         <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
           <FormItem label='Task role name'>
@@ -97,10 +101,16 @@ const PureTaskRole = ({ expandedFlag }) => {
   );
 };
 
-export const TaskRole = connect(({ global, jobInformation }) => ({
-  expandedFlag: global.expandedFlag,
-  jobProtocol: jobInformation.jobProtocol,
-}))(PureTaskRole);
+const mapStateToProps = state => ({
+  expandedFlag: state.JobExtraInfo.expandedFlag,
+});
+
+const mapDispatchToProps = {};
+
+export const TaskRole = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureTaskRole);
 
 PureTaskRole.propTypes = {
   expandedFlag: PropTypes.bool,

@@ -5,10 +5,15 @@ import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { SpinButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const SKU_COUNT_MIN = 0;
 
-const PureSKUCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureSKUCount = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+}) => {
   const skuNum = get(
     jobProtocol,
     `extras.hivedScheduler.taskRoles[${currentTaskRole}].skuNum`,
@@ -16,9 +21,8 @@ const PureSKUCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 
   const onChange = value => {
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         extras: {
           ...jobProtocol.extras,
@@ -33,8 +37,8 @@ const PureSKUCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
             },
           },
         },
-      },
-    });
+      }),
+    );
   };
 
   const onIncrement = value => onChange(+value + 1);
@@ -51,13 +55,23 @@ const PureSKUCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 };
 
-export const SKUCount = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureSKUCount);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const SKUCount = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureSKUCount);
 
 PureSKUCount.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
 };

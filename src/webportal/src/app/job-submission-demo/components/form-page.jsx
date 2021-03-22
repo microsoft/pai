@@ -4,29 +4,33 @@ import React from 'react';
 import { Label } from 'office-ui-fabric-react';
 import { TooltipIcon } from './controls/tooltip-icon';
 import { Box, Flex } from '../elements';
-import { isString } from 'lodash';
 import PropTypes from 'prop-types';
 
-export const FormSection = ({ title, children, tooltip, ...props }) => {
+export const FormSection = ({ title, extra, children, tooltip, ...props }) => {
   return (
-    <Flex flexDirection='column' bg='white' {...props}>
-      <Flex alignItems='center' pl='m' borderBottom='1px solid #f0f0f0'>
-        {isString(title) ? (
-          <Box pt='m' pb='m' fontSize='m'>
-            {title}
-          </Box>
-        ) : (
-          title
-        )}
-        {tooltip && <TooltipIcon content={tooltip} />}
+    <Flex
+      bg='white'
+      borderBottom='1px solid #f0f0f0'
+      flexDirection='column'
+      {...props}
+    >
+      <Flex flexDirection='column'>
+        <Box p='m' fontSize='s1' borderBottom='1px solid #f0f0f0'>
+          {title}
+          {tooltip && <TooltipIcon content={tooltip} />}
+        </Box>
+        <Box pl='s1' borderBottom='1px solid #f0f0f0'>
+          {extra}
+        </Box>
       </Flex>
-      <Box p='l1'>{children}</Box>
+      <Box p='m'>{children}</Box>
     </Flex>
   );
 };
 
 FormSection.propTypes = {
   title: PropTypes.string,
+  extra: PropTypes.node,
   children: PropTypes.node,
   tooltip: PropTypes.string,
 };

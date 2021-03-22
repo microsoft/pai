@@ -13,6 +13,7 @@ import {
 } from 'office-ui-fabric-react';
 import { createUniqueName } from '../../utils/utils';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const { spacing } = getTheme();
 
@@ -39,15 +40,13 @@ const getDockerImageName = prerequisites => {
   return prerequisite.name;
 };
 
-const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureTabForm = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+  onTaskRoleSelect,
+}) => {
   const { taskRoles, prerequisites } = jobProtocol;
-
-  const onLinkClick = item => {
-    dispatch({
-      type: 'SAVE_CURRENT_TASKROLE',
-      payload: item.props.itemKey,
-    });
-  };
 
   const onItemAdd = () => {
     const taskRoleName = generateUniqueTaskName(
@@ -55,42 +54,36 @@ const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
       Object.keys(taskRoles).length,
     );
     const dockerImage = getDockerImageName(prerequisites);
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
-        extras: {
-          ...jobProtocol.extras,
-          hivedScheduler: {
-            ...jobProtocol.extras.hivedScheduler,
-            taskRoles: {
-              ...jobProtocol.extras.hivedScheduler.taskRoles,
-              [taskRoleName]: {
-                skuNum: 1,
-                skuType: 'GENERIC-WORKER',
-              },
-            },
-          },
-        },
+        // extras: {
+        //   ...jobProtocol.extras,
+        //   hivedScheduler: {
+        //     ...jobProtocol.extras.hivedScheduler,
+        //     taskRoles: {
+        //       ...jobProtocol.extras.hivedScheduler.taskRoles,
+        //       [taskRoleName]: {
+        //         skuNum: 1,
+        //         skuType: 'GENERIC-WORKER',
+        //       },
+        //     },
+        //   },
+        // },
         taskRoles: {
           ...jobProtocol.taskRoles,
           [taskRoleName]: {
+            completion: {
+              minFailedInstances: 1,
+            },
             dockerImage,
             instances: 1,
             taskRetryCount: 0,
-            resourcePerInstance: { gpu: 1, cpu: 3, memoryMB: 29065 },
-            completion: {
-              minFailedInstances: 1,
-              minSucceedInstances: 1,
-            },
           },
         },
-      },
-    });
-    dispatch({
-      type: 'SAVE_CURRENT_TASKROLE',
-      payload: taskRoleName,
-    });
+      }),
+    );
+    onTaskRoleSelect(taskRoleName);
   };
 
   const onItemDelete = (itemKey, e) => {
@@ -101,17 +94,13 @@ const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
     const updateTaskRoles = taskRoles;
     delete updateTaskRoles[itemKey];
 
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         taskRoles: updateTaskRoles,
-      },
-    });
-    dispatch({
-      type: 'SAVE_CURRENT_TASKROLE',
-      payload: Object.keys(taskRoles)[0],
-    });
+      }),
+    );
+    onTaskRoleSelect(Object.keys(taskRoles)[0]);
   };
 
   const onRenderItem = (itemProps, defaultRender) => {
@@ -134,11 +123,8 @@ const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
     <Flex bg='white'>
       <Box>
         <Pivot
-          onLinkClick={onLinkClick}
+          onLinkClick={item => onTaskRoleSelect(item.props.itemKey)}
           styles={{
-            root: {
-              // backgroundColor: 'white',
-            },
             link: [{ margin: 0, padding: 0 }],
             linkIsSelected: [{ margin: 0, padding: 0 }],
           }}
@@ -166,13 +152,30 @@ const PureTabForm = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 };
 
-export const TabForm = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureTabForm);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+  onTaskRoleSelect: key => {
+    dispatch({
+      type: 'SAVE_CURRENT_TASKROLE',
+      payload: key,
+    });
+  },
+});
+
+export const TabForm = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureTabForm);
 
 PureTabForm.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
+  onTaskRoleSelect: PropTypes.func,
 };

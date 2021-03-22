@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { combineReducers } from 'redux';
-import { global } from './global';
-import { jobInformation } from './job-information';
+import { JobProtocol } from './job-protocol';
+import { JobExtraInfo } from './job-extra-info';
+import { SideInfo } from './side-info';
 
-export default combineReducers({ global, jobInformation });
+export default combineReducers({ JobProtocol, JobExtraInfo, SideInfo });

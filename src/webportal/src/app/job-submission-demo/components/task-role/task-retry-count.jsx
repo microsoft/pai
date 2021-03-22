@@ -1,14 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, get } from 'lodash';
-import { SpinButton } from 'office-ui-fabric-react';
+import { get } from 'lodash';
+import { FormSpinButton } from '../controls/form-spin-button';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
 const RETRY_COUNT_MIN = 0;
 
-const PureTaskRetryCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureTaskRetryCount = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+}) => {
   const taskRetryCount = get(
     jobProtocol,
     `taskRoles[${currentTaskRole}].taskRetryCount`,
@@ -16,9 +22,8 @@ const PureTaskRetryCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 
   const onChange = value => {
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         taskRoles: {
           ...jobProtocol.taskRoles,
@@ -27,31 +32,37 @@ const PureTaskRetryCount = ({ dispatch, jobProtocol, currentTaskRole }) => {
             taskRetryCount: value,
           },
         },
-      },
-    });
+      }),
+    );
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
-
   return (
-    <SpinButton
+    <FormSpinButton
       min={RETRY_COUNT_MIN}
       step={1}
       value={taskRetryCount}
-      onIncrement={debounce(onIncrement)}
-      onDecrement={debounce(onDecrement)}
+      onChange={onChange}
     />
   );
 };
 
-export const TaskRetryCount = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureTaskRetryCount);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const TaskRetryCount = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureTaskRetryCount);
 
 PureTaskRetryCount.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
 };

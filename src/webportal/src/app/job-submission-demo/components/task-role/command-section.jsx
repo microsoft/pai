@@ -6,8 +6,13 @@ import { get, isEmpty } from 'lodash';
 import { MonacoTextField } from '../controls/monaco-text-field';
 import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../../utils/constants';
 import PropTypes from 'prop-types';
+import { JobProtocol } from '../../models/job-protocol';
 
-const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
+const PureCommandSection = ({
+  jobProtocol,
+  currentTaskRole,
+  onJobProtocolChange,
+}) => {
   const commands = get(
     jobProtocol,
     `taskRoles[${currentTaskRole}].commands`,
@@ -16,9 +21,8 @@ const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
 
   const onChange = value => {
     const commands = isEmpty(value) ? [] : value.split('\n');
-    dispatch({
-      type: 'SAVE_JOBPROTOCOL',
-      payload: {
+    onJobProtocolChange(
+      new JobProtocol({
         ...jobProtocol,
         taskRoles: {
           ...jobProtocol.taskRoles,
@@ -27,8 +31,8 @@ const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
             commands,
           },
         },
-      },
-    });
+      }),
+    );
   };
 
   return (
@@ -43,13 +47,23 @@ const PureCommandSection = ({ dispatch, jobProtocol, currentTaskRole }) => {
   );
 };
 
-export const CommandSection = connect(({ jobInformation }) => ({
-  jobProtocol: jobInformation.jobProtocol,
-  currentTaskRole: jobInformation.currentTaskRole,
-}))(PureCommandSection);
+const mapStateToProps = state => ({
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
+
+export const CommandSection = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PureCommandSection);
 
 PureCommandSection.propTypes = {
-  dispatch: PropTypes.func,
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
+  onJobProtocolChange: PropTypes.func,
 };
