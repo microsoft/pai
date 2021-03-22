@@ -157,6 +157,8 @@ spec:
         # Max rpc concurrency for framework watcher
         - name: MAX_RPC_CONCURRENCY
           value: "{{ cluster_cfg['database-controller']['framework-watcher-max-rpc-concurrency'] }}"
+        - name: WATCH_TIMEOUT_SECONDS
+          value: "{{ cluster_cfg['database-controller']['framework-watcher-watch-timeout-seconds'] }}"
         command: ["node", "--max-old-space-size={{ cluster_cfg['database-controller']['framework-watcher-max-heap-mb'] }}", "watcher/framework/index.js"]
       - name: cluster-event-watcher
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -211,6 +213,8 @@ spec:
           value: "/paiInternal/storage"
         - name: MAX_DISK_USAGE_PERCENT
           value:  "{{ cluster_cfg['database-controller']['cluster-event-watcher-max-disk-usage-percent'] }}"
+        - name: WATCH_TIMEOUT_SECONDS
+          value: "{{ cluster_cfg['database-controller']['cluster-event-watcher-watch-timeout-seconds'] }}"
         command: ["node", "--max-old-space-size={{ cluster_cfg['database-controller']['cluster-event-watcher-max-heap-mb'] }}", "watcher/cluster-event/index.js"]
       - name: poller
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}

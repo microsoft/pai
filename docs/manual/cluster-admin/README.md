@@ -4,7 +4,7 @@
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
-This manual is for cluster administrators to learn the installation and uninstallation of OpenPAI, some basic management operations, storage management, troubleshootiong, etc. It is based on OpenPAI >= v1.0.0. 
+This manual is for cluster administrators to learn the installation and uninstallation of OpenPAI, some basic management operations, storage management, troubleshootiong, etc. It is based on OpenPAI >= v1.0.0.
 
 ## Table of Content
 
@@ -14,10 +14,12 @@ This manual is for cluster administrators to learn the installation and uninstal
 4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
 5. [How to Set Up Storage](./how-to-set-up-storage.md)
 6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-9. [How to Use Alert System](./how-to-use-alert-system.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [Recommended Practice](./recommended-practice.md)
-12. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-13. [Upgrade Guide](./upgrade-guide.md)
+7. [How to Set Up Marketplace](./how-to-set-up-marketplace.md)
+8. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
+9. [How to Set Up Docker Image Cache](./how-to-set-up-docker-image-cache.md)
+10. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
+11. [How to Use Alert System](./how-to-use-alert-system.md)
+12. [Troubleshooting](./troubleshooting.md)
+13. [Recommended Practice](./recommended-practice.md)
+14. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
+15. [Upgrade Guide](./upgrade-guide.md)

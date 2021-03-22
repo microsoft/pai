@@ -12,14 +12,13 @@ If your administrator enables marketplace plugin, you will find a link in the `P
 
 ## Use Templates on Marketplace
 
-The marketplace plugin has some official templates in the market list by default, to use the templates on Marketplace, you can click `Submit` directly, and it will bring you to the job submission page. Or you could click the `View` button to view the information about this template.
+The marketplace plugin has some official templates in the market list by default, to use the templates on Marketplace, you could click the template item in the list to view the information about this template, you can click `use` button, and it will bring you to the job submission page.
 
-![submit](imgs/marketplace-submit.png)
+![item](imgs/marketplace-click-item.png)
+![use](imgs/marketplace-use.png)
 
 ## Create your Templates
 
-To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you could create the template from scratch with a config YAML file. You should fill in some necessary info like `name`, `introduction` and `description` etc. 
-
-Another approach is creating from your existing job in the PAI platform. You can only create a Marketplace template from one `Succeeded` job. After creating, your templates will be awaiting review by the platform admin before you could see them in the market list.
+To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you can create Job Template and Data Template.
 
 ![create](imgs/marketplace-create-new.png)

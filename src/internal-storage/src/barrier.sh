@@ -17,15 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+cd /paiInternalStorage
 
-mkdir -p "../dependency"
-cp -arf "../../../docs" "../../../examples" "../dependency"
-cp -arfT "../../../version" "../version"
-if [ "$ATTACH_COMMIT_ID" = true ]; then
-    echo `git rev-parse HEAD | cut -c1-6` > ../version/COMMIT.VERSION
-else
-    echo "" > ../version/COMMIT.VERSION
-fi
-
-popd > /dev/null
+ls READY || exit 1

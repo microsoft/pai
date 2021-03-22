@@ -77,9 +77,9 @@ The alert actions and the matching rules are realized in the `alert-manager` ser
 ```yaml
 alert-manager:
   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
   alert-handler:
     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-    pai-bearer-token: 'your-application-token-for-pai-rest-server'
     email-configs: # email-notification will only be enabled when this field is not empty
       admin-receiver: addr-of-admin-receiver@example.com
       smtp-host: smtp.office365.com
@@ -244,6 +244,37 @@ Remember to re-build and push the docker image, and restart the `alert-manager` 
 ```bash
 ./build/pai_build.py build -c /cluster-configuration/ -s alert-manager
 ./build/pai_build.py push -c /cluster-configuration/ -i alert-handler cluster-utilization
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
+
+## Cluster GPU Utilization Report
+
+We provide the functionality to send cluster GPU utilization report regularly to admin users.
+
+The report includes the statistics for:
+-	Cluster GPU utilization
+-	User GPU utilization 
+-	Job GPU utilization
+
+To enable this feature, you should configure the `alert-manager` field in `services-configuration.yml`.
+`pai-bearer-token` & `cluster-utilization`->`schedule` are necessary fields for this feature.
+For the syntax of `schedule`, please refer to [Cron Schedule Syntax](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax).
+For example, `"0 0 * * *"` means daily report at UTC 00:00.
+Please also make sure that the [`email-admin`](#Existing-Actions-and-Matching-Rules) action is enabled.
+
+```yaml
+alert-manager:
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
+  cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
+    # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+    schedule: "0 0 * * *" # daily report at UTC 00:00
+```
+
+To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+
+```bash
 ./paictl.py service stop -n alert-manager
 ./paictl.py config push -p /cluster-configuration -m service
 ./paictl.py service start -n alert-manager

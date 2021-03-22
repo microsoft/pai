@@ -73,10 +73,10 @@ rest-server:
 # if you want to enable alert-handler actions, uncomment following lines and fill the right values.
 # alert-manager:
 #   port: 9093 # optional, do not modify this if you do not want to change the port alert-manager is listening on
+#   pai-bearer-token: 'your-application-token-for-pai-rest-server'
 #   alert-handler: # alert-handler will only be enabled when this field is not empty
 #     port: 9095 # optional, do not modify this if you do not want to change the port alert-handler is listening on
 #     log-level: "info" # optional
-#     pai-bearer-token: 'your-application-token-for-pai-rest-server'
 #     email-configs: # email-notification will only be enabled when this field is not empty
 #       admin-receiver: addr-of-admin-receiver@example.com
 #       smtp-host: smtp.office365.com
@@ -85,7 +85,7 @@ rest-server:
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
 #   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
-#     # for schedule syntex, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+#     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
 #     schedule: "0 0 * * *" # daily report at UTC 00:00
 #   customized-routes:
 #     routes:

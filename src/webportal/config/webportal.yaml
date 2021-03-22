@@ -23,3 +23,6 @@ enable-job-transfer: false
 
 # Will add the marketplace entries to webportal plugin if set true.
 marketplace: true
+
+# Will add job template feature if set true.
+save-template: true

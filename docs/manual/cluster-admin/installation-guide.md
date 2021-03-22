@@ -115,7 +115,7 @@ Please check the following requirements for different types of worker machines:
       The same as <code>CPU worker</code>, and with the following additional requirements:
       <ul>
         <li><b>NVIDIA GPU Driver is installed.</b> You may use <a href="./installation-faqs-and-troubleshooting.html#how-to-check-whether-the-gpu-driver-is-installed">a command</a> to check it. Refer to <a href="./installation-faqs-and-troubleshooting.html#how-to-install-gpu-driver">the installation guidance</a> in FAQs if the driver is not successfully installed. If you are wondering which version of GPU driver you should use, please also refer to <a href="./installation-faqs-and-troubleshooting.html#which-version-of-nvidia-driver-should-i-install">FAQs</a>.</li>
-        <li><b><a href="https://github.com/NVIDIA/nvidia-container-runtime">nvidia-container-runtime</a> is installed. And be configured as the default runtime of docker.</b> Please configure it in <a href="https://docs.docker.com/config/daemon/#configure-the-docker-daemon">docker-config-file</a>, because systemd's env will be overwritten during installation. You can use command <code>sudo docker run --rm nvidia/cuda:10.0-base nvidia-smi</code> to check it. This command should output information of available GPUs if it is setup properly. Refer to <a href="./installation-faqs-and-troubleshooting.html#how-to-install-nvidia-container-runtime">the installation guidance</a> if it is not successfully set up.</li>
+        <li><b><a href="https://github.com/NVIDIA/nvidia-container-runtime">nvidia-container-runtime</a> is installed. And be configured as the default runtime of docker.</b> Please configure it in <a href="https://docs.docker.com/config/daemon/#configure-the-docker-daemon">docker-config-file (daemon.json)</a>, instead of in the systemd's config. You can use command <code>sudo docker run --rm nvidia/cuda:10.0-base nvidia-smi</code> to check it. This command should output information of available GPUs if it is setup properly. Refer to <a href="./installation-faqs-and-troubleshooting.html#how-to-install-nvidia-container-runtime">the installation guidance</a> if it is not successfully set up. We don't recommend to use <code>nvidia-docker2</code>. For a detailed comparison between <code>nvidia-container-runtime</code> and <code>nvidia-docker2</code>, please refer to <a href="https://github.com/NVIDIA/nvidia-docker/issues/1268#issuecomment-632692949">here</a>. </li>
       </ul>  
     </td>
   </tr>
@@ -163,7 +163,7 @@ cd pai
 Choose a version to install by checkout to a specific tag:
 
 ```bash
-git checkout v1.5.0
+git checkout v1.6.0
 ```
 
 Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib/kubespray/config` folder.
@@ -220,14 +220,24 @@ machine-list:
 ``` yaml
 user: forexample
 password: forexample
-docker_image_tag: v1.5.0
+docker_image_tag: v1.6.0
 
 # Optional
+
 
 #######################################################################
 #                    OpenPAI Customized Settings                      #
 #######################################################################
 # enable_hived_scheduler: true
+# enable_docker_cache: true
+# docker_cache_storage_backend: "azure" # or "filesystem"
+# docker_cache_azure_account_name: ""
+# docker_cache_azure_account_key: ""
+# docker_cache_azure_container_name: "dockerregistry"
+# docker_cache_fs_mount_path: "/var/lib/registry"
+# docker_cache_remote_url: "https://registry-1.docker.io"
+# docker_cache_htpasswd: "" 
+# enable_marketplace: "true"
 
 #############################################
 # Ansible-playbooks' inventory hosts' vars. #
@@ -329,6 +339,12 @@ Please run the following script to deploy Kubernetes first. As the name explains
 
 ``` bash
 /bin/bash quick-start-kubespray.sh
+```
+
+By default, ansible logs of `skip` and `ok` hosts are not displayed. To view more complete ansible logs, run the script in `verbose` mode:
+
+``` bash
+/bin/bash quick-start-kubespray.sh -v
 ```
 
 If there is any problem, please double-check the environment requirements first. Here we provide a requirement checker to help you verify:

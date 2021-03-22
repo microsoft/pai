@@ -46,6 +46,22 @@ spec:
 {% endif %}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+        - name: MARKETPLACE_API_URI
+{%- if 'marketplace_api_uri' in cluster_cfg['marketplace-webportal'] %}
+          value: {{ cluster_cfg["marketplace-webportal"]["marketplace_api_uri"] }}
+{%- else %}
+{% if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+          value: "{{ cluster_cfg['pylon']['uri-https']}}/marketplace/api"
+{% else %}
+          value: "{{ cluster_cfg['pylon']['uri']}}/marketplace/api"
+{% endif %}
+{%- endif %}
+        - name: SAVE_TEMPLATE
+{%- if cluster_cfg['webportal']['save-template'] and cluster_cfg['cluster']['common']['marketplace'] == "true" %}
+          value: "true"
+{%- else %}
+          value: "false"
+{%- endif %}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
         - name: LOG_TYPE
@@ -92,7 +108,7 @@ spec:
           # A raw JSON formatted value is required here.
           value: |
             [
-{% if cluster_cfg['cluster']['common']['marketplace'] == "true" and cluster_cfg['webportal']['marketplace'] == "true" %}
+{% if cluster_cfg['cluster']['common']['marketplace'] == "true" and cluster_cfg['webportal']['marketplace'] %}
               {
                 "id": "marketplace",
                 "title": "Marketplace",
