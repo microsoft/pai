@@ -232,6 +232,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+       port: 443
       crt_name: xxxxxx
       crt_path: /path/to/xxxxxx
       key_name: yyyyyy
@@ -243,6 +244,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+      port: 443
       crt_name: FileName.crt
       crt_path: /home/ssl/FileName.crt
       key_name: FileName.key
@@ -266,6 +268,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+      port: 443
       crt_name: n32.openpai.org_chain.crt
       crt_path: /home/ssl/n32.openpai.org_chain.crt
       key_name: n32.openpai.org_key.key
