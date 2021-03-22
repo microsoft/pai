@@ -5,6 +5,7 @@ import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import { get } from 'lodash';
 import yaml from 'js-yaml';
 import urljoin from 'url-join';
+import queryString from 'query-string';
 import config from '../../config/webportal.config';
 import { clearToken } from '../../user/user-logout/user-logout.component';
 
@@ -70,4 +71,49 @@ export async function listHivedSkuTypes(virtualCluster) {
       },
     )).json(),
   );
+}
+
+export async function fetchMyTemplates(user) {
+  const queryOptions = {};
+  queryOptions.author = user;
+  queryOptions.source = 'pai';
+  const queryStr = queryString.stringify(queryOptions);
+  const url = urljoin(config.marketplaceUri, `items?${queryStr}`);
+  const token = cookies.get('token');
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.ok) {
+    const items = await res.json();
+    // order by updateDate
+    items.sort(function(a, b) {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    return items;
+  } else {
+    throw new Error(res.statusText);
+  }
+}
+
+export async function createTemplate(marketItem) {
+  const url = urljoin(config.marketplaceUri, 'items');
+  const token = cookies.get('token');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(marketItem),
+  });
+  if (res.ok) {
+    const result = await res.json();
+    return result.id;
+  } else {
+    throw new Error(res.statusText);
+  }
 }

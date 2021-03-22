@@ -6,6 +6,7 @@ import { JobInformation } from './components/job-information';
 import { TaskRole } from './components/task-role';
 import { Sidebar } from './components/sidebar';
 import { Flex, Box } from './elements';
+import { TemplateSelection } from './components/template-selection';
 import PropTypes from 'prop-types';
 
 const loginUser = cookies.get('user');
@@ -20,6 +21,7 @@ const PureJobEditPage = ({ fetchVirtualClusters }) => {
     <>
       {/* left */}
       <Flex flexDirection='column' flex={1} minHeight={0} overFlow='hidden'>
+        <TemplateSelection />
         <Box>
           <JobInformation />
         </Box>

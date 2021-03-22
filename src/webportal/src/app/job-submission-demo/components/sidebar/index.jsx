@@ -77,7 +77,7 @@ const UnwrapperedSidebar = ({
       <SidebarContent expandable={expandedFlag}>
         {getCurrentSideComponent(currentSideKey)}
       </SidebarContent>
-      <Flex p='m' flexDirection='column' bg='near-white'>
+      <Flex p='m' flexDirection='column' bg='white'>
         <Link onClick={() => onExpandedFlagChange(!expandedFlag)}>
           <Icon iconName={expandedFlag ? 'ChevronLeft' : 'ChevronRight'} />
         </Link>
