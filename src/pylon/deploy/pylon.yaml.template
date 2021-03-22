@@ -51,7 +51,7 @@ spec:
               value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
             - name: CLUSTER_TYPE
               value: cluster_cfg["cluster"]["common"]["cluster-type"]
-{% if 'ssl' in cluster_cfg['pylon'] %}
+{% if cluster_cfg['pylon']['ssl']['enable'] == 'true' %}
             - name: SSL_ENABLE
               value: 'true'
             - name: CRT_NAME

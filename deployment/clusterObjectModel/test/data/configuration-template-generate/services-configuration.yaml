@@ -103,6 +103,7 @@ pylon:
   # port of pylon
   port: 80
   ssl:
+    enable: false
     port: 443
 
 hivedscheduler:

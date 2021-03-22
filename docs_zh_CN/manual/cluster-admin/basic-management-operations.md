@@ -234,6 +234,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+      enable: true
       port: 443
       crt_name: xxxxxx
       crt_path: /path/to/xxxxxx
@@ -246,6 +247,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+      enable: true
       port: 443
       crt_name: FileName.crt
       crt_path: /home/ssl/FileName.crt
@@ -270,6 +272,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     ssl:
+      enable: true
       port: 443
       crt_name: n32.openpai.org_chain.crt
       crt_path: /home/ssl/n32.openpai.org_chain.crt
