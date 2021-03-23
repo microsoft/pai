@@ -62,7 +62,7 @@ app.use('/api/v1', routers.v1);
 app.use('/api/v2', routers.v2);
 
 // mount all internal APIs to /api/internal
-app.use('/api/internal', router.internal);
+app.use('/api/internal', routers.internal);
 
 // create OpenAPI docs
 const swaggerSpec = yaml.safeLoad(fs.readFileSync('./docs/swagger.yaml'));

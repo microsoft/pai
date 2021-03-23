@@ -23,14 +23,15 @@ const {
   } = require('@azure/storage-blob');
 
 const getTailLog = asyncHandler (async (req, res) => {
+  const tailLogSize = 16 * 1024 * 1024; // 16 KB
   const logName = req.params.logName;
   const queryString = url.parse(req.url).query
 
-  const account = process.env.AZURE_STORAGE_ACCOUNT;
+  const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
   const containerClient = new ContainerClient(`https://${account}.blob.core.windows.net/pai-log?${queryString}`);
   const blobClient = containerClient.getBlobClient(logName);
   const properies = await blobClient.getProperties();
-  const offset = properies.contentLength - 16 * 1024 * 1024 < 0 ? 0 : properies.contentLength - 16 * 1024 * 1024;
+  const offset = properies.contentLength - tailLogSize < 0 ? 0 : properies.contentLength - tailLogSize;
   const buffer = await blobClient.downloadToBuffer(offset, properies.contentLength - offset);
   res.status(206).send(buffer);
 });

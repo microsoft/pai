@@ -28,6 +28,7 @@ const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
+const LOG_SERVER = process.env.LOG_SERVER
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
 
 const constrcutLogManagerPrefix = (nodeIp) => {
@@ -139,10 +140,10 @@ const getLogListFromAzureStorage = async (
   }
 
   const podUid = taskStatus.containerId;
-
-  const account = process.env.AZURE_STORAGE_ACCOUNT;
-  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-  const logContainerName = process.env.LOG_CONTAINER_NAME;
+  
+  const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
+  const accountKey = process.env.LOG_AZURE_STORAGE_ACCOUNT_KEY;
+  const logContainerName = process.env.LOG_AZURE_STORAGE_CONTAINER_NAME;
   const sharedKeyCredential = new StorageSharedKeyCredential(
     account,
     accountKey,
@@ -151,7 +152,9 @@ const getLogListFromAzureStorage = async (
     `https://${account}.blob.core.windows.net`,
     sharedKeyCredential,
   );
-  const containerClient = blobServiceClient.getContainerClient(logContainerName);
+  const containerClient = blobServiceClient.getContainerClient(
+    logContainerName,
+  );
   const ret = { locations: [] };
 
   const sasQueryString = generateBlobSASQueryParameters(
@@ -164,45 +167,56 @@ const getLogListFromAzureStorage = async (
     },
     sharedKeyCredential,
   );
-  const jobLogList = await containerClient.listBlobsFlat({
+
+  let jobLogList = [];
+  for await (const blob of containerClient.listBlobsFlat({
     prefix: `job-${podUid}`,
-  });
-  ret.locations.push(
+  })) {
+    jobLogList.push(blob.name);
+  }
+
+  ret.locations = ret.locations.concat(
     getAzureLogEntries(
-      jobLogList,
-      `job-${podUid}`,
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stdout`)),
       'stdout',
-      sasQueryString,
-      tailMode,
-    ),
-  );
-  ret.locations.push(
-    getAzureLogEntries(
-      jobLogList,
-      `job-${podUid}`,
-      'stderr',
-      sasQueryString,
-      tailMode,
-    ),
-  );
-  ret.locations.push(
-    getAzureLogEntries(
-      jobLogList,
-      `job-${podUid}`,
-      'all',
+      containerClient.url,
       sasQueryString,
       tailMode,
     ),
   );
 
-  const runtimeLogList = await containerClient.listBlobsFlat({
+  ret.locations = ret.locations.concat(
+    getAzureLogEntries(
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stderr`)),
+      'stderr',
+      containerClient.url,
+      sasQueryString,
+      tailMode,
+    ),
+  );
+
+  ret.locations = ret.locations.concat(
+    getAzureLogEntries(
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.all`)),
+      'all',
+      containerClient.url,
+      sasQueryString,
+      tailMode,
+    ),
+  );
+
+  let runtimeLogList = [];
+  for await (const blob of containerClient.listBlobsFlat({
     prefix: `runtime-app-${podUid}`,
-  });
-  ret.locations.push(
+  })) {
+    runtimeLogList.push(blob.name);
+  }
+
+  ret.locations = ret.locations.concat(
     getAzureLogEntries(
       runtimeLogList,
-      `runtime-app-${podUid}`,
-      '',
+      `runtime`,
+      containerClient.url,
       sasQueryString,
       tailMode,
     ),
@@ -212,27 +226,34 @@ const getLogListFromAzureStorage = async (
 
 // The job log name format is job-{PodUid}.stdout/stderr/all.{index}.log
 // For runtime log, the log name format is runtime-app-{PodUid}.log
-const getAzureLogEntries = (jobLogList, logPrefix, logType, sasQueryString, tailMode) => {
+const getAzureLogEntries = (
+  jobLogList,
+  logType,
+  azureStorageUrl,
+  sasQueryString,
+  tailMode,
+) => {
   const locations = [];
-  const matchedLogs = jobLogList.filter(logName.startsWith(logPrefix + logType));
-
-  const pattern = `(${logType}).(\\d).log`
-  const re = new RegExp(pattern)
-  for (const logName in matchedLogs) {
-    const matches = logName.match(re)
-    if (matches.length === 3) {
-      const logIndex = matches.length - Number(matches[2]) - 1;
+  const pattern =
+    logType === 'runtime'
+      ? `\\.(?<index>\\d)\\.log`
+      : `(${logType})\\.(?<index>\\d)\\.log`;
+  const re = new RegExp(pattern);
+  for (const logName of jobLogList) {
+    const matches = logName.match(re);
+    if (matches && matches.groups.index) {
+      const logIndex = jobLogList.length - Number(matches.groups.index) - 1;
       locations.push({
         name: logIndex === 0 ? logType : `${logType}.${logIndex}`,
         uri:
           tailMode === 'true'
-            ? `${WEBPORTAL_URL}/rest-server/api/internal/tail-logs/${logName}?${sasQueryString}`
-            : `${containerClient.url}/${logName}?${sasQueryString}`,
+            ? `/rest-server/api/internal/tail-logs/${logName}?${sasQueryString}`
+            : `${azureStorageUrl}/${logName}?${sasQueryString}`,
       });
     }
   }
   return locations;
-}
+};
 
 
 const getLogListFromLogServer = async (
@@ -263,11 +284,11 @@ const getLogListFromLogServer = async (
       tailMode,
     );
   }
-  // This should named to another name, no supported log server
+
   throw createError(
-    'Not Found',
-    'NoTaskLogError',
-    `Log of task is not found.`,
+    'Bad Request',
+    'NoSupportedLogServer',
+    `Log server ${LOG_SERVER} is not supported.`,
   );
 };
 
