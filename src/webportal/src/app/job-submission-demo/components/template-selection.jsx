@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'office-ui-fabric-react';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
-import { Flex, Box } from '../elements';
+import { Box } from '../elements';
 import { JobProtocol } from '../../job-submission/models/job-protocol';
 import { fetchMyTemplates } from '../utils/conn';
-import { FormSection, FormItem } from './form-page';
+import { FormItem } from './form-page';
 
 const loginUser = cookies.get('user');
 
 const PureTemplateSelection = props => {
-  const { onJobProtocolChange } = props;
+  const { onJobProtocolChange, onCurrentTaskRoleChange } = props;
   const [templateOptions, setTemplateOptions] = useState([
     {
       key: 'No',
@@ -44,6 +44,7 @@ const PureTemplateSelection = props => {
     const jobConfig = JobProtocol.fromYaml(item.protocol);
 
     onJobProtocolChange(new JobProtocol(jobConfig));
+    onCurrentTaskRoleChange(Object.keys(get(jobConfig, 'taskRoles'))[0]);
   };
 
   return (
@@ -64,6 +65,8 @@ const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({
   onJobProtocolChange: jobProtocol =>
     dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+  onCurrentTaskRoleChange: currentTaskRole =>
+    dispatch({ type: 'SAVE_CURRENT_TASKROLE', payload: currentTaskRole }),
 });
 
 export const TemplateSelection = connect(
@@ -73,4 +76,5 @@ export const TemplateSelection = connect(
 
 PureTemplateSelection.propTypes = {
   onJobProtocolChange: PropTypes.func,
+  onCurrentTaskRoleChange: PropTypes.func,
 };

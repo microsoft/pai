@@ -21,7 +21,9 @@ const PureJobEditPage = ({ fetchVirtualClusters }) => {
     <>
       {/* left */}
       <Flex flexDirection='column' flex={1} minHeight={0} overFlow='hidden'>
-        <TemplateSelection />
+        <Box bg='white'>
+          <TemplateSelection />
+        </Box>
         <Box>
           <JobInformation />
         </Box>
