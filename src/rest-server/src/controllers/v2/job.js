@@ -297,7 +297,7 @@ const getEvents = asyncHandler(async (req, res) => {
 
 const getLogs = asyncHandler(async (req, res) => {
   try {
-    const data = await log.getLogListFromLogManager(
+    const data = await log.getLogListFromLogServer(
       req.params.frameworkName,
       req.params.jobAttemptId,
       req.params.taskRoleName,
