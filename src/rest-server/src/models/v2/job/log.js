@@ -35,6 +35,12 @@ const constrcutLogManagerPrefix = (nodeIp) => {
   return `http://${nodeIp}:${LOG_MANAGER_PORT}/api/v1`;
 };
 
+const NoTaskLogErr = createError(
+  'Not Found',
+  'NoTaskLogError',
+  `Log of task is not found.`,
+);
+
 const loginLogManager = async (nodeIp, username, password) => {
   const prefix = constrcutLogManagerPrefix(nodeIp);
   return axios.post(`${prefix}/tokens`, {
@@ -59,11 +65,6 @@ const getLogListFromLogManager = async (
     Number(jobAttemptId),
     taskRoleName,
     Number(taskIndex),
-  );
-  const NoTaskLogErr = createError(
-    'Not Found',
-    'NoTaskLogError',
-    `Log of task is not found.`,
   );
   const taskStatus = taskDetail.data.attempts.find(
     (attempt) => attempt.attemptId === Number(taskAttemptId),
@@ -126,11 +127,6 @@ const getLogListFromAzureStorage = async (
     taskRoleName,
     Number(taskIndex),
   );
-  const NoTaskLogErr = createError(
-    'Not Found',
-    'NoTaskLogError',
-    `Log of task is not found.`,
-  );
   const taskStatus = taskDetail.data.attempts.find(
     (attempt) => attempt.attemptId === Number(taskAttemptId),
   );
@@ -140,7 +136,7 @@ const getLogListFromAzureStorage = async (
   }
 
   const podUid = taskStatus.containerId;
-  
+
   const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
   const accountKey = process.env.LOG_AZURE_STORAGE_ACCOUNT_KEY;
   const logContainerName = process.env.LOG_AZURE_STORAGE_CONTAINER_NAME;
@@ -168,38 +164,10 @@ const getLogListFromAzureStorage = async (
     sharedKeyCredential,
   );
 
-  let jobLogList = [];
-  for await (const blob of containerClient.listBlobsFlat({
-    prefix: `job-${podUid}`,
-  })) {
-    jobLogList.push(blob.name);
-  }
-
   ret.locations = ret.locations.concat(
-    getAzureLogEntries(
-      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stdout`)),
-      'stdout',
-      containerClient.url,
-      sasQueryString,
-      tailMode,
-    ),
-  );
-
-  ret.locations = ret.locations.concat(
-    getAzureLogEntries(
-      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stderr`)),
-      'stderr',
-      containerClient.url,
-      sasQueryString,
-      tailMode,
-    ),
-  );
-
-  ret.locations = ret.locations.concat(
-    getAzureLogEntries(
-      jobLogList.filter((log) => log.startsWith(`job-${podUid}.all`)),
-      'all',
-      containerClient.url,
+    await getJobLogEntriesFromAzure(
+      containerClient,
+      podUid,
       sasQueryString,
       tailMode,
     ),
@@ -213,7 +181,7 @@ const getLogListFromAzureStorage = async (
   }
 
   ret.locations = ret.locations.concat(
-    getAzureLogEntries(
+    parseAzureLogEntries(
       runtimeLogList,
       `runtime`,
       containerClient.url,
@@ -224,10 +192,52 @@ const getLogListFromAzureStorage = async (
   return ret;
 };
 
+const getJobLogEntriesFromAzure = async (containerClient, podUid, sasQueryString, tailMode) => {
+  let jobLogList = [];
+  let logEntries = [];
+  for await (const blob of containerClient.listBlobsFlat({
+    prefix: `job-${podUid}`,
+  })) {
+    jobLogList.push(blob.name);
+  }
+
+  logEntries = logEntries.concat(
+    parseAzureLogEntries(
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stdout`)),
+      'stdout',
+      containerClient.url,
+      sasQueryString,
+      tailMode,
+    ),
+  );
+
+  logEntries = logEntries.concat(
+    parseAzureLogEntries(
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.stderr`)),
+      'stderr',
+      containerClient.url,
+      sasQueryString,
+      tailMode,
+    ),
+  );
+
+  logEntries = logEntries.concat(
+    parseAzureLogEntries(
+      jobLogList.filter((log) => log.startsWith(`job-${podUid}.all`)),
+      'all',
+      containerClient.url,
+      sasQueryString,
+      tailMode,
+    ),
+  );
+
+  return logEntries;
+}
+
 // The job log name format is job-{PodUid}.stdout/stderr/all.{index}.log
 // For runtime log, the log name format is runtime-app-{PodUid}.log
-const getAzureLogEntries = (
-  jobLogList,
+const parseAzureLogEntries = (
+  logList,
   logType,
   azureStorageUrl,
   sasQueryString,
@@ -239,10 +249,10 @@ const getAzureLogEntries = (
       ? `\\.(?<index>\\d)\\.log`
       : `(${logType})\\.(?<index>\\d)\\.log`;
   const re = new RegExp(pattern);
-  for (const logName of jobLogList) {
+  for (const logName of logList) {
     const matches = logName.match(re);
     if (matches && matches.groups.index) {
-      const logIndex = jobLogList.length - Number(matches.groups.index) - 1;
+      const logIndex = logList.length - Number(matches.groups.index) - 1;
       locations.push({
         name: logIndex === 0 ? logType : `${logType}.${logIndex}`,
         uri:

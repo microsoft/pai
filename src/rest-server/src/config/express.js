@@ -39,7 +39,6 @@ const routers = {
 
 const app = express();
 const { Sequelize } = require('sequelize');
-const router = require('@pai/routes/authn');
 
 app.set('trust proxy', true);
 app.set('json spaces', config.env === 'development' ? 4 : 0);
