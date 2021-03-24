@@ -4,6 +4,9 @@ This upgrade guide is only for those who have installed OpenPAI >= `v1.0.0`, and
 
 The upgrade process is mainly about modifying `services-configuration.yaml` and using `paictl`. If you are not familiar about them, please first refer to [here](./basic-management-operations.md#pai-service-management-and-paictl) to set up `paictl` and `services-configuration.yaml`.
 
+**Notice:** We recommend those who are upgrading from version < `v1.6.0` (not including `v1.6.0`) to check [this issue](./troubleshooting.md#solve-unmounted-database-problem) before follow the steps below.
+
+
 ## Stop All Services and Previous Dev Box Container
 
 First, launch a dev box container of the current PAI version, stop all services by:
