@@ -28,7 +28,7 @@ const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
-const LOG_SERVER = process.env.LOG_SERVER
+const LOG_SERVER = process.env.LOG_SERVER;
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
 
 const constrcutLogManagerPrefix = (nodeIp) => {
@@ -173,7 +173,7 @@ const getLogListFromAzureStorage = async (
     ),
   );
 
-  let runtimeLogList = [];
+  const runtimeLogList = [];
   for await (const blob of containerClient.listBlobsFlat({
     prefix: `runtime-app-${podUid}`,
   })) {
@@ -192,8 +192,13 @@ const getLogListFromAzureStorage = async (
   return ret;
 };
 
-const getJobLogEntriesFromAzure = async (containerClient, podUid, sasQueryString, tailMode) => {
-  let jobLogList = [];
+const getJobLogEntriesFromAzure = async (
+  containerClient,
+  podUid,
+  sasQueryString,
+  tailMode,
+) => {
+  const jobLogList = [];
   let logEntries = [];
   for await (const blob of containerClient.listBlobsFlat({
     prefix: `job-${podUid}`,
@@ -232,7 +237,7 @@ const getJobLogEntriesFromAzure = async (containerClient, podUid, sasQueryString
   );
 
   return logEntries;
-}
+};
 
 // The job log name format is job-{PodUid}.stdout/stderr/all.{index}.log
 // For runtime log, the log name format is runtime-app-{PodUid}.log
@@ -265,14 +270,13 @@ const parseAzureLogEntries = (
   return locations;
 };
 
-
 const getLogListFromLogServer = async (
   frameworkName,
   jobAttemptId,
   taskRoleName,
   taskIndex,
   taskAttemptId,
-  tailMode
+  tailMode,
 ) => {
   if (LOG_SERVER.toLowerCase() === 'log_manager') {
     return await getLogListFromLogManager(

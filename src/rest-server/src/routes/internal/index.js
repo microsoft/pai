@@ -20,7 +20,7 @@ const express = require('express');
 const tailLogRouter = require('@pai/routes/internal/tail-log');
 const router = new express.Router();
 
-router.use('/tail-logs', tailLogRouter)
+router.use('/tail-logs', tailLogRouter);
 
 // module exports
 module.exports = router;

@@ -21,11 +21,7 @@ const controller = require('@pai/controllers/internal/tail-log');
 
 const router = new express.Router();
 
-router
-  .route(
-    '/:logName',
-  )
-  .get(controller.getTailLog);
+router.route('/:logName').get(controller.getTailLog);
 
 // module exports
 module.exports = router;

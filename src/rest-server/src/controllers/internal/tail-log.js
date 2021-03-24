@@ -16,7 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const url = require('url');
+const status = require('statuses');
+
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const { ContainerClient } = require('@azure/storage-blob');
 
@@ -26,7 +27,7 @@ const createError = require('@pai/utils/error');
 const getTailLog = asyncHandler(async (req, res) => {
   const tailLogSize = 16 * 1024 * 1024; // 16 KB
   const logName = req.params.logName;
-  const queryString = url.parse(req.url).query;
+  const queryString = req.url.substring(req.url.indexOf('?') + 1);
   const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
 
   try {
@@ -43,7 +44,7 @@ const getTailLog = asyncHandler(async (req, res) => {
       offset,
       properties.contentLength - offset,
     );
-    res.status(206).send(buffer);
+    res.status(status('Partial Content')).send(buffer);
   } catch (error) {
     logger.error(`Got error when retrieving tail log, error: ${error}`);
     throw createError(
