@@ -149,3 +149,36 @@ Step 5. In the dev box container, start the internal storage service by `./paict
 Step 6. After the internal storage service is ready, there will be a new `/mnt/paiInternal` in the master node. Move the previous data to it. Currently, we only need to move the `pgdata` folder: `sudo mv /mnt/paiInternalBak/pgdata /mnt/paiInternal/`.
 
 Step 7. In the dev box container, start all PAI services by `./paictl.py service start`.
+
+## Solve Unmounted Database Problem
+
+Before `v1.6.0`, we use internal storage to mount a file called `storage.ext4` to `/mnt/paiInternal/storage` on the master node. Then database uses `/mnt/paiInternal/storage/pgdata` as its data root. Sometimes, the path could be unmounted. If database starts before internal-storage, it will use unmounted host path.
+
+If the some completed jobs are lost, please first identify if it is the problem, then solve it by following the steps below. We also recommend you to check this before you upgrade to `v1.6.0`.
+
+### How to identify the problem
+
+First, stop all PAI services. On master node, run `sudo umount /mnt/paiInternal/storage`. After unmounting, if folder `/mnt/paiInternal/storage/pgdata` exists, the problem can be identified.
+
+### How to solve the problem
+
+If the problem happens, there will be two pieces of database data. Please first backup them.
+
+The backup process:
+
+1. Stop all PAI services. On master node, run `sudo umount /mnt/paiInternal/storage`. Please backup `/mnt/paiInternal/storage/pgdata`.
+2. In dev box container, run `./paictl.py service start -n cluster-configuration internal-storage`. Then go to master node, backup `/mnt/paiInternal/storage/pgdata` to a different places.
+
+We will merge the two database data, and then upgrade to `v1.6.0` or later version to resolve this issue. Please first install postgresql client 12 on master node. Then follow the steps below.
+
+1. In dev box container, stop all PAI services by `./paictl.py service stop`
+2. On master node, run `sudo umount /mnt/paiInternal/storage`.
+3. In dev box container, run `./paictl.py service start -n cluster-configuration postgresql`. Please notice the source code used in dev box container should be under `v1.6.0` in this step.
+4. On master node, connect to the database by `psql  -U root -h 127.0.0.1 -W openpai`. The default password is `rootpass`. Then create a table with name `frameworks_tmp` by `CREATE TABLE frameworks_tmp AS TABLE frameworks WITH NO DATA;`. And insert frameworks data into it: `INSERT INTO frameworks_tmp SELECT * FROM frameworks;`. Use `\q` to exit from the database terminal.
+5. Dump the database by `pg_dump -U root -h 127.0.0.1 -W  -t framework_events -t framework_history -t pod_events -t pods -t task_history -t tags -f exclude_frameworks_dump.sql -a openpai` and `pg_dump -U root -h 127.0.0.1 -W -t frameworks_tmp -f frameworks_tmp_dump.sql openpai`.
+6. In dev box container, run `./paictl.py service stop -n cluster-configuration postgresql`. Wait serveral minutes, run `./paictl.py service start -n cluster-configuration internal-storage postgresql`
+7. On master node, restore the data to `framework_tmp`: `psql  -U root -h 127.0.0.1 -W  -f frameworks_tmp_dump.sql openpai`
+8. Connect to the database `psql  -U root -h 127.0.0.1 -W openpai`. Then merge the tables by: `DELETE FROM frameworks WHERE name in ( SELECT name FROM frameworks_tmp );` and `INSERT INTO frameworks SELECT  * FROM frameworks_tmp;`.
+9. On the master node, restore the remaining data: `psql  -U root -h 127.0.0.1 -W  -f exclude_frameworks_dump.sql openpai`
+10. In dev box container, stop all PAI services.
+11. Follow [upgrade-guide](./upgrade-guide.md) to upgrade the cluster to `v1.6.0` or later version.
