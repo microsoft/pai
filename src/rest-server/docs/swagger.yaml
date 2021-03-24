@@ -1832,8 +1832,6 @@ paths:
                   uri:  "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.all?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
                 - name: stdout
                   uri: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stdout?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
-        "400":
-          $ref: "#/components/responses/NoSupportedLogServer"
         "404":
           $ref: "#/components/responses/NoTaskLogError"
         "500":
@@ -3313,17 +3311,6 @@ components:
               value:
                 code: NoTaskLogError
                 message: "Log of task is not found."
-    NoSupportedLogServer:
-      description: NoSupportedLogServer
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Response"
-          examples:
-            NoJobSshInfoError:
-              value:
-                code: NoSupportedLogServer
-                message: "Log server {log_server} is not supported."
     ConflictUserError:
       description: ConflictUserError
       content:

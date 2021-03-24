@@ -295,8 +295,9 @@ const getLogListFromLogServer = async (
     );
   }
 
+  logger.error(`Log server ${LOG_SERVER} is not supported.`);
   throw createError(
-    'Bad Request',
+    'Internal Server Error',
     'NoSupportedLogServer',
     `Log server ${LOG_SERVER} is not supported.`,
   );
