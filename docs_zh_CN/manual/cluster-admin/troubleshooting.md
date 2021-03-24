@@ -144,3 +144,7 @@ internal-storage:
 第六步. 在internal storage ready后，Master结点上将会有一个新的`/mnt/paiInternal`目录。将原来的目录移动到里面，目前我们只需要移动`pgdata`文件夹：`sudo mv /mnt/paiInternalBak/pgdata /mnt/paiInternal/`.
 
 第七步. 在dev box container内，启动所有PAI service： `./paictl.py service start`。
+
+### <div id="solve-unmounted-database-problem">解决 Unmounted Database Issue</div>
+
+请参考对应的英文文档。

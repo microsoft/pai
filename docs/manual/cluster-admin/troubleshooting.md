@@ -150,17 +150,17 @@ Step 6. After the internal storage service is ready, there will be a new `/mnt/p
 
 Step 7. In the dev box container, start all PAI services by `./paictl.py service start`.
 
-## Solve Unmounted Database Problem
+### Solve Unmounted Database Problem
 
-Before `v1.6.0`, we use internal storage to mount a file called `storage.ext4` to `/mnt/paiInternal/storage` on the master node. Then database uses `/mnt/paiInternal/storage/pgdata` as its data root. Sometimes, the path could be unmounted. If database starts before internal-storage, it will use unmounted host path.
+Before `v1.6.0`, we use internal storage to mount a file called `storage.ext4` to `/mnt/paiInternal/storage` on the master node. Then database uses `/mnt/paiInternal/storage/pgdata` as its data root. Sometimes, the path could be unmounted. If database starts before internal-storage, it will use unmounted host path. This will cause two pieces of database data.
 
-If the some completed jobs are lost, please first identify if it is the problem, then solve it by following the steps below. We also recommend you to check this before you upgrade to `v1.6.0`.
+If some completed jobs are lost, please first identify the problem, then solve it by following the steps below. We also recommend you to check this before you upgrade to `v1.6.0`.
 
-### How to identify the problem
+#### How to identify this issue
 
-First, stop all PAI services. On master node, run `sudo umount /mnt/paiInternal/storage`. After unmounting, if folder `/mnt/paiInternal/storage/pgdata` exists, the problem can be identified.
+First, stop all PAI services. On master node, run `sudo umount /mnt/paiInternal/storage`. After unmounting, if folder `/mnt/paiInternal/storage/pgdata` exists, the problem can be identified. If `/mnt/paiInternal/storage/pgdata` doesn't exist, you can igore this issue safely.
 
-### How to solve the problem
+#### How to solve the problem
 
 If the problem happens, there will be two pieces of database data. Please first backup them.
 

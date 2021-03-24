@@ -4,6 +4,8 @@
 
 升级过程主要是关于修改 `services-configuration.yaml` 和使用 `paictl`。如果您不熟悉它们，请首先参考[这里](./basic-management-operations.md#pai-service-management-and-paictl)来设置 `paictl` 和 `services-configuration.yaml`。
 
+**注意:** 在按照下面步骤升级之前，我们推荐那些从 `v1.6.0` 以下版本 （不包含 `v1.6.0`）升级的人先检查[unmounted database issue](./troubleshooting.md#solve-unmounted-database-problem)。
+
 ## 结束所有服务和Dev Box容器
 
 首先，启动当前 PAI 版本的 dev box 容器，通过以下方式停止所有服务：
