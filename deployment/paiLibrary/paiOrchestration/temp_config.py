@@ -38,7 +38,7 @@ class TempConfig:
         self._generate_config_files()
 
     def _pull_config_files(self):
-        self._logger.info("Pull config from k8s cluster: `layout.yaml` and `services-configuration.yaml`")
+        self._logger.info("Pull config from k8s cluster: `layout.yaml` and `config.yaml`")
         get_handler = download_configuration(
             config_output_path=self._tmp_dir,
             kube_config_path=self._kube_config_path
@@ -50,10 +50,10 @@ class TempConfig:
         linux_shell.execute_shell_raise(
             shell_cmd="cd ./contrib/kubespray/ && python3 ./script/k8s_generator.py -l {} -c {} -o {}".format(
                 os.path.join(self._tmp_dir, "layout.yaml"),
-                os.path.join(self._tmp_dir, "services-configuration.yaml"),
+                os.path.join(self._tmp_dir, "config.yaml"),
                 self._tmp_dir
             ),
-            error_msg="Failed to remove temporary config folder: {}, please remove it manually".format(self._tmp_dir)
+            error_msg="Failed to generate config files"
         )
 
     def __del__(self):
@@ -62,7 +62,7 @@ class TempConfig:
             shutil.rmtree(self._tmp_dir)
         except Exception as e:
             self._logger.error(str(e))
-            self._logger.error("Failed to remove temporary downloaded Kubespray folder: {}, please remove it manually".format(self._tmp_dir))
+            self._logger.error("Failed to remove temporary config folder: {}, please remove it manually".format(self._tmp_dir))
 
     def get_hosts_yml_path(self):
         return os.path.join(self._tmp_dir, "hosts.yml")
