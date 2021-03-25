@@ -176,6 +176,7 @@ class ConfigCmd():
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
         push_list = [
+            "config.yaml",
             "k8s-role-definition.yaml",
             "kubernetes-configuration.yaml",
             "layout.yaml",
@@ -183,6 +184,7 @@ class ConfigCmd():
         ]
         if args.push_mode == "service":
             push_list = [
+                "config.yaml",
                 "layout.yaml",
                 "services-configuration.yaml"
             ]
