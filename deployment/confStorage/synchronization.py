@@ -70,7 +70,12 @@ class Synchronization:
 
 
     def _check_if_file_exists(self):
-        file_list = os.listdir(self.pai_cluster_configuration_path)
+        file_list = set()
+        for folder_path_type in ["local_conf_path", "kube_config_path", "pai_cluster_configuration_path"]:
+            if hasattr(self, folder_path_type):
+                folder_path = getattr(self, folder_path_type)
+                if folder_path != None and os.path.isdir(folder_path):
+                    file_list |= set(os.listdir(folder_path))
         missing_files = set(self.config_push_list) - set(file_list)
         for missing_file in missing_files:
             self.logger.error("Cannot find {} in your config folder.".format(missing_file))
