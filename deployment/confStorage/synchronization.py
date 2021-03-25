@@ -15,6 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import logging
 import logging.config
 
@@ -56,13 +57,31 @@ class Synchronization:
             self.config_push_list = kwargs["config_push_list"]
         else:
             self.config_push_list = [
+                "config.yaml",
                 "k8s-role-definition.yaml",
                 "kubernetes-configuration.yaml",
                 "layout.yaml",
                 "services-configuration.yaml"
             ]
+        
+        # Check whether the config files to be uploaded exists
+        self._check_if_file_exists()
 
-
+    def _check_if_file_exists(self):
+        file_list = set()
+        for folder_path_type in ["local_conf_path", "pai_cluster_configuration_path"]:
+            if hasattr(self, folder_path_type):
+                folder_path = getattr(self, folder_path_type)
+                if folder_path != None and os.path.isdir(folder_path):
+                    file_list |= set(os.listdir(folder_path))
+        missing_files = set(self.config_push_list) - set(file_list)
+        for missing_file in missing_files:
+            self.logger.error("Cannot find {} in your config folder.".format(missing_file))
+            if missing_file == "config.yaml":
+                self.logger.error("Before v1.7.0, this file is stored in ~/pai-deploy/cluster-cfg/config.yaml on the dev box machine.")
+                self.logger.error("If you have upgraded to v1.7.0, please copy this file to the config folder.")
+        if len(missing_files) > 0:
+            raise Exception("Some configuration files not found.")
 
     def get_external_storage_conf(self):
         external_config = getting_external_config(
@@ -71,8 +90,6 @@ class Synchronization:
             kube_config_path = self.kube_config_path
         )
         return external_config.get_latest_external_configuration()
-
-
 
     def sync_data_from_source(self):
 
@@ -86,4 +103,3 @@ class Synchronization:
             conf_uploader = UploadConfiguration(configuration_path, self.kube_config_path, self.config_push_list)
             conf_uploader.run()
             self.logger.info("Cluster Configuration synchronization from external storage is successful.")
-
