@@ -99,6 +99,32 @@ export async function fetchMyTemplates(user) {
   }
 }
 
+export async function fetchPublicTemplates() {
+  const queryOptions = {};
+  queryOptions.source = 'marketplace';
+  queryOptions.isPublic = 'true';
+  const queryStr = queryString.stringify(queryOptions);
+  const url = urljoin(config.marketplaceUri, `items?${queryStr}`);
+  const token = cookies.get('token');
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.ok) {
+    const items = await res.json();
+    // order by updateDate
+    items.sort(function(a, b) {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    return items.slice(0, 9);
+  } else {
+    throw new Error(res.statusText);
+  }
+}
+
 export async function createTemplate(marketItem) {
   const url = urljoin(config.marketplaceUri, 'items');
   const token = cookies.get('token');

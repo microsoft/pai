@@ -6,13 +6,16 @@ import {
   Dialog,
   DialogFooter,
   TextField,
+  Label,
+  Checkbox,
 } from 'office-ui-fabric-react';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { isNil, cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { createTemplate } from '../utils/conn';
-import { Flex } from '../elements';
+import { Flex, Box } from '../elements';
+import { generateDefaultDescription } from '../utils/utils';
 
 const user = cookies.get('user');
 
@@ -20,7 +23,11 @@ const PureSaveTemplateDialog = props => {
   const { hideDialog, toggleHideDialog, jobProtocol } = props;
   const [templateName, setTemplateName] = useState('');
   const [templateSummary, setTemplateSummary] = useState('');
-  const [templateDescription, setTemplateDescription] = useState('');
+  const [isPrivate, setIsPrivate] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
+  const [templateDescription, setTemplateDescription] = useState(
+    generateDefaultDescription(jobProtocol.name),
+  );
 
   const saveTemplate = async event => {
     if (isNil(templateName) || templateName === '') {
@@ -36,7 +43,8 @@ const PureSaveTemplateDialog = props => {
     template.protocol = protocol.toYaml();
     template.source = 'pai';
     template.type = 'template';
-    template.isPrivate = true;
+    template.isPrivate = isPrivate;
+    template.isPublic = isPublic;
     template.author = user;
     try {
       await createTemplate(template);
@@ -68,6 +76,31 @@ const PureSaveTemplateDialog = props => {
           }}
           required={true}
         />
+        <Label required>Share Option</Label>
+        <Flex>
+          <Box padding={'s1'}>
+            <Checkbox
+              label='Private'
+              checked={isPrivate}
+              disabled={isPrivate}
+              onChange={(e, checked) => {
+                setIsPrivate(true);
+                setIsPublic(false);
+              }}
+            />
+          </Box>
+          <Box padding={'s1'}>
+            <Checkbox
+              label='Public'
+              checked={isPublic}
+              disabled={isPublic}
+              onChange={(e, checked) => {
+                setIsPrivate(false);
+                setIsPublic(true);
+              }}
+            />
+          </Box>
+        </Flex>
         <TextField
           label={'summary'}
           required={false}
@@ -79,6 +112,7 @@ const PureSaveTemplateDialog = props => {
         />
         <TextField
           label={'description'}
+          value={templateDescription}
           required={false}
           onChange={e => {
             setTemplateDescription(e.target.value);

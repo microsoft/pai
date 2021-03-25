@@ -36,3 +36,12 @@ export function createUniqueName(usedNames, namePrefix, startIndex) {
   }
   return [name, index];
 }
+
+export function generateDefaultDescription(name) {
+  return (
+    (name ? `# ${name}\n\n` : '\n') +
+    `## Training data\n\n` +
+    '## How to use\n\n' +
+    `## Reference\n\n`
+  );
+}

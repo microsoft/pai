@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import React, { useState, useEffect } from 'react';
-import { Dropdown } from 'office-ui-fabric-react';
+import { Dropdown, DropdownMenuItemType } from 'office-ui-fabric-react';
 import { connect } from 'react-redux';
 import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Box } from '../elements';
 import { JobProtocol } from '../../job-submission/models/job-protocol';
-import { fetchMyTemplates } from '../utils/conn';
+import { fetchMyTemplates, fetchPublicTemplates } from '../utils/conn';
 import { FormItem } from './form-page';
 
 const loginUser = cookies.get('user');
@@ -24,8 +24,13 @@ const PureTemplateSelection = props => {
 
   // fetch template options
   useEffect(() => {
+    const newTemplateOptions = cloneDeep(templateOptions);
     fetchMyTemplates(loginUser).then(templates => {
-      const newTemplateOptions = cloneDeep(templateOptions);
+      newTemplateOptions.push({
+        key: 'MyTemplatesHeader',
+        text: 'My Templates',
+        itemType: DropdownMenuItemType.Header,
+      });
       for (const template of templates) {
         newTemplateOptions.push({
           key: template.id,
@@ -33,7 +38,21 @@ const PureTemplateSelection = props => {
           protocol: template.protocol,
         });
       }
-      setTemplateOptions(newTemplateOptions);
+      fetchPublicTemplates().then(publicTemplates => {
+        newTemplateOptions.push({
+          key: 'PublicTemplatesHeader',
+          text: 'Public Templates',
+          itemType: DropdownMenuItemType.Header,
+        });
+        for (const template of publicTemplates) {
+          newTemplateOptions.push({
+            key: template.id,
+            text: template.name,
+            protocol: template.protocol,
+          });
+        }
+        setTemplateOptions(newTemplateOptions);
+      });
     });
   }, []);
 
