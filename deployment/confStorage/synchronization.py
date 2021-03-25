@@ -71,7 +71,7 @@ class Synchronization:
 
     def _check_if_file_exists(self):
         file_list = set()
-        for folder_path_type in ["local_conf_path", "kube_config_path", "pai_cluster_configuration_path"]:
+        for folder_path_type in ["local_conf_path", "pai_cluster_configuration_path"]:
             if hasattr(self, folder_path_type):
                 folder_path = getattr(self, folder_path_type)
                 if folder_path != None and os.path.isdir(folder_path):
