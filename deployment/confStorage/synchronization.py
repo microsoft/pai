@@ -81,7 +81,7 @@ class Synchronization:
             self.logger.error("Cannot find {} in your config folder.".format(missing_file))
             if missing_file == "config.yaml":
                 self.logger.error("Before v1.7.0, this file is stored in ~/pai-deploy/cluster-cfg/config.yaml on the dev box machine.")
-                self.logger.error("If you are upgrading from v1.7.0, please copy this file to the config folder.")
+                self.logger.error("If you have upgraded to v1.7.0, please copy this file to the config folder.")
         if len(missing_files) > 0:
             raise Exception("Some configuration files not found.")
 
