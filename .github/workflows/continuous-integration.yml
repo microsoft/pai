@@ -4,11 +4,11 @@ on:
   push:
     branches:
     - master
-    - pai-*
+    - pai-**
   pull_request:
     branches:
     - master
-    - pai-*
+    - pai-**
 
 jobs:
   deployment:
