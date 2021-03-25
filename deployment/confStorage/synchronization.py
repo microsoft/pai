@@ -67,8 +67,6 @@ class Synchronization:
         # Check whether the config files to be uploaded exists
         self._check_if_file_exists()
 
-
-
     def _check_if_file_exists(self):
         file_list = set()
         for folder_path_type in ["local_conf_path", "pai_cluster_configuration_path"]:
@@ -85,8 +83,6 @@ class Synchronization:
         if len(missing_files) > 0:
             raise Exception("Some configuration files not found.")
 
-
-
     def get_external_storage_conf(self):
         external_config = getting_external_config(
             external_storage_conf_path = self.local_conf_path,
@@ -94,8 +90,6 @@ class Synchronization:
             kube_config_path = self.kube_config_path
         )
         return external_config.get_latest_external_configuration()
-
-
 
     def sync_data_from_source(self):
 
@@ -109,4 +103,3 @@ class Synchronization:
             conf_uploader = UploadConfiguration(configuration_path, self.kube_config_path, self.config_push_list)
             conf_uploader.run()
             self.logger.info("Cluster Configuration synchronization from external storage is successful.")
-
