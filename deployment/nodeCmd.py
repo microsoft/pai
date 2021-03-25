@@ -17,7 +17,7 @@
 
 import logging
 
-from paiLibrary.paiOrchestration import add_node
+from paiLibrary.paiOrchestration import add_node, remove_node
 
 
 class NodeCmd():
@@ -49,6 +49,4 @@ class NodeCmd():
         add_node.AddNode(args.kube_config_path, args.node_list, args.verbose).run()
 
     def _remove_node(self, args):
-        self._logger.warning("--------------------------------------------------------")
-        self._logger.warning("------------------- Not Implemented --------------------")
-        self._logger.warning("--------------------------------------------------------")
+        remove_node.RemoveNode(args.kube_config_path, args.node_list, args.verbose).run()
