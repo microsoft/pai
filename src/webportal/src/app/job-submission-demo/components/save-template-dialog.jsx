@@ -7,14 +7,16 @@ import {
   DialogFooter,
   TextField,
   Label,
-  Checkbox,
+  ChoiceGroup,
+  Dropdown,
+  Stack,
 } from 'office-ui-fabric-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { isNil, cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
-import { createTemplate } from '../utils/conn';
-import { Flex, Box } from '../elements';
+import { createTemplate, listMyGroups } from '../utils/conn';
+import { Flex } from '../elements';
 import { generateDefaultDescription } from '../utils/utils';
 
 const user = cookies.get('user');
@@ -25,9 +27,78 @@ const PureSaveTemplateDialog = props => {
   const [templateSummary, setTemplateSummary] = useState('');
   const [isPrivate, setIsPrivate] = useState(true);
   const [isPublic, setIsPublic] = useState(false);
+  const [groupList, setGroupList] = useState([]);
   const [templateDescription, setTemplateDescription] = useState(
     generateDefaultDescription(jobProtocol.name),
   );
+  const [groupListOptions, setGroupListOpptions] = useState([]);
+
+  useEffect(() => {
+    listMyGroups(user).then(groups => {
+      const options = [];
+      for (const [index, group] of groups.entries()) {
+        options.push({
+          key: index.toString(),
+          text: group.groupname,
+        });
+      }
+      setGroupListOpptions(options);
+    });
+  }, []);
+
+  const options = [
+    { key: 'Private', text: 'Private' },
+    { key: 'Public', text: 'Public' },
+    {
+      key: 'Protected',
+      text: 'Protected',
+      onRenderField: (props, render) => {
+        return (
+          <Stack
+            horizontal
+            verticalAlign='center'
+            horizontalAlign='space-between'
+            gap='s1'
+          >
+            {render(props)}
+            <Dropdown
+              placeholder='Select groups to share'
+              options={groupListOptions}
+              multiSelect
+              // eslint-disable-next-line
+              disabled={props ? !props.checked : false}
+              styles={{ root: { minWidth: 200, maxWidth: 300 } }}
+              onChange={(_, item) => {
+                if (item) {
+                  let newGroupList = cloneDeep(groupList);
+                  newGroupList = item.selected
+                    ? [...newGroupList, item.text]
+                    : newGroupList.filter(text => text !== item.text);
+                  setGroupList(newGroupList);
+                }
+              }}
+            />
+          </Stack>
+        );
+      },
+    },
+  ];
+  const onChoiceChange = React.useCallback((ev, option) => {
+    if (option.key === 'Private') {
+      setIsPrivate(true);
+      setIsPublic(false);
+      setGroupList([]);
+    }
+    if (option.key === 'Public') {
+      setIsPrivate(false);
+      setIsPublic(true);
+      setGroupList([]);
+    }
+    if (option.key === 'Protected') {
+      setIsPrivate(false);
+      setIsPublic(false);
+    }
+  }, []);
 
   const saveTemplate = async event => {
     if (isNil(templateName) || templateName === '') {
@@ -46,6 +117,7 @@ const PureSaveTemplateDialog = props => {
     template.isPrivate = isPrivate;
     template.isPublic = isPublic;
     template.author = user;
+    template.groupList = groupList;
     try {
       await createTemplate(template);
       alert('create successfullly');
@@ -77,30 +149,11 @@ const PureSaveTemplateDialog = props => {
           required={true}
         />
         <Label required>Share Option</Label>
-        <Flex>
-          <Box padding={'s1'}>
-            <Checkbox
-              label='Private'
-              checked={isPrivate}
-              disabled={isPrivate}
-              onChange={(e, checked) => {
-                setIsPrivate(true);
-                setIsPublic(false);
-              }}
-            />
-          </Box>
-          <Box padding={'s1'}>
-            <Checkbox
-              label='Public'
-              checked={isPublic}
-              disabled={isPublic}
-              onChange={(e, checked) => {
-                setIsPrivate(false);
-                setIsPublic(true);
-              }}
-            />
-          </Box>
-        </Flex>
+        <ChoiceGroup
+          defaultSelectedKey='Private'
+          options={options}
+          onChange={onChoiceChange}
+        />
         <TextField
           label={'summary'}
           required={false}

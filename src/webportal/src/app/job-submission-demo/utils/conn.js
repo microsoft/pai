@@ -73,10 +73,10 @@ export async function listHivedSkuTypes(virtualCluster) {
   );
 }
 
-export async function fetchMyTemplates(user) {
+export async function fetchMyPrivateTemplates(user) {
   const queryOptions = {};
   queryOptions.author = user;
-  queryOptions.source = 'pai';
+  queryOptions.isPrivate = true;
   const queryStr = queryString.stringify(queryOptions);
   const url = urljoin(config.marketplaceUri, `items?${queryStr}`);
   const token = cookies.get('token');
@@ -140,6 +140,25 @@ export async function createTemplate(marketItem) {
     const result = await res.json();
     return result.id;
   } else {
+    throw new Error(res.statusText);
+  }
+}
+
+export async function listMyGroups(user) {
+  const url = urljoin(config.restServerUri, `/api/v2/groups`);
+  const token = cookies.get('token');
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.ok) {
+    const groups = await res.json();
+    return groups;
+  } else if (res.status === 404) {
     throw new Error(res.statusText);
   }
 }

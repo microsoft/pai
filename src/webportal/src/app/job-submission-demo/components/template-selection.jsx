@@ -7,7 +7,7 @@ import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Box } from '../elements';
 import { JobProtocol } from '../../job-submission/models/job-protocol';
-import { fetchMyTemplates, fetchPublicTemplates } from '../utils/conn';
+import { fetchMyPrivateTemplates, fetchPublicTemplates } from '../utils/conn';
 import { FormItem } from './form-page';
 
 const loginUser = cookies.get('user');
@@ -25,7 +25,7 @@ const PureTemplateSelection = props => {
   // fetch template options
   useEffect(() => {
     const newTemplateOptions = cloneDeep(templateOptions);
-    fetchMyTemplates(loginUser).then(templates => {
+    fetchMyPrivateTemplates(loginUser).then(templates => {
       newTemplateOptions.push({
         key: 'MyTemplatesHeader',
         text: 'My Templates',
