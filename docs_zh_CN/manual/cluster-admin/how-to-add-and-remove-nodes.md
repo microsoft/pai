@@ -12,7 +12,11 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
 
 - 如果您创建了PV或PVC, 请确认要添加的worker结点符合[数据存储要求](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes)。
 
-- 如果准备添加的结点曾被删除过，您可能需要重启它们的Docker守护进程。
+- 如果准备添加的结点曾被删除过，您可能需要重新加载systemd配置：
+
+  ```bash
+  ssh <结点> "sudo systemctl daemon-reload"
+  ```
 
 ### 更改集群设置 
 

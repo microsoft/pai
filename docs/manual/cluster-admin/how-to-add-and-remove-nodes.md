@@ -12,7 +12,11 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
 
 - If you have configured any PV/PVC storage, please confirm the nodes meet PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
 
-- If you are going to add nodes that have been deleted before, you may need to restart docker daemon on those nodes.
+- If you are going to add nodes that have been deleted before, you may need to reload the systemd manager configuration on those nodes:
+
+  ```bash
+  ssh <node> "sudo systemctl daemon-reload"
+  ```
 
 ### Pull & Modify Cluster Settings 
 

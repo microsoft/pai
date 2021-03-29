@@ -47,5 +47,6 @@ class RemoveNode:
                 temp_config_folder.get_openpai_yml_path(),
                 node_list_string
             ),
-            error_msg="Failed to add nodes: {}".format(node_list_string)
+            error_msg="Failed to remove nodes: {}".format(node_list_string)
         )
+        temp_config_folder.update_layout_yaml(self._node_list)

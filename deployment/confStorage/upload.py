@@ -31,15 +31,16 @@ package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 class UploadConfiguration:
 
-    def __init__(self, config_path, kube_confg_path, upload_list = None):
+    def __init__(self, config_path, kube_config_path, upload_list = None):
         self.logger = logging.getLogger(__name__)
         self.KUBE_CONFIG_DEFAULT_LOCATION = os.path.expanduser("~/.kube/config")
-        if kube_confg_path is not None:
-            self.KUBE_CONFIG_DEFAULT_LOCATION = kube_confg_path
+        if kube_config_path is not None:
+            self.KUBE_CONFIG_DEFAULT_LOCATION = kube_config_path
         if upload_list is not None:
             self.upload_list = upload_list
         else:
             self.upload_list = [
+                "config.yaml",
                 "k8s-role-definition.yaml",
                 "kubernetes-configuration.yaml",
                 "layout.yaml",
