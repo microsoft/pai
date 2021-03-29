@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Dropdown } from 'office-ui-fabric-react';
-import React from 'react';
+import { DefaultButton, Dropdown, TextField } from 'office-ui-fabric-react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { DEFAULT_DOCKER_URI, DOCKER_OPTIONS } from '../../utils/constants';
 import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
+import { Box, Flex } from '../../elements';
+import { AuthSection } from './auth-section';
+import { DockerInfo } from '../../models/docker-info';
 
 const getDockerImageUri = (prerequisites, dockerImage) => {
   const prerequisite = prerequisites.find(
@@ -32,33 +35,74 @@ const PureDockerImage = ({
   jobProtocol,
   currentTaskRole,
   onJobProtocolChange,
+  customized,
 }) => {
+  const [showAuth, setShowAuth] = useState(false);
   const { taskRoles, prerequisites } = jobProtocol;
   const { dockerImage } = taskRoles[currentTaskRole] || {};
   const uri = getDockerImageUri(prerequisites, dockerImage);
 
-  const onChange = (_, item) => {
-    const _prerequisites = prerequisites.map(prerequisite => {
-      if (prerequisite.name === dockerImage) {
-        prerequisite.uri = item.image;
-      }
-      return prerequisite;
-    });
+  const _onChange = dockerUri => {
+    const isDokcerUnique = DockerInfo.isUniqueInTaskRoles(
+      taskRoles,
+      currentTaskRole,
+      dockerImage,
+    );
+    const [updatePrerequisites, updateDockerName] = DockerInfo.changeDockerInfo(
+      prerequisites,
+      dockerImage,
+      dockerUri,
+      isDokcerUnique,
+    );
     onJobProtocolChange(
       new JobProtocol({
         ...jobProtocol,
-        prerequisites: _prerequisites,
+        prerequisites: updatePrerequisites,
+        taskRoles: {
+          ...jobProtocol.taskRoles,
+          [currentTaskRole]: {
+            ...jobProtocol.taskRoles[currentTaskRole],
+            dockerImage: updateDockerName,
+          },
+        },
       }),
     );
   };
 
+  const onDockerImageChange = (_, item) => {
+    _onChange(item.image);
+  };
+
+  const onUriChange = e => {
+    _onChange(e.target.value);
+  };
+
   return (
-    <Dropdown
-      placeholder='Select a docker image'
-      options={DOCKER_OPTIONS}
-      selectedKey={getDockerImageOptionKey(uri)}
-      onChange={onChange}
-    />
+    <>
+      <Dropdown
+        placeholder='Select a docker image'
+        options={DOCKER_OPTIONS}
+        selectedKey={getDockerImageOptionKey(uri)}
+        onChange={onDockerImageChange}
+        disabled={customized}
+      />
+      {customized && (
+        <Flex mt='m'>
+          <Box flex={1}>
+            <TextField
+              placeholder='Enter docker uri...'
+              errorMessage={isEmpty(uri) ? 'Docker should not be empty' : null}
+              value={uri}
+              onChange={onUriChange}
+            />
+          </Box>
+          <DefaultButton onClick={() => setShowAuth(true)}>Auth</DefaultButton>
+        </Flex>
+      )}
+      {showAuth && (
+        <AuthSection isOpen={showAuth} onDismiss={() => setShowAuth(false)} />
+      )}
+    </>
   );
 };
 
@@ -81,4 +125,5 @@ PureDockerImage.propTypes = {
   jobProtocol: PropTypes.object,
   currentTaskRole: PropTypes.string,
   onJobProtocolChange: PropTypes.func,
+  customized: PropTypes.bool.isRequired,
 };

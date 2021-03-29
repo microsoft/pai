@@ -17,11 +17,28 @@ import { MoreInfo } from '../more-info';
 import { TaskRoleName } from './task-role-name';
 import PropTypes from 'prop-types';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
+import { Toggle } from 'office-ui-fabric-react';
+import theme from '../../theme';
 
-const PureTaskRole = ({ expandedFlag }) => {
+const PureTaskRole = ({
+  jobProtocol,
+  currentTaskRole,
+  expandedFlag,
+  onJobProtocolChange,
+}) => {
   const [advancedFlag, handleAdvancedFlag] = useState(false);
+  const [isUseCustomizedDocker, toggleUseCustomizedDocker] = useState(false);
+
+  const onCustomizedImageEnable = (_, checked) => {
+    if (!checked) {
+      onJobProtocolChange(jobProtocol);
+    }
+    toggleUseCustomizedDocker(checked);
+  };
 
   const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
+
+  const { space } = theme;
 
   return (
     <FormSection
@@ -39,8 +56,20 @@ const PureTaskRole = ({ expandedFlag }) => {
           <FormItem
             label='Docker image'
             tooltip={PROTOCOL_TOOLTIPS.dockerImage}
+            extra={
+              <Toggle
+                checked={isUseCustomizedDocker}
+                label='Custom'
+                inlineLabel={true}
+                styles={{
+                  label: { order: -1, marginRight: space.s1 },
+                  root: { marginBottom: 0 },
+                }}
+                onChange={onCustomizedImageEnable}
+              />
+            }
           >
-            <DockerImage />
+            <DockerImage customized={isUseCustomizedDocker} />
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
@@ -102,10 +131,15 @@ const PureTaskRole = ({ expandedFlag }) => {
 };
 
 const mapStateToProps = state => ({
-  expandedFlag: state.JobExtraInfo.expandedFlag,
+  jobProtocol: state.JobProtocol.jobProtocol,
+  currentTaskRole: state.JobExtraInfo.currentTaskRole,
+  expandedFlag: state.SideInfo.expandedFlag,
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = dispatch => ({
+  onJobProtocolChange: jobProtocol =>
+    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+});
 
 export const TaskRole = connect(
   mapStateToProps,
@@ -113,5 +147,8 @@ export const TaskRole = connect(
 )(PureTaskRole);
 
 PureTaskRole.propTypes = {
+  jobProtocol: PropTypes.object,
+  currentTaskRole: PropTypes.string,
   expandedFlag: PropTypes.bool,
+  onJobProtocolChange: PropTypes.func,
 };

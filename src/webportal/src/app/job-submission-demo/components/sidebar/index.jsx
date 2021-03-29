@@ -7,8 +7,13 @@ import { connect } from 'react-redux';
 import { variant } from 'styled-system';
 import { ConfigPanel } from './config-panel';
 import { Icon } from 'office-ui-fabric-react';
-import { SIDEBAR_ENVVAR, SIDEBAR_PARAM } from '../../utils/constants';
+import {
+  SIDEBAR_ENVVAR,
+  SIDEBAR_PARAM,
+  SIDEBAR_SECRET,
+} from '../../utils/constants';
 import { Parameters } from './parameters';
+import { Secrets } from './secrets';
 import { EnvVar } from './env-var';
 import PropTypes from 'prop-types';
 
@@ -65,6 +70,8 @@ const UnwrapperedSidebar = ({
     switch (currentKey) {
       case SIDEBAR_PARAM:
         return <Parameters />;
+      case SIDEBAR_SECRET:
+        return <Secrets />;
       case SIDEBAR_ENVVAR:
         return <EnvVar />;
       default:
