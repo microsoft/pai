@@ -18,6 +18,7 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
   ssh <结点> "sudo systemctl daemon-reload"
   ```
 
+
 ### 更改集群设置 
 
 - 登入您的`dev box`机器并进入该集群对应的`dev box` Docker容器，并切换到`/pai`文件夹。如果您还未启动`dev box`容器，请[启动一个](./basic-management-operations.md##pai-service-management-and-paictl)。
