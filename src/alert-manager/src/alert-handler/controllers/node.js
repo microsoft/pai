@@ -84,11 +84,14 @@ const getK8sV1Job = (jobName, nodeName, minorNumber) => {
     },
     spec: {
       // TTL feature is currently alpha[Kubernetes 1.15]
-      // To avoid using this fearure, jobs will be cleaned with function `cleanCompletedfixNvidiaGPULowPerfJobs` regularlly
+      // To avoid using this fearure, jobs with label `time-to-live=24h` ill be cleaned with function `cleanTTL24HJobs` regularlly
       // ttlSecondsAfterFinished: 86400,
       template: {
         metadata: {
           name: 'nvidia-gpu-low-perf-fixer',
+          labels: {
+            'time-to-live': '24h',
+          },
         },
         spec: {
           containers: [
@@ -172,45 +175,8 @@ const fixNvidiaGPULowPerf = (req, res) => {
   });
 };
 
-// clean completed jobs which were used to fix NvidiaGPULowPerf issue
-// the jobs completed for more than 24 hours will be deleted
-const cleanCompletedfixNvidiaGPULowPerfJobs = (req, res) => {
-  logger.info(
-    'Cleaning completed jobs which were used to fix NvidiaGPULowPerf issue...',
-  );
-
-  const k8sApi = kc.makeApiClient(k8s.BatchV1Api);
-  k8sApi
-    .listNamespacedJob('default')
-    .then((response) => {
-      logger.info(`Successfully get job list.`);
-      const jobs = response.body.items;
-      jobs.forEach((job) => {
-        const jobName = job.metadata.name;
-        // check job name & if the job has completed
-        if (
-          jobName.startsWith('nvidia-gpu-low-perf-fixer-') &&
-          (job.status.succeeded === 1 || jobs.status.failed === 1) &&
-          new Date() - new Date(job.status.completionTime) > 24 * 60 * 60 * 1000 // completed for more than 24h
-        )
-          k8sApi
-            .deleteNamespacedJob(jobName, 'default')
-            .then((response) => {
-              logger.info(`Successfully deleted job ${jobName}`);
-            })
-            .catch((error) => {
-              logger.info(`Failed to delete job ${jobName}`, error);
-            });
-      });
-    })
-    .catch((error) => {
-      logger.error('Failed to list jobs:', error);
-    });
-};
-
 // module exports
 module.exports = {
   cordonNodes,
   fixNvidiaGPULowPerf,
-  cleanCompletedfixNvidiaGPULowPerfJobs,
 };
