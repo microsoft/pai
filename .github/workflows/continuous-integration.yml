@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - master
+    - pai-**
   pull_request:
     branches:
     - master
+    - pai-**
 
 jobs:
   deployment:
