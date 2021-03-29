@@ -1,20 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { PrimaryButton } from 'office-ui-fabric-react';
-import React from 'react';
+import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import config from '../../config/webportal.config';
+import { Flex, Box } from '../elements';
+import { SaveTemplateDialog } from './save-template-dialog';
 
 const PureSubmissionSection = ({ jobProtocol }) => {
+  const [hideDialog, setHideDialog] = useState(true);
+
+  const toggleHideDialog = () => {
+    setHideDialog(!hideDialog);
+  };
   const onSubmit = () => {
     // TO DO: command trim()
     console.log('submit jobProtocol:', jobProtocol);
   };
 
   return (
-    <>
-      <PrimaryButton onClick={onSubmit}>Submit</PrimaryButton>
-    </>
+    <Box>
+      <Flex>
+        <PrimaryButton onClick={onSubmit}>Submit</PrimaryButton>
+        {config.saveTemplate === 'true' && (
+          <Box mx={2}>
+            <DefaultButton onClick={toggleHideDialog}>
+              Save to Templates
+            </DefaultButton>
+          </Box>
+        )}
+      </Flex>
+      <SaveTemplateDialog
+        hideDialog={hideDialog}
+        toggleHideDialog={toggleHideDialog}
+      />
+    </Box>
   );
 };
 

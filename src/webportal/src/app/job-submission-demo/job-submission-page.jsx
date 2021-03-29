@@ -133,7 +133,7 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
         <PivotItem headerText='YAML Config' itemKey='yaml' />
       </Pivot>
       {getCurrentTabContent(currentTabKey)}
-      <Flex justifyContent='flex-end' pt='m' pb='m'>
+      <Flex justifyContent='flex-end' pt='m' pb='m' bg='white'>
         <SubmissionSection />
       </Flex>
     </Flex>
