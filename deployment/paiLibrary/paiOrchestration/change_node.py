@@ -60,5 +60,5 @@ class ChangeNode:
             error_msg="Failed to {} nodes: {}".format(mode, node_list_string)
         )
         if mode == "remove":
-            self._update_layout_yaml(temp_config_folder.get_layout_yaml_path, node_list)
+            self._update_layout_yaml(temp_config_folder.get_layout_yaml_path(), node_list)
             temp_config_folder.push_config_files(["layout.yaml"])

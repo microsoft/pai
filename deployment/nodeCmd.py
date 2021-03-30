@@ -17,7 +17,7 @@
 
 import logging
 
-from paiLibrary.paiOrchestration import add_node, remove_node
+from paiLibrary.paiOrchestration import change_node
 
 
 class NodeCmd():
@@ -46,7 +46,7 @@ class NodeCmd():
         add_arguments(remove_parser)
 
     def _add_node(self, args):
-        add_node.AddNode(args.kube_config_path, args.node_list, args.verbose).run()
+        change_node.ChangeNode(args.kube_config_path, args.verbose).run(mode="add", node_list=args.node_list)
 
     def _remove_node(self, args):
-        remove_node.RemoveNode(args.kube_config_path, args.node_list, args.verbose).run()
+        change_node.ChangeNode(args.kube_config_path, args.verbose).run(mode="remove", node_list=args.node_list)
