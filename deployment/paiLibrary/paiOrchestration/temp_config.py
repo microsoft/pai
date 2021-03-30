@@ -17,7 +17,6 @@
 
 import os
 import time
-import yaml
 import shutil
 import logging
 import tempfile
@@ -40,11 +39,20 @@ class TempConfig:
 
     def _pull_config_files(self):
         self._logger.info("Pull config from k8s cluster: `layout.yaml` and `config.yaml`")
-        get_handler = download_configuration(
+        pull_handler = download_configuration(
             config_output_path=self._tmp_dir,
             kube_config_path=self._kube_config_path
         )
-        get_handler.run()
+        pull_handler.run()
+    
+    def push_config_files(self, file_list):
+        self._logger.info("Push config to k8s cluster: {}".format(", ".join(["`{}`".format(file_name) for file_name in file_list])))
+        push_handler = UploadConfiguration(
+            config_path=self._tmp_dir,
+            kube_config_path=self._kube_config_path,
+            upload_list=file_list
+        )
+        push_handler.run()
 
     def _generate_config_files(self):
         self._logger.info("Generate config files: `hosts.yml` and `openpai.yml`")
@@ -70,17 +78,6 @@ class TempConfig:
 
     def get_openpai_yml_path(self):
         return os.path.join(self._tmp_dir, "openpai.yml")
-    
-    def update_layout_yaml(self, remove_node_list):
-        self._logger.info("Update `layout.yaml` in k8s cluster")
-        with open(os.path.join(self._tmp_dir, "layout.yaml"), "r") as f:
-            layout_data = yaml.load(f, yaml.SafeLoader)
-        layout_data["machine-list"] = [host for host in layout_data["machine-list"] if host["hostname"] not in remove_node_list]
-        with open(os.path.join(self._tmp_dir, "layout.yaml"), "w") as f:
-            yaml.dump(layout_data, f, default_flow_style=False)
-        push_handler = UploadConfiguration(
-            config_path=self._tmp_dir,
-            kube_config_path=self._kube_config_path,
-            upload_list=["layout.yaml"]
-        )
-        push_handler.run()
+
+    def get_layout_yaml_path(self):
+        return os.path.join(self._tmp_dir, "layout.yaml")
