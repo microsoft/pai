@@ -190,30 +190,21 @@ export async function getContainerLog(tailLogUrls, fullLogUrls, logType) {
   }
   let text = await res.text();
 
-  // Check log type. The log type is in LOG_TYPE only support log-manager.
-  if (config.logType === 'log-manager') {
-    // Try to get roated log if currently log content is less than 15KB
-    if (text.length <= 15 * 1024 && tailLogUrls[logType + '.1']) {
-      const rotatedLogUrl = tailLogUrls[logType + '.1'];
-      const rotatedLogRes = await fetch(rotatedLogUrl);
-      const fullLogRes = await fetch(fullLogUrls[logType]);
-      const rotatedText = await rotatedLogRes.text();
-      const fullLog = await fullLogRes.text();
-      if (rotatedLogRes.ok) {
-        text = rotatedText
-          .concat(
-            '\n ------- log is rotated, may be lost during this ------- \n',
-          )
-          .concat(fullLog);
-      }
-      // get last 16KB
-      text = text.slice(-16 * 1024);
+  // Try to get roated log if currently log content is less than 15KB
+  if (text.length <= 15 * 1024 && tailLogUrls[logType + '.1']) {
+    const rotatedLogUrl = tailLogUrls[logType + '.1'];
+    const rotatedLogRes = await fetch(rotatedLogUrl);
+    const rotatedText = await rotatedLogRes.text();
+    if (rotatedLogRes.ok) {
+      text = rotatedText
+        .concat('\n ------- log is rotated, may be lost during this ------- \n')
+        .concat(text);
     }
-    return {
-      fullLogLink: fullLogUrls[logType],
-      text: text,
-    };
-  } else {
-    throw new Error(`Log not available`);
+    // get last 16KB
+    text = text.slice(-16 * 1024);
   }
+  return {
+    fullLogLink: fullLogUrls[logType],
+    text: text,
+  };
 }
