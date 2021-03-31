@@ -19,7 +19,7 @@ const k8s = require('@kubernetes/client-node');
 const kc = new k8s.KubeConfig();
 const logger = require('@alert-handler/common/logger');
 
-// clean TTL 24 hours jobs
+// clean TTL 24 hours jobs created by alert-handler
 const cleanTTL24HJobs = () => {
   logger.info('Cleaning completed TTL 24h jobs...');
 
@@ -31,7 +31,7 @@ const cleanTTL24HJobs = () => {
       undefined,
       undefined,
       undefined,
-      'time-to-live=24h', // labelSelector
+      'created-by=alert-handler,time-to-live=24h', // labelSelector
     )
     .then((response) => {
       logger.info(`Successfully get job list.`);

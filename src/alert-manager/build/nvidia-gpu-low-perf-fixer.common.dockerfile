@@ -17,9 +17,6 @@
 
 FROM nvidia/cuda:11.2.2-base-ubuntu16.04
 
-RUN apt-get -y update && \
-    apt-get install sudo
-
 COPY ./src/nvidia-gpu-low-perf-fixer .
 
 ENTRYPOINT /bin/bash nvidia-gpu-low-perf-fixer.sh

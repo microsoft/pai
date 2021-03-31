@@ -81,18 +81,16 @@ const getK8sV1Job = (jobName, nodeName, minorNumber) => {
     kind: 'Job',
     metadata: {
       name: jobName,
+      labels: {
+        'created-by': 'alert-handler',
+        'time-to-live': '24h',
+      },
     },
     spec: {
       // TTL feature is currently alpha[Kubernetes 1.15]
-      // To avoid using this fearure, jobs with label `time-to-live=24h` ill be cleaned with function `cleanTTL24HJobs` regularlly
+      // To avoid using this fearure, jobs with label `time-to-live=24h` & `created-by=alert-handler` will be cleaned with function `cleanTTL24HJobs` regularlly
       // ttlSecondsAfterFinished: 86400,
       template: {
-        metadata: {
-          name: 'nvidia-gpu-low-perf-fixer',
-          labels: {
-            'time-to-live': '24h',
-          },
-        },
         spec: {
           containers: [
             {
