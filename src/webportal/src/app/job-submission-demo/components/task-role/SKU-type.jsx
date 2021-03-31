@@ -1,12 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { get, isEmpty } from 'lodash';
 import { Dropdown } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-const PureSKUType = ({ availableHivedSkuTypes }) => {
-  const options = Object.keys(availableHivedSkuTypes).map(name => {
+const PureSKUType = ({
+  jobProtocol,
+  currentTaskRole,
+  availableHivedSkuTypes,
+  onJobProtocolChange,
+}) => {
+  const skuType = get(
+    jobProtocol,
+    `extras.hivedScheduler.taskRoles[${currentTaskRole}].skuType`,
+    null,
+  );
+
+  const skuOptions = Object.keys(availableHivedSkuTypes).map(name => {
     const { gpu, cpu, memory } = availableHivedSkuTypes[name];
     return {
       key: name,
@@ -15,16 +27,51 @@ const PureSKUType = ({ availableHivedSkuTypes }) => {
     };
   });
 
-  const onChange = (_, item) => {
-    console.log(item);
+  const onChange = value => {
+    const extras = get(jobProtocol, 'extras', {});
+    const hivedScheduler = get(extras, 'hivedScheduler', {});
+    const taskRoles = get(hivedScheduler, 'taskRoles', {});
+    const taskRole = get(taskRoles, `${currentTaskRole}`, {});
+
+    onJobProtocolChange({
+      ...jobProtocol,
+      extras: {
+        ...extras,
+        hivedScheduler: {
+          ...hivedScheduler,
+          taskRoles: {
+            ...taskRoles,
+            [currentTaskRole]: {
+              ...taskRole,
+              skuType: value,
+            },
+          },
+        },
+      },
+    });
   };
+
+  const onSkuTypeChange = (_, item) => {
+    onChange(item.key);
+  };
+
+  useEffect(() => {
+    if (skuType != null) {
+      const selected = skuOptions.find(option => option.key === skuType);
+      if (selected == null) {
+        onChange(null);
+      }
+    } else if (!isEmpty(skuOptions)) {
+      onChange(skuOptions[0].key);
+    }
+  }, [skuType, skuOptions]);
 
   return (
     <Dropdown
       placeholder='Select SKU type'
-      options={options}
-      onChange={onChange}
-      // selectedKey={skuType}
+      options={skuOptions}
+      onChange={onSkuTypeChange}
+      selectedKey={skuType}
     />
   );
 };

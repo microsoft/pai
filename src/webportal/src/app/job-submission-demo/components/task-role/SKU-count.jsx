@@ -6,6 +6,7 @@ import { debounce, get } from 'lodash';
 import { SpinButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
+import { FormSpinButton } from '../controls/form-spin-button';
 
 const SKU_COUNT_MIN = 0;
 
@@ -41,16 +42,12 @@ const PureSKUCount = ({
     );
   };
 
-  const onIncrement = value => onChange(+value + 1);
-  const onDecrement = value => onChange(+value - 1);
-
   return (
-    <SpinButton
+    <FormSpinButton
       min={SKU_COUNT_MIN}
       step={1}
       value={skuNum}
-      onIncrement={debounce(onIncrement)}
-      onDecrement={debounce(onDecrement)}
+      onChange={onChange}
     />
   );
 };
