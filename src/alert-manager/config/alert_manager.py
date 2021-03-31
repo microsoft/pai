@@ -74,17 +74,14 @@ class AlertManager(object):
         else:
             token_configured = False
 
+        result["alert-handler"]["configured"] = True
+        result["actions-available"] = ["fix-nvidia-gpu-low-perf"]
         if email_configured and token_configured:
-            result["alert-handler"]["configured"] = True
             result["actions-available"].extend(["email-admin", "email-user", "stop-jobs", "tag-jobs"])
         elif email_configured:
-            result["alert-handler"]["configured"] = True
             result["actions-available"].append("email-admin")
         elif token_configured:
-            result["alert-handler"]["configured"] = True
             result["actions-available"].extend(["stop-jobs", "tag-jobs"])
-        else:
-            result["alert-handler"]["configured"] = False
 
         if result.get("cluster-utilization") is not None and \
             result["cluster-utilization"].get("schedule") is not None and \

@@ -114,26 +114,29 @@ We have provided so far these following actions:
   - `stop-jobs`: Stop jobs by calling OpenPAI REST API. **Be careful about this action because it stops jobs without notifying related users.**
   - `tag-jobs`: Add a tag to jobs by calling OpenPAI REST API.
   - `cordon-nodes`: Call Kubernetes API to cordon the corresponding nodes.
+  - `fix-nvidia-gpu-low-perf`: Start a privileged container to fix NVIDIA GPU Low Performance State issue.
 
 But before you use them, you have to add proper configuration in the `alert-handler` field. For example, `email-admin` needs you to set up an SMTP account to send the email and an admin email address to receive the email. Also, the `tag-jobs` and `stop-jobs` action calls OpenPAI REST API, so you should set a rest server token for them. To get the token, you should go to your profile page (in the top-right corner on Webporal, click `View my profile`), and use `Create application token` to create one. Generally speaking, there are two parts of the configuration in the `alert-handler` field. One is `email-configs`. The other is `pai-bearer-token`. The requirements for different actions are shown in the following table:
 
-|              | email-configs | pai-bearer-token |
-| :-----------:| :-----------: | :--------------: |
-| cordon-nodes | -             | -                |
-| email-admin  | required      | -                |
-| email-user   | required      | required         |
-| stop-jobs    | -             | required         |
-| tag-jobs     | -             | required         |
+|                             | email-configs | pai-bearer-token |
+| :-------------------------: | :-----------: | :--------------: |
+| cordon-nodes                | -             | -                |
+| email-admin                 | required      | -                |
+| email-user                  | required      | required         |
+| stop-jobs                   | -             | required         |
+| tag-jobs                    | -             | required         |
+| fix-nvidia-gpu-low-perf     | -             | -                |
 
 In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
 
-|              | depended on label field |
-| :-----------:| :------------------: |
-| cordon-nodes | node_name            |
-| email-admin  | -                    | 
-| email-user   | -                    |
-| stop-jobs    | job_name             |
-| tag-jobs     | job_name             |
+|                             | depended on label field |
+| :-------------------------: | :---------------------: |
+| cordon-nodes                | node_name               |
+| email-admin                 | -                       | 
+| email-user                  | -                       |
+| stop-jobs                   | job_name                |
+| tag-jobs                    | job_name                |
+| fix-nvidia-gpu-low-perf     | node_name, minor_number |
 
 
 The matching rules between alerts and actions are defined using `receivers` and `routes`.

@@ -50,4 +50,9 @@ router
   /** POST /alert-handler/cordon-nodes */
   .post(nodeController.cordonNodes);
 
+router
+  .route('/alert-handler/fix-nvidia-gpu-low-perf')
+  /** POST /alert-handler/fix-nvidia-gpu-low-perf */
+  .post(nodeController.fixNvidiaGPULowPerf);
+
 module.exports = router;

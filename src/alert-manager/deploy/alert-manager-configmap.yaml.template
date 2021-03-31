@@ -122,6 +122,11 @@ data:
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
         send_resolved: false
       {% endif %}
+
+      {% if (receiver["actions"]["fix-nvidia-gpu-low-perf"] is defined) and ('fix-nvidia-gpu-low-perf' in cluster_cfg["alert-manager"]["actions-available"]) %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/fix-nvidia-gpu-low-perf'
+        send_resolved: false
+      {% endif %}
     
     {% endfor %}
 
