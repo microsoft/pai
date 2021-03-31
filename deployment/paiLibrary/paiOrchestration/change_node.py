@@ -49,12 +49,13 @@ class ChangeNode:
         node_list_string = ",".join(node_list)
         self._logger.info("Begin to {} nodes: {}".format(mode, node_list_string))
         linux_shell.execute_shell_raise(
-            shell_cmd="cd {} && {} ansible-playbook -i {} {} -b --become-user=root -e \"@{}\" -e \"node={}\"".format(
+            shell_cmd="cd {} && {} ansible-playbook -i {} {} -b --become-user=root -e @{} {}{}".format(
                 temp_kubespray_folder.get_folder_path(),
                 self._ansible_callback_vars,
                 temp_config_folder.get_hosts_yml_path(),
                 "scale.yml" if mode == "add" else "remove-node.yml",
                 temp_config_folder.get_openpai_yml_path(),
+                "--limit=" if mode == "add" else "-e node=",
                 node_list_string
             ),
             error_msg="Failed to {} nodes: {}".format(mode, node_list_string)
