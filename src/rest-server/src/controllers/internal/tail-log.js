@@ -29,7 +29,7 @@ const getTailLog = asyncHandler(async (req, res) => {
   const tailLogSize = 16 * 1024 * 1024; // 16 KB
   const logName = req.params.logName;
   const queryString = req.url.substring(req.url.indexOf('?') + 1);
-  const account =launcherConfig.logAzureStorageAccount;
+  const account = launcherConfig.logAzureStorageAccount;
 
   try {
     const containerClient = new ContainerClient(

@@ -58,7 +58,7 @@ const getLogListFromLogManager = async (
   tailMode,
 ) => {
   const adminName = launcherConfig.logManagerAdminName;
-  const adminPassword = launcherConfig.logManagerAdminPassword;;
+  const adminPassword = launcherConfig.logManagerAdminPassword;
 
   const taskDetail = await task.get(
     frameworkName,
