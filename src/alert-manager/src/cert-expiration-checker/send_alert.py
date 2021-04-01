@@ -5,6 +5,21 @@ import requests
 
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 
+def enable_request_debug_log(func):
+    def wrapper(*args, **kwargs):
+        requests_log = logging.getLogger("urllib3")
+        level = requests_log.level
+        requests_log.setLevel(logging.DEBUG)
+        requests_log.propagate = True
+
+        try:
+            return func(*args, **kwargs)
+        finally:
+            requests_log.setLevel(level)
+            requests_log.propagate = False
+
+    return wrapper
+
 @enable_request_debug_log
 def send_alert(pai_url: str, certExpirationInfo: str):
     trigger_time = str(datetime.now(timezone.utc).date())
