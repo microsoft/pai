@@ -1,0 +1,41 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cluster-utilization
+spec:
+  schedule: "{{ cluster_cfg["alert-manager"]["cert-expiration-check"]["schedule"] }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cert-expiration-checker
+            image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}cert-expiration-checker:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+            imagePullPolicy: Always
+            env:
+            - name: PAI_URI
+    {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+              value: "{{ cluster_cfg['pylon']['uri-https']}}"
+    {%- else %}
+              value: "{{ cluster_cfg['pylon']['uri']}}"
+    {%- endif %}
+            volumeMounts:
+            - mountPath: /usr/local/bin/kubeadm
+              name: kubeadm
+            - mountPath: /etc/kubernetes/
+              name: kubenetes-config
+          volumes:
+            - name: kubeadm
+              hostPath:
+                path: /usr/local/bin/kubeadm
+            - name: kubenetes-config
+              hostPath:
+                path: /etc/kubernetes/
+          imagePullSecrets:
+          - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+          restartPolicy: OnFailure
+          nodeSelector:
+            pai-master: "true"
