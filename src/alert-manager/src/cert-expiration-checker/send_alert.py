@@ -48,6 +48,8 @@ def main():
     residualTimes = certExpirationInfo[12::8]
     willExpire = False
     for residualTime in residualTimes:
+        print(residualTime)
+        print(residualTime[:-1])
         if (int(residualTime[:-1]) < 365):
             send_alert(PAI_URI, certExpirationInfo)
 
