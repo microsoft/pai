@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, get } from 'lodash';
-import { SpinButton } from 'office-ui-fabric-react';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
 import { FormSpinButton } from '../controls/form-spin-button';

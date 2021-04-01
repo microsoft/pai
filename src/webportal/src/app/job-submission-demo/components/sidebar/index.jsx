@@ -11,10 +11,12 @@ import {
   SIDEBAR_ENVVAR,
   SIDEBAR_PARAM,
   SIDEBAR_SECRET,
+  SIDEBAR_TOOL,
 } from '../../utils/constants';
 import { Parameters } from './parameters';
 import { Secrets } from './secrets';
 import { EnvVar } from './env-var';
+import { Tools } from './tools';
 import PropTypes from 'prop-types';
 
 const SidebarItem = styled(Box)(
@@ -74,6 +76,8 @@ const UnwrapperedSidebar = ({
         return <Secrets />;
       case SIDEBAR_ENVVAR:
         return <EnvVar />;
+      case SIDEBAR_TOOL:
+        return <Tools />;
       default:
         return null;
     }
