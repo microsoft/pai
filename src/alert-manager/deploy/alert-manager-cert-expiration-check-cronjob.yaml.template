@@ -22,6 +22,8 @@ spec:
     {%- else %}
               value: "{{ cluster_cfg['pylon']['uri']}}"
     {%- endif %}
+            - name: ALERT_RESIDUAL_DAYS
+              value "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["alert-residual-days"] }}"
             volumeMounts:
             - mountPath: /usr/local/bin/kubeadm
               name: kubeadm

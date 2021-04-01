@@ -4,6 +4,7 @@ import os
 import requests
 
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
+alertResidualDays = int(os.environ.get('ALERT_RESIDUAL_DAYS'))
 
 def enable_request_debug_log(func):
     def wrapper(*args, **kwargs):
@@ -47,7 +48,7 @@ def main():
     residualTimes = certExpirationInfo.split()[12::8]
     willExpire = False
     for residualTime in residualTimes:
-        if (int(residualTime[:-1]) < 365):
+        if (int(residualTime[:-1]) < alertResidualDays):
             send_alert(PAI_URI, certExpirationInfo)
 
 if __name__ == "__main__":
