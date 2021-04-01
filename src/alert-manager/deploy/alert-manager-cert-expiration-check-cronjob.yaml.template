@@ -6,7 +6,7 @@ kind: CronJob
 metadata:
   name: cluster-utilization
 spec:
-  schedule: "{{ cluster_cfg["alert-manager"]["cert-expiration-check"]["schedule"] }}"
+  schedule: "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["schedule"] }}"
   jobTemplate:
     spec:
       template:
