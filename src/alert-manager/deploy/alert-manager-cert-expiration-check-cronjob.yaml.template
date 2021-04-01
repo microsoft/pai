@@ -4,7 +4,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: cluster-utilization
+  name: cert-expiration-checker
 spec:
   schedule: "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["schedule"] }}"
   jobTemplate:

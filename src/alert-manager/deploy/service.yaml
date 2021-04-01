@@ -27,6 +27,7 @@ template-list:
   - alert-manager-deployment.yaml
   - alert-manager-configmap.yaml
   - alert-manager-cronjob.yaml
+  - alert-manager-cert-expiration-check-cronjob.yaml
   - start.sh
 
 start-script: start.sh
