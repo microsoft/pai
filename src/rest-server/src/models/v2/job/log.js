@@ -23,16 +23,16 @@ const {
   generateBlobSASQueryParameters,
   SASProtocol,
 } = require('@azure/storage-blob');
+const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
-const LOG_SERVER = process.env.LOG_SERVER;
-const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
+const logServer = launcherConfig.logServer;
 
 const constrcutLogManagerPrefix = (nodeIp) => {
-  return `http://${nodeIp}:${LOG_MANAGER_PORT}/api/v1`;
+  return `http://${nodeIp}:${launcherConfig.logManagerPort}/api/v1`;
 };
 
 const NoTaskLogErr = createError(
@@ -57,8 +57,8 @@ const getLogListFromLogManager = async (
   taskAttemptId,
   tailMode,
 ) => {
-  const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
-  const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
+  const adminName = launcherConfig.logManagerAdminName;
+  const adminPassword = launcherConfig.logManagerAdminPassword;;
 
   const taskDetail = await task.get(
     frameworkName,
@@ -101,7 +101,7 @@ const getLogListFromLogManager = async (
   const logList = res.data;
 
   const ret = { locations: [] };
-  const urlPrefix = `/log-manager/${nodeIp}:${LOG_MANAGER_PORT}`;
+  const urlPrefix = `/log-manager/${nodeIp}:${launcherConfig.logManagerPort}`;
   const urlSuffix = tailMode === 'true' ? '&tail-mode=true' : '';
   for (const key in logList) {
     ret.locations.push({
@@ -137,9 +137,9 @@ const getLogListFromAzureStorage = async (
 
   const podUid = taskStatus.containerId;
 
-  const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
-  const accountKey = process.env.LOG_AZURE_STORAGE_ACCOUNT_KEY;
-  const logContainerName = process.env.LOG_AZURE_STORAGE_CONTAINER_NAME;
+  const account = launcherConfig.logAzureStorageAccount;
+  const accountKey = launcherConfig.logAzureStorageAccountKey;
+  const logContainerName = launcherConfig.logAzureStorageContainerName;
   const sharedKeyCredential = new StorageSharedKeyCredential(
     account,
     accountKey,
@@ -278,7 +278,7 @@ const getLogListFromLogServer = async (
   taskAttemptId,
   tailMode,
 ) => {
-  if (LOG_SERVER.toLowerCase() === 'log_manager') {
+  if (logServer.toLowerCase() === 'log_manager') {
     return await getLogListFromLogManager(
       frameworkName,
       jobAttemptId,
@@ -288,7 +288,7 @@ const getLogListFromLogServer = async (
       tailMode,
     );
   }
-  if (LOG_SERVER.toLocaleLowerCase() === 'azure_storage') {
+  if (logServer.toLocaleLowerCase() === 'azure_storage') {
     return await getLogListFromAzureStorage(
       frameworkName,
       jobAttemptId,
@@ -299,11 +299,11 @@ const getLogListFromLogServer = async (
     );
   }
 
-  logger.error(`Log server ${LOG_SERVER} is not supported.`);
+  logger.error(`Log server ${logServer} is not supported.`);
   throw createError(
     'Internal Server Error',
     'NoSupportedLogServer',
-    `Log server ${LOG_SERVER} is not supported.`,
+    `Log server ${logServer} is not supported.`,
   );
 };
 

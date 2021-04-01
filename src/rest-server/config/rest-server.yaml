@@ -39,3 +39,7 @@ sql-max-connection: 50
 # NVIDIA_VISIBLE_DEVICES=0,1 and HIVED_VISIBLE_DEVICES=0,1
 # Please also see https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md#scheduling-gpus for reference
 hived-computing-device-envs: 'NVIDIA_VISIBLE_DEVICES,HIVED_VISIBLE_DEVICES'
+log-server: 'log_manager'
+log_azure_storage_account: 'YOUR_AZURE_STORAGE_ACCOUNT'
+log_azure_storage_account_key: 'YOUR_AZURE_STORAGE_ACCOUNT_KEY'
+log_azure_storage_container_name: 'YOUR_AZURE_STORAGE_CONTAINER_NAME'

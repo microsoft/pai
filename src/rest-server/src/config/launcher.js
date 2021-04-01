@@ -48,6 +48,31 @@ const k8sLauncherConfigSchema = Joi.object()
     secretsPath: Joi.func().arity(0).required(),
     secretPath: Joi.func().arity(1).required(),
     podPath: Joi.func().arity(1).required(),
+    logServer: Joi.string().valid('log_manager', 'azure_storage'),
+    logManagerPort: Joi.when('logServer', {
+      is: 'log_manager',
+      then: Joi.string().required(),
+    }),
+    logManagerAdminName: Joi.when('logServer', {
+      is: 'log_manager',
+      then: Joi.string().required(),
+    }),
+    logManagerAdminPassword: Joi.when('logServer', {
+      is: 'log_manager',
+      then: Joi.string().required(),
+    }),
+    logAzureStorageAccount: Joi.when('logServer', {
+      is: 'azure_storage',
+      then: Joi.string().required(),
+    }),
+    logAzureStorageAccountKey: Joi.when('logServer', {
+      is: 'azure_storage',
+      then: Joi.string().required(),
+    }),
+    logAzureStorageContainerName: Joi.when('logServer', {
+      is: 'azure_storage',
+      then: Joi.string().required(),
+    }),
   })
   .required();
 
@@ -102,6 +127,13 @@ if (launcherType === 'k8s') {
     podPath: (podName, namespace = 'default') => {
       return `/api/v1/namespaces/${namespace}/pods/${podName}`;
     },
+    logServer: process.env.LOG_SERVER,
+    logManagerPort: process.env.LOG_MANAGER_PORT,
+    logManagerAdminName: process.env.LOG_MANAGER_ADMIN_NAME,
+    logManagerAdminPassword: process.env.LOG_MANAGER_ADMIN_PASSWORD,
+    logAzureStorageAccount: process.env.LOG_AZURE_STORAGE_ACCOUNT,
+    logAzureStorageAccountKey: process.env.LOG_AZURE_STORAGE_ACCOUNT_KEY,
+    logAzureStorageContainerName: process.env.LOG_AZURE_STORAGE_CONTAINER_NAME,
   };
 
   const { error, value } = Joi.validate(

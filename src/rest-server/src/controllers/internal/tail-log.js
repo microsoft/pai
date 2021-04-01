@@ -21,6 +21,7 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const { ContainerClient } = require('@azure/storage-blob');
 
+const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const createError = require('@pai/utils/error');
 
@@ -28,7 +29,7 @@ const getTailLog = asyncHandler(async (req, res) => {
   const tailLogSize = 16 * 1024 * 1024; // 16 KB
   const logName = req.params.logName;
   const queryString = req.url.substring(req.url.indexOf('?') + 1);
-  const account = process.env.LOG_AZURE_STORAGE_ACCOUNT;
+  const account =launcherConfig.logAzureStorageAccount;
 
   try {
     const containerClient = new ContainerClient(
