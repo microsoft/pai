@@ -92,10 +92,10 @@ spec:
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-username"] }}
         - name: EMAIL_CONFIGS_SMTP_AUTH_PASSWORD
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-password"] }}
-{% endif %}
         volumeMounts:
         - name: templates-volume
           mountPath: /etc/alerthandler/templates
+{% endif %}
 {% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
