@@ -44,12 +44,9 @@ def send_alert(pai_url: str, certExpirationInfo: str):
 def main():
     PAI_URI = os.environ.get("PAI_URI")
     certExpirationInfo = os.popen('kubeadm alpha certs check-expiration --config="/etc/kubernetes/kubeadm-config.yaml"').read()
-    print(certExpirationInfo)
     residualTimes = certExpirationInfo.split()[12::8]
     willExpire = False
     for residualTime in residualTimes:
-        print(residualTime)
-        print(residualTime[:-1])
         if (int(residualTime[:-1]) < 365):
             send_alert(PAI_URI, certExpirationInfo)
 
