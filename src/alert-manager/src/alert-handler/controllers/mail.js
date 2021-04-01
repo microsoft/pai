@@ -88,19 +88,6 @@ const sendEmailToAdmin = (req, res) => {
     });
 };
 
-const getUserNameByJobName = async (jobName, token) => {
-  return axios
-    .get(`${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((response) => {
-      return response.data.jobStatus.username;
-    });
-};
-
 const getUserEmail = async (username, token) => {
   return axios
     .get(`${process.env.REST_SERVER_URI}/api/v2/users/${username}`, {
@@ -132,7 +119,7 @@ const sendEmailToUser = async (req, res) => {
   // group alerts by username
   const alertsGrouped = {};
   alerts.map((alert, index) => {
-    let userName = alert.labels.job_name.split('~')[0];
+    const userName = alert.labels.job_name.split('~')[0];
     if (userName in alertsGrouped) {
       alertsGrouped[userName].push(alerts[index]);
     } else {

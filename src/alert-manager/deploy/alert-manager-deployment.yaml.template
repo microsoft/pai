@@ -67,6 +67,10 @@ spec:
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+        - name: DOCKER_REGISTRY_PREFIX
+          value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}
+        - name: DOCKER_REGISTRY_TAG
+          value: {{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: WEBPORTAL_URI
 {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
           value: "{{ cluster_cfg['pylon']['uri-https']}}"

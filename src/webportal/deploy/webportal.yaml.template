@@ -64,12 +64,6 @@ spec:
 {%- endif %}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
-        - name: LOG_TYPE
-{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
-          value: log-manager
-{%- else %}
-          value: yarn
-{%- endif %}
 {%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - name: YARN_WEB_PORTAL_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088

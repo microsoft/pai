@@ -23,6 +23,7 @@ require('module-alias/register');
 const express = require('express');
 const bearerToken = require('express-bearer-token');
 const actions = require('@alert-handler/routes/actions');
+const k8sController = require('@alert-handler/controllers/kubernetes');
 const logger = require('@alert-handler/common/logger');
 
 const app = express();
@@ -36,3 +37,6 @@ const port = parseInt(process.env.SERVER_PORT);
 app.listen(port, () => {
   logger.info(`alert-handler listening at http://localhost:${port}`);
 });
+
+// check completed jobs which were used to fix NvidiaGPULowPerf issue every 1 hour
+setInterval(k8sController.cleanTTL24HJobs, 60 * 60 * 1000);

@@ -267,13 +267,10 @@ export default class TaskRoleContainerList extends React.Component {
 
   showContainerTailLog(logListUrl, logType) {
     let title;
-    let logHint = '';
+    const logHint = 'Last 16384 bytes';
     this.setState({ logListUrl: logListUrl });
     getContainerLogList(logListUrl)
       .then(({ fullLogUrls, tailLogUrls }) => {
-        if (config.logType === 'log-manager') {
-          logHint = 'Last 16384 bytes';
-        }
         switch (logType) {
           case 'stdout':
             title = `Standard Output (${logHint})`;
