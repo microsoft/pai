@@ -30,9 +30,9 @@ def send_alert(pai_url: str, certExpirationInfo: str):
             "alertname": "k8s cert expiration",
             "severity": "warn",
             "trigger_time": trigger_time,
+            "annotations": certExpirationInfo,
         },
         "generatorURL": "alert/script",
-        "annotations": certExpirationInfo
     }
     alerts.append(alert)
 
