@@ -13,7 +13,6 @@ const PureConfigPanel = ({
   isOpen,
   onDismiss,
 }) => {
-  console.log(currentSideList);
   const [sideList, handleSideList] = useState(currentSideList);
 
   const onToggleChange = (item, checked) => {

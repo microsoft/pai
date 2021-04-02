@@ -51,11 +51,6 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
       new JobProtocol({
         name,
         defaults: { virtualCluster: 'default' },
-        extras: {
-          hivedScheduler: {
-            taskRoles: { taskrole: { skuNum: 1, skuType: 'GENERIC-WORKER' } },
-          },
-        },
         prerequisites: [
           {
             type: 'dockerimage',

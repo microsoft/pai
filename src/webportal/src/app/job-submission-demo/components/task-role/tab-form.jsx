@@ -14,6 +14,9 @@ import {
 import { createUniqueName } from '../../utils/utils';
 import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
+import { DEFAULT_DOCKER_URI } from '../../utils/constants';
+import { isEmpty } from 'lodash';
+import { DockerInfo } from '../../models/docker-info';
 
 const { spacing } = getTheme();
 
@@ -33,13 +36,6 @@ const generateUniqueTaskName = (taskRoles, curIndex) => {
   return newName;
 };
 
-const getDockerImageName = prerequisites => {
-  const prerequisite = prerequisites.find(
-    prerequisite => prerequisite.type === 'dockerimage',
-  );
-  return prerequisite.name;
-};
-
 const PureTabForm = ({
   jobProtocol,
   currentTaskRole,
@@ -53,7 +49,19 @@ const PureTabForm = ({
       taskRoles,
       Object.keys(taskRoles).length,
     );
-    const dockerImage = getDockerImageName(prerequisites);
+    let dockerName = DockerInfo.getDockerInfoByUri(
+      prerequisites,
+      DEFAULT_DOCKER_URI,
+    );
+    let items = Object.assign([], prerequisites);
+    if (isEmpty(dockerName)) {
+      const [newPrerequisites, newDockerName] = DockerInfo.addDockerInfo(
+        prerequisites,
+        DEFAULT_DOCKER_URI,
+      );
+      dockerName = newDockerName;
+      items = Object.assign([], newPrerequisites);
+    }
     onJobProtocolChange(
       new JobProtocol({
         ...jobProtocol,
@@ -70,13 +78,14 @@ const PureTabForm = ({
         //     },
         //   },
         // },
+        prerequisites: items,
         taskRoles: {
           ...jobProtocol.taskRoles,
           [taskRoleName]: {
             completion: {
               minFailedInstances: 1,
             },
-            dockerImage,
+            dockerImage: dockerName,
             instances: 1,
             taskRetryCount: 0,
           },
@@ -92,11 +101,20 @@ const PureTabForm = ({
     if (Object.keys(taskRoles).length === 1) return;
 
     const updateTaskRoles = taskRoles;
+
+    const updatePrerequisites = DockerInfo.removeSafeDockerInfo(
+      prerequisites,
+      taskRoles,
+      itemKey,
+      taskRoles[itemKey].dockerImage,
+    );
+
     delete updateTaskRoles[itemKey];
 
     onJobProtocolChange(
       new JobProtocol({
         ...jobProtocol,
+        prerequisites: updatePrerequisites,
         taskRoles: updateTaskRoles,
       }),
     );

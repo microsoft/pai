@@ -35,12 +35,15 @@ FormSection.propTypes = {
   tooltip: PropTypes.string,
 };
 
-export const FormItem = ({ children, label, tooltip }) => {
+export const FormItem = ({ children, label, tooltip, extra }) => {
   return (
     <Box mb='l1'>
-      <Flex alignItems='center' mb='s2'>
-        <Label>{label}</Label>
-        {tooltip && <TooltipIcon content={tooltip} />}
+      <Flex justifyContent='space-between' mb='s2'>
+        <Flex alignItems='center'>
+          <Label>{label}</Label>
+          {tooltip && <TooltipIcon content={tooltip} />}
+        </Flex>
+        {extra}
       </Flex>
       {children}
     </Box>
@@ -51,4 +54,5 @@ FormItem.propTypes = {
   label: PropTypes.string,
   children: PropTypes.node,
   tooltip: PropTypes.string,
+  extra: PropTypes.node,
 };

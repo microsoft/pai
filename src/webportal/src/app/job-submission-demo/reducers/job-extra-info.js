@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const initialState = {
-  currentTaskRole: 'taskRole',
+  currentTaskRole: 'taskrole',
   availableVirtualClusters: [],
   availableHivedSkuTypes: [],
 };
