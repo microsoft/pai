@@ -48,7 +48,7 @@ def main():
     PAI_URI = os.environ.get("PAI_URI")
     certExpirationInfo = os.popen("openssl x509 -enddate -noout -in /etc/kubernetes/ssl/apiserver.crt").read()
     notAfter = certExpirationInfo.split("notAfter=")[1]
-    expirationTimeFormat = "%%b %%d %%H:%%M:%%S %%Y GMT"
+    expirationTimeFormat = r"%b %d %H:%M:%S %Y"
     expirationTime = datetime.strptime(notAfter, expirationTimeFormat)
     delta = expirationTime - datetime.now()
     if (delta.days() < timedelta(days = alertResidualDays)):
