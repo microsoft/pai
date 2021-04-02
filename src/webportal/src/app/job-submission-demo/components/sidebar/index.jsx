@@ -1,23 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Flex, Box, Link } from '../../elements';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { variant } from 'styled-system';
-import { ConfigPanel } from './config-panel';
 import { Icon } from 'office-ui-fabric-react';
+import { Flex, Box, Link } from '../../elements';
+import { Parameters } from './parameters';
+import { Secrets } from './secrets';
+import { EnvVar } from './env-var';
+import { Tools } from '../tools/tool-component';
+import { ConfigPanel } from './config-panel';
 import {
   SIDEBAR_ENVVAR,
   SIDEBAR_PARAM,
   SIDEBAR_SECRET,
   SIDEBAR_TOOL,
 } from '../../utils/constants';
-import { Parameters } from './parameters';
-import { Secrets } from './secrets';
-import { EnvVar } from './env-var';
-import { Tools } from './tools';
-import PropTypes from 'prop-types';
 
 const SidebarItem = styled(Box)(
   {
