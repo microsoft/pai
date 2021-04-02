@@ -22,7 +22,7 @@ def enable_request_debug_log(func):
     return wrapper
 
 @enable_request_debug_log
-def send_alert(pai_url: str, certExpirationInfo: str):
+def send_alert(pai_url: str, residualTime: int, certExpirationInfo: str):
     trigger_time = str(datetime.now(timezone.utc).date())
     post_url = pai_url.rstrip("/") + ALERT_PREFIX
     alerts = []
@@ -31,7 +31,9 @@ def send_alert(pai_url: str, certExpirationInfo: str):
             "alertname": "k8s cert expiration",
             "severity": "warn",
             "trigger_time": trigger_time,
-            "annotations": certExpirationInfo,
+            "annotations": {
+                "summary": "The k8s cert will be expired in {residualTime} days.\n{certExpirationInfo}",
+            },
         },
         "generatorURL": "alert/script",
     }
@@ -44,12 +46,13 @@ def send_alert(pai_url: str, certExpirationInfo: str):
 
 def main():
     PAI_URI = os.environ.get("PAI_URI")
-    certExpirationInfo = os.popen('kubeadm alpha certs check-expiration --config="/etc/kubernetes/kubeadm-config.yaml"').read()
-    residualTimes = certExpirationInfo.split()[12::8]
-    willExpire = False
-    for residualTime in residualTimes:
-        if (int(residualTime[:-1]) < alertResidualDays):
-            send_alert(PAI_URI, certExpirationInfo)
+    certExpirationInfo = os.popen("openssl x509 -enddate -noout -in /etc/kubernetes/ssl/apiserver.crt").read()
+    notAfter = certExpirationInfo.split("notAfter=")[1]
+    expirationTimeFormat = "%%b %%d %%H:%%M:%%S %%Y GMT"
+    expirationTime = datetime.strptime(notAfter, expirationTimeFormat)
+    delta = expirationTime - datetime.now()
+    if (delta.days() < timedelta(days = alertResidualDays)):
+        send_alert(PAI_URI, delta.days(), certExpirationInfo)
 
 if __name__ == "__main__":
     logging.basicConfig(
