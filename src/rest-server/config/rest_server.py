@@ -73,7 +73,8 @@ class RestServer:
             'github-owner', 'github-repository', 'github-path',
             'debugging-reservation-seconds', 'enable-priority-class',
             'schedule-port-start', 'schedule-port-end', 'sql-max-connection',
-            'hived-computing-device-envs',
+            'hived-computing-device-envs', 'log-server', 'log_azure_storage_account',
+            'log_azure_storage_account_key', 'log_azure_storage_container_name'
         ]:
             service_object_model[k] = self.service_configuration[k]
 

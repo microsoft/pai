@@ -32,6 +32,7 @@ const limiter = require('@pai/config/rate-limit');
 const querystring = require('querystring');
 const createError = require('@pai/utils/error');
 const routers = {
+  internal: require('@pai/routes/internal/index'),
   v1: require('@pai/routes/index'),
   v2: require('@pai/routes/v2/index'),
 };
@@ -58,6 +59,9 @@ app.use('/api/v1', routers.v1);
 
 // mount all v2 APIs to /api/v2
 app.use('/api/v2', routers.v2);
+
+// mount all internal APIs to /api/internal
+app.use('/api/internal', routers.internal);
 
 // create OpenAPI docs
 const swaggerSpec = yaml.safeLoad(fs.readFileSync('./docs/swagger.yaml'));
