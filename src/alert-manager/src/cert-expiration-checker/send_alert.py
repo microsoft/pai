@@ -54,7 +54,7 @@ def main():
     expirationTime = datetime.strptime(cert.get_notAfter().decode('ascii'), r'%Y%m%d%H%M%SZ')
     delta = expirationTime - datetime.now()
     print(f'Delta {delta} Not after {expirationTime}')
-    if (delta.day < timedelta(days = alertResidualDays)):
+    if (delta.days < timedelta(days = alertResidualDays)):
         send_alert(PAI_URI, delta.day, f'Not after {expirationTime}')
 
 if __name__ == "__main__":
