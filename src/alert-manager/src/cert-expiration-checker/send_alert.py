@@ -2,8 +2,12 @@ from datetime import timezone, datetime, timedelta
 import logging
 import os
 import requests
+import Open
+import ssl
+from OpenSSL import crypto
 
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
+APISERVER_CERT_PATH = '/etc/kubernetes/ssl/apiserver.crt'
 alertResidualDays = int(os.environ.get('ALERT_RESIDUAL_DAYS'))
 
 def enable_request_debug_log(func):
@@ -46,13 +50,12 @@ def send_alert(pai_url: str, residualTime: int, certExpirationInfo: str):
 
 def main():
     PAI_URI = os.environ.get("PAI_URI")
-    certExpirationInfo = os.popen("openssl x509 -enddate -noout -in /etc/kubernetes/ssl/apiserver.crt").read()
-    notAfter = certExpirationInfo.split("notAfter=")[1]
-    expirationTimeFormat = r"%b %d %H:%M:%S %Y GMT"
-    expirationTime = datetime.strptime(notAfter, expirationTimeFormat)
+    cert = crypto.load_certificate(crypto.FILETYPE_PEM, APISERVER_CERT_PATH)
+    expirationTime = datetime.strptime(cert.get_notAfter().decode('ascii'), r'%Y%m%d%H%M%SZ')
     delta = expirationTime - datetime.now()
+    print('Delta {delta} Not after {expirationTime}')
     if (delta.days() < timedelta(days = alertResidualDays)):
-        send_alert(PAI_URI, delta.days(), certExpirationInfo)
+        send_alert(PAI_URI, delta.days(), 'Not after {expirationTime}')
 
 if __name__ == "__main__":
     logging.basicConfig(
