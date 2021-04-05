@@ -41,7 +41,7 @@ def send_alert(pai_url: str, residualTime: int, certExpirationInfo: str):
         "generatorURL": "alert/script",
     }
     alerts.append(alert)
-
+    print(alerts)
     logging.info("Sending alerts to alert-manager...")
     resp = requests.post(post_url, json=alerts)
     resp.raise_for_status()
