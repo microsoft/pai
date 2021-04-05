@@ -53,7 +53,6 @@ def main():
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, certfile)
     expirationTime = datetime.strptime(cert.get_notAfter().decode('ascii'), r'%Y%m%d%H%M%SZ')
     delta = expirationTime - datetime.now()
-    print(f'Delta {delta} Not after {expirationTime}')
     if (delta < timedelta(days = alertResidualDays)):
         send_alert(PAI_URI, delta.days, f'Not after {expirationTime}')
 
