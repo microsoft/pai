@@ -49,6 +49,7 @@ def send_alert(pai_url: str, residualTime: int, certExpirationInfo: str):
 
 def main():
     PAI_URI = os.environ.get("PAI_URI")
+    print(open(APISERVER_CERT_PATH).read())
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, APISERVER_CERT_PATH)
     expirationTime = datetime.strptime(cert.get_notAfter().decode('ascii'), r'%Y%m%d%H%M%SZ')
     delta = expirationTime - datetime.now()
