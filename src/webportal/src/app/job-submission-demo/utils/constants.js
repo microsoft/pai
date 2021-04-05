@@ -181,10 +181,13 @@ export const SIDEBAR_ENVVAR = 'envvar';
 
 export const SIDEBAR_TOOL = 'tool';
 
+export const SIDEBAR_DATA = 'data';
+
 // Sidebar config
 export const SIDEBAR_CONFIG = [
   { key: SIDEBAR_PARAM, text: 'Parameters' },
   { key: SIDEBAR_TOOL, text: 'Tools' },
   { key: SIDEBAR_SECRET, text: 'Secrets' },
   { key: SIDEBAR_ENVVAR, text: 'PAI environment variables' },
+  { key: SIDEBAR_DATA, text: 'Data volume' },
 ];
