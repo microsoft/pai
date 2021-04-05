@@ -2,7 +2,6 @@ from datetime import timezone, datetime, timedelta
 import logging
 import os
 import requests
-import Open
 import ssl
 from OpenSSL import crypto
 
