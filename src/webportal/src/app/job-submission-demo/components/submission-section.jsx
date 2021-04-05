@@ -3,10 +3,14 @@
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import config from '../../config/webportal.config';
 import { Flex, Box } from '../elements';
 import { SaveTemplateDialog } from './save-template-dialog';
+import { submitJob } from '../utils/conn';
+
+const user = cookies.get('user');
 
 const PureSubmissionSection = ({ jobProtocol }) => {
   const [hideDialog, setHideDialog] = useState(true);
@@ -14,9 +18,16 @@ const PureSubmissionSection = ({ jobProtocol }) => {
   const toggleHideDialog = () => {
     setHideDialog(!hideDialog);
   };
-  const onSubmit = () => {
-    // TO DO: command trim()
-    console.log('submit jobProtocol:', jobProtocol);
+
+  const onSubmit = async e => {
+    e.preventDefault();
+    const protocol = cloneDeep(jobProtocol);
+    try {
+      await submitJob(protocol.toYaml());
+      window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
+    } catch (err) {
+      alert(err);
+    }
   };
 
   return (
