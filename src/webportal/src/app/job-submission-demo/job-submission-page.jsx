@@ -11,6 +11,8 @@ import { JobProtocol } from './models/job-protocol';
 import { fetchJobConfig } from './utils/conn';
 import PropTypes from 'prop-types';
 import { Pivot, PivotItem } from 'office-ui-fabric-react';
+import { ExportConfig } from './components/topbar/export-config';
+import { ImportConfig } from './components/topbar/import-config';
 
 const loginUser = cookies.get('user');
 
@@ -123,10 +125,16 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
 
   return (
     <Flex flexDirection='column' p='l1' height='100%'>
-      <Pivot onLinkClick={handleTabChange}>
-        <PivotItem headerText='Web UI' itemKey='ui' />
-        <PivotItem headerText='YAML Config' itemKey='yaml' />
-      </Pivot>
+      <Flex justifyContent='space-between'>
+        <Pivot onLinkClick={handleTabChange}>
+          <PivotItem headerText='Web UI' itemKey='ui' />
+          <PivotItem headerText='YAML Config' itemKey='yaml' />
+        </Pivot>
+        <Flex>
+          <ExportConfig />
+          <ImportConfig />
+        </Flex>
+      </Flex>
       {getCurrentTabContent(currentTabKey)}
       <Flex justifyContent='flex-end' pt='m' pb='m' bg='white'>
         <SubmissionSection />
