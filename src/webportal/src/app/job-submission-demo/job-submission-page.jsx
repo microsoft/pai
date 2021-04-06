@@ -10,7 +10,6 @@ import { Flex } from './elements';
 import { Topbar } from './components/topbar';
 import { JobEditPage } from './job-edit-page';
 import { YamlEditPage } from './yaml-edit-page';
-import { SubmissionSection } from './components/submission-section';
 import { JobProtocol } from './models/job-protocol';
 import { fetchJobConfig } from './utils/conn';
 
@@ -114,24 +113,23 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
   return (
     <Flex flexDirection='column' p='l1' height='100%'>
       <Topbar />
-      <Flex>
-        <Pivot onLinkClick={handleTabChange}>
-          <PivotItem headerText='Web UI' itemKey='ui' />
-          <PivotItem headerText='YAML Config' itemKey='yaml' />
-        </Pivot>
-      </Flex>
+      <Pivot onLinkClick={handleTabChange}>
+        <PivotItem headerText='Web UI' itemKey='ui' />
+        <PivotItem headerText='YAML Config' itemKey='yaml' />
+      </Pivot>
       <Flex
-        flex={1}
+        flex='1 1 100%'
         flexDirection='column'
-        {...(currentTabKey !== 'yaml' ? { display: 'none' } : {})}
+        {...(currentTabKey === 'ui' ? {} : { display: 'none' })}
       >
-        <YamlEditPage />
-      </Flex>
-      <Flex flex={1} {...(currentTabKey !== 'ui' ? { display: 'none' } : {})}>
         <JobEditPage />
       </Flex>
-      <Flex justifyContent='flex-end' pt='m' pb='m' bg='white'>
-        <SubmissionSection />
+      <Flex
+        flex='1 1 100%'
+        flexDirection='column'
+        {...(currentTabKey === 'yaml' ? {} : { display: 'none' })}
+      >
+        <YamlEditPage />
       </Flex>
     </Flex>
   );
