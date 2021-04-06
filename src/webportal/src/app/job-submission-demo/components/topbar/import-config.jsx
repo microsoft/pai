@@ -5,9 +5,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
+import { ColorClassNames, FontWeights, Label } from 'office-ui-fabric-react';
 import { Button } from '../../elements';
 import { JobProtocol } from '../../models/job-protocol';
-import { Label, FontWeights } from 'office-ui-fabric-react';
 
 const PureImportConfig = ({ onJobProtocolChange }) => {
   const importFile = e => {
@@ -38,7 +38,7 @@ const PureImportConfig = ({ onJobProtocolChange }) => {
   };
 
   return (
-    <Button bg='neutralTertiary' marginLeft='s1'>
+    <Button marginLeft='s1'>
       <Label
         styles={{
           root: [
@@ -52,6 +52,8 @@ const PureImportConfig = ({ onJobProtocolChange }) => {
               cursor: 'pointer',
               fontWeight: FontWeights.semibold,
             },
+            ColorClassNames.neutralTertiaryAltBackground,
+            ColorClassNames.neutralTertiaryBackgroundHover,
           ],
         }}
       >

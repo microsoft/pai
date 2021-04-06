@@ -5,8 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
-
-import { Button } from '../../elements';
+import { ColorClassNames, DefaultButton } from 'office-ui-fabric-react';
 
 const PureExportConfig = ({ jobProtocol }) => {
   const exportFile = (data, filename, type) => {
@@ -45,9 +44,15 @@ const PureExportConfig = ({ jobProtocol }) => {
   };
 
   return (
-    <Button bg='neutralTertiary' onClick={exportYaml}>
+    <DefaultButton
+      styles={{
+        root: [ColorClassNames.neutralTertiaryAltBackground],
+        rootHovered: [ColorClassNames.neutralTertiaryBackground],
+      }}
+      onClick={exportYaml}
+    >
       Export
-    </Button>
+    </DefaultButton>
   );
 };
 
