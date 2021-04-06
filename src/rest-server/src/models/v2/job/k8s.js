@@ -585,6 +585,14 @@ const generateTaskRole = (
               },
             },
           },
+          tolerations: [
+            {
+              key: 'virtual-kubelet.io/provider',
+              operator: 'Equal',
+              value: 'xci',
+              effect: 'NoSchedule',
+            },
+          ],
           imagePullSecrets: [
             {
               name: launcherConfig.runtimeImagePullSecrets,
