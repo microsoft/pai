@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
-import { get } from 'lodash';
+import { clearToken } from '../../user/user-logout/user-logout.component';
+import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
+import { get } from 'lodash';
 import urljoin from 'url-join';
 import queryString from 'query-string';
-import config from '../../config/webportal.config';
-import { clearToken } from '../../user/user-logout/user-logout.component';
+import { getDeshuttleStorageDetails } from './utils';
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -71,6 +72,58 @@ export async function listHivedSkuTypes(virtualCluster) {
       },
     )).json(),
   );
+}
+
+export async function fetchUserGroup(api, user, token) {
+  const userInfo = await wrapper(() => client.user.getUser(user));
+  return get(userInfo, 'grouplist', []);
+}
+
+export async function listUserStorageConfigs(user) {
+  return wrapper(async () => {
+    const userInfo = await client.user.getUser(user);
+    return userInfo.storageConfig || [];
+  });
+}
+
+export async function fetchStorageDetails(configNames) {
+  return wrapper(async () => {
+    const storageSummary = await client.storage.getStorages();
+    const defaultStorages = await client.storage.getStorages(true);
+    const defaultStorageNames = defaultStorages.storages.map(x => x.name);
+    const details = [];
+    for (const storage of storageSummary.storages) {
+      if (configNames.includes(storage.name)) {
+        const detail = await client.storage.getStorage(storage.name);
+        if (defaultStorageNames.includes(detail.name)) {
+          detail.default = true;
+        }
+        if (detail.type === 'dshuttle') {
+          const res = await fetch('dshuttle/api/v1/master/info', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (
+              detail.data.dshuttlePath &&
+              json.mountPoints[detail.data.dshuttlePath]
+            ) {
+              detail.data = {
+                ...detail.data,
+                ...getDeshuttleStorageDetails(
+                  json.mountPoints[detail.data.dshuttlePath],
+                ),
+              };
+            }
+          }
+        }
+        details.push(detail);
+      }
+    }
+    return details;
+  });
 }
 
 export async function fetchMyPrivateTemplates(user) {

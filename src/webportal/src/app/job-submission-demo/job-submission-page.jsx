@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { isNil, get } from 'lodash';
-import { JobEditPage } from './job-edit-page';
-import { YamlEditPage } from './yaml-edit-page';
-import { SubmissionSection } from './components/submission-section';
-import { Flex } from './elements';
-import { JobProtocol } from './models/job-protocol';
-import { fetchJobConfig } from './utils/conn';
 import PropTypes from 'prop-types';
 import { Pivot, PivotItem } from 'office-ui-fabric-react';
+import { Flex } from './elements';
+import { Topbar } from './components/topbar';
+import { JobEditPage } from './job-edit-page';
+import { YamlEditPage } from './yaml-edit-page';
+import { JobProtocol } from './models/job-protocol';
+import { fetchJobConfig } from './utils/conn';
 
 const loginUser = cookies.get('user');
 
@@ -99,37 +100,36 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
     }
   }, []);
 
-  const getCurrentTabContent = current => {
-    switch (current) {
-      case 'yaml':
-        return (
-          <Flex flex={1} flexDirection='column'>
-            <YamlEditPage />
-          </Flex>
-        );
-      case 'ui':
-      default:
-        return (
-          <Flex>
-            <JobEditPage />
-          </Flex>
-        );
-    }
-  };
-
   const handleTabChange = item => {
     setCurrentTabKey(item.props.itemKey);
+    if (item.props.itemKey === 'yaml') {
+      setTimeout(() => {
+        const event = new Event('resize');
+        window.dispatchEvent(event);
+      }, 0);
+    }
   };
 
   return (
     <Flex flexDirection='column' p='l1' height='100%'>
+      <Topbar />
       <Pivot onLinkClick={handleTabChange}>
         <PivotItem headerText='Web UI' itemKey='ui' />
         <PivotItem headerText='YAML Config' itemKey='yaml' />
       </Pivot>
-      {getCurrentTabContent(currentTabKey)}
-      <Flex justifyContent='flex-end' pt='m' pb='m' bg='white'>
-        <SubmissionSection />
+      <Flex
+        flex='1 1 100%'
+        flexDirection='column'
+        {...(currentTabKey === 'ui' ? {} : { display: 'none' })}
+      >
+        <JobEditPage />
+      </Flex>
+      <Flex
+        flex='1 1 100%'
+        flexDirection='column'
+        {...(currentTabKey === 'yaml' ? {} : { display: 'none' })}
+      >
+        <YamlEditPage />
       </Flex>
     </Flex>
   );

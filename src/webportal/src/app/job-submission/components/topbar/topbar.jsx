@@ -40,6 +40,10 @@ export const Topbar = React.memo(
     history,
     setYamlText,
   }) => {
+    const generateNewVersionHref = href => {
+      const urlOptions = href.split('submit');
+      return urlOptions[0] + 'submit_demo' + urlOptions[1];
+    };
     return (
       <Stack horizontal horizontalAlign='space-between' padding='0 m'>
         <Stack horizontal gap='m' verticalAlign='baseline'>
@@ -52,6 +56,13 @@ export const Topbar = React.memo(
             style={{ fontWeight: FontWeights.semibold }}
           >
             {'Learn more >'}
+          </Link>
+          <Link
+            target='_self'
+            href={generateNewVersionHref(window.location.href)}
+            style={{ fontWeight: FontWeights.semibold }}
+          >
+            {'Switch to new version'}
           </Link>
         </Stack>
         <Stack horizontal gap='s1'>

@@ -45,3 +45,16 @@ export function generateDefaultDescription(name) {
     `## Reference\n\n`
   );
 }
+
+export function getDeshuttleStorageDetails(dshuttleMountPoint) {
+  const ufsType = dshuttleMountPoint.ufsType;
+  const ufsUri = dshuttleMountPoint.ufsUri;
+  if (ufsType === 'wasb') {
+    const strings = ufsUri.split('//')[1].split('@');
+    const accountName = strings[1].split('.')[0];
+    const containerName = strings[0];
+    return { ufsType, accountName, containerName };
+  } else {
+    return { ufsType, ufsUri };
+  }
+}

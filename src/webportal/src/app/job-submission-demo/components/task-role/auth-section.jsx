@@ -83,6 +83,7 @@ const PureAuthSection = ({
         [secretKey]: password,
       },
     });
+    onDismiss();
   };
 
   return (
