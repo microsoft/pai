@@ -50,6 +50,7 @@ declare type Code =
     'NoEnoughQuotaError' |
     'NotImplementedError' |
     'NoTaskLogError' |
+    'NoSupportedLogServer' |
     'UnknownError';
 
 declare function createError(status: Status, code: Code, message: string): HttpError;

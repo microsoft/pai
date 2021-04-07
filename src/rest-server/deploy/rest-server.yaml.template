@@ -70,12 +70,20 @@ spec:
 {% endif %}
         - name: HIVED_WEBSERVICE_URI
           value: {{ cluster_cfg['hivedscheduler']['webservice'] }}
+        - name: LOG_SERVER
+          value: "{{ cluster_cfg['rest-server']['log-server'] }}"
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
         - name: LOG_MANAGER_ADMIN_NAME
           value: "{{ cluster_cfg['log-manager']['admin_name'] }}"
         - name: LOG_MANAGER_ADMIN_PASSWORD
           value: "{{ cluster_cfg['log-manager']['admin_password'] }}"
+        - name: LOG_AZURE_STORAGE_ACCOUNT
+          value: "{{ cluster_cfg['rest-server']['log_azure_storage_account'] }}"
+        - name: LOG_AZURE_STORAGE_ACCOUNT_KEY
+          value: "{{ cluster_cfg['rest-server']['log_azure_storage_account_key'] }}"
+        - name: LOG_AZURE_STORAGE_CONTAINER_NAME
+          value: "{{ cluster_cfg['rest-server']['log_azure_storage_container_name'] }}"
 {%- endif %}
         - name: RATE_LIMIT_API_PER_MIN
           value: "{{ cluster_cfg['rest-server']['rate-limit-api-per-min'] }}"
