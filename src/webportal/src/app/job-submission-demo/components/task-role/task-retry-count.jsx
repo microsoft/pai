@@ -2,67 +2,27 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { FormSpinButton } from '../controls/form-spin-button';
 import PropTypes from 'prop-types';
-import { JobProtocol } from '../../models/job-protocol';
+import { FormSpinButton } from '../controls/form-spin-button';
 
 const RETRY_COUNT_MIN = 0;
 
-const PureTaskRetryCount = ({
-  jobProtocol,
-  currentTaskRole,
-  onJobProtocolChange,
-}) => {
-  const taskRetryCount = get(
-    jobProtocol,
-    `taskRoles[${currentTaskRole}].taskRetryCount`,
-    0,
-  );
-
-  const onChange = value => {
-    onJobProtocolChange(
-      new JobProtocol({
-        ...jobProtocol,
-        taskRoles: {
-          ...jobProtocol.taskRoles,
-          [currentTaskRole]: {
-            ...jobProtocol.taskRoles[currentTaskRole],
-            taskRetryCount: value,
-          },
-        },
-      }),
-    );
+export const TaskRetryCount = ({ value, onChange }) => {
+  const onItemChange = value => {
+    onChange('taskRetryCount', value);
   };
 
   return (
     <FormSpinButton
       min={RETRY_COUNT_MIN}
       step={1}
-      value={taskRetryCount}
-      onChange={onChange}
+      value={value}
+      onChange={onItemChange}
     />
   );
 };
 
-const mapStateToProps = state => ({
-  jobProtocol: state.JobProtocol.jobProtocol,
-  currentTaskRole: state.JobExtraInfo.currentTaskRole,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onJobProtocolChange: jobProtocol =>
-    dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
-});
-
-export const TaskRetryCount = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PureTaskRetryCount);
-
-PureTaskRetryCount.propTypes = {
-  jobProtocol: PropTypes.object,
-  currentTaskRole: PropTypes.string,
-  onJobProtocolChange: PropTypes.func,
+TaskRetryCount.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
