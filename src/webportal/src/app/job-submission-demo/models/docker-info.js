@@ -47,7 +47,6 @@ export class DockerInfo {
           ...(isCurrent ? { auth: authInfo } : {}),
         };
       });
-      return updatePrerequisites;
     } else {
       let dockerUri;
       for (const prerequisite of prerequisites) {
