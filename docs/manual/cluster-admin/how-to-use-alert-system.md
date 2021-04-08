@@ -287,7 +287,7 @@ To make your configuration take effect, restart the `alert-manager` service afte
 
 We provide the functionality to check the k8s cert expiration date and send warning to admin users.
 
-This feature will be enable by default, if the action the `email-admin` is enabled.
+This feature will be enable by default, if the action `email-admin` is enabled.
 You can configure the `alert-manager`->`cert-expiration-checker` field in `services-configuration.yml`.
 `schedule`, `alert-residual-days` and `cert-path` are necessary fields for this feature, and we have default value for the fields.
 For the syntax of `schedule`, please refer to [Cron Schedule Syntax](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax).
