@@ -299,7 +299,7 @@ alert-manager:
   cert-expiration-checker: # cert-expiration-checker is a k8s CronJob which check the cert expiration date
     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
     schedule: '0 0 * * *' # daily check at UTC 00:00
-    alert-residual-days: 30 # send alert if the expiration date is comming soon
+    alert-residual-days: 30 # send alert if the expiration date is coming soon
     cert-path: '/etc/kubernetes/ssl' # the k8s cert path in master node
 ```
 
