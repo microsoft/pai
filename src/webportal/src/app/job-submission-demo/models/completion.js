@@ -7,9 +7,7 @@ export class Completion {
   constructor(props) {
     const { minFailedInstances, minSucceededInstances } = props;
     this.minFailedInstances = minFailedInstances || 1;
-    if (!isNil(minSucceededInstances)) {
-      this.minSucceededInstances = minSucceededInstances;
-    }
+    this.minSucceededInstances = minSucceededInstances || 1;
   }
 
   static fromProtocol(completionProtocol) {

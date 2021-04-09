@@ -5,6 +5,7 @@ import Joi from 'joi-browser';
 import { isEmpty, cloneDeep } from 'lodash';
 import { removeEmptyProperties } from '../utils/utils';
 import { jobProtocolSchema } from '../models/protocol-schema';
+import { DEFAULT_DOCKER_URI } from '../utils/constants';
 
 export class JobProtocol {
   constructor(props) {
@@ -27,12 +28,18 @@ export class JobProtocol {
     this.contributor = contributor || '';
     this.type = 'job';
     this.jobRetryCount = jobRetryCount || 0;
-    this.prerequisites = prerequisites || [];
+    this.prerequisites = prerequisites || [
+      {
+        type: 'dockerimage',
+        uri: DEFAULT_DOCKER_URI,
+        name: 'docker_image_0',
+      },
+    ];
     this.parameters = parameters || {};
     this.taskRoles = taskRoles || {};
     this.deployments = deployments || {};
     this.secrets = secrets || {};
-    this.defaults = defaults || {};
+    this.defaults = defaults || { virtualCluster: 'default' };
     this.extras = extras || {};
   }
 

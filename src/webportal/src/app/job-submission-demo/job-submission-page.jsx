@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { isNil, get } from 'lodash';
+import { isEmpty, isNil, get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Pivot, PivotItem } from 'office-ui-fabric-react';
 import { Flex } from './elements';
@@ -12,6 +12,7 @@ import { JobEditPage } from './job-edit-page';
 import { YamlEditPage } from './yaml-edit-page';
 import { JobProtocol } from './models/job-protocol';
 import { fetchJobConfig } from './utils/conn';
+import { JobTaskRole } from './models/job-task-role';
 
 const loginUser = cookies.get('user');
 
@@ -39,7 +40,7 @@ function generateJobName(jobName) {
   return name;
 }
 
-const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
+const PureJobSubmissionPage = ({ onJobProtocolChange, onTaskRoleSelect }) => {
   const [currentTabKey, setCurrentTabKey] = useState('ui');
 
   useEffect(() => {
@@ -48,38 +49,41 @@ const PureJobSubmissionPage = ({ onJobProtocolChange }) => {
     let name = `${loginUser}_${suffix}`;
     name = name + getChecksum(name);
 
+    const updatedJobTaskRole = new JobTaskRole({ name: 'taskrole' });
+    const [
+      updatedTaskRole,
+      updatedHivedTaskRole,
+    ] = updatedJobTaskRole.convertToProtocolFormat();
+
     onJobProtocolChange(
       new JobProtocol({
         name,
-        defaults: { virtualCluster: 'default' },
-        prerequisites: [
-          {
-            type: 'dockerimage',
-            uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu',
-            name: 'docker_image_0',
-          },
-        ],
         taskRoles: {
-          taskrole: {
-            completion: { minFailedInstances: 1 },
-            dockerImage: 'docker_image_0',
-            instances: 1,
-            taskRetryCount: 0,
+          [updatedJobTaskRole.name]: updatedTaskRole,
+        },
+        extras: {
+          hivedScheduler: {
+            taskRoles: {
+              [updatedJobTaskRole.name]: updatedHivedTaskRole,
+            },
           },
         },
       }),
     );
+    onTaskRoleSelect(updatedJobTaskRole.name);
   }, []);
 
   // fill protocol if cloned job or local storage
   useEffect(() => {
     const fillJobProtocol = jobConfig => {
+      const taskRoles = get(jobConfig, 'taskRoles', {});
       onJobProtocolChange(
         new JobProtocol({
           ...jobConfig,
           name: generateJobName(jobConfig.name),
         }),
       );
+      onTaskRoleSelect(isEmpty(taskRoles) ? '' : Object.keys(taskRoles)[0]);
       if (get(jobConfig, 'extras.submitFrom')) {
         delete jobConfig.extras.submitFrom;
       }
@@ -140,6 +144,12 @@ const mapStateToProps = () => {};
 const mapDispatchToProps = dispatch => ({
   onJobProtocolChange: jobProtocol =>
     dispatch({ type: 'SAVE_JOBPROTOCOL', payload: jobProtocol }),
+  onTaskRoleSelect: key => {
+    dispatch({
+      type: 'SAVE_CURRENT_TASKROLE',
+      payload: key,
+    });
+  },
 });
 
 export const JobSubmissionPage = connect(
@@ -149,4 +159,5 @@ export const JobSubmissionPage = connect(
 
 PureJobSubmissionPage.propTypes = {
   onJobProtocolChange: PropTypes.func,
+  onTaskRoleSelect: PropTypes.func,
 };
