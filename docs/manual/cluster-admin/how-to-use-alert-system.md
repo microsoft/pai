@@ -55,7 +55,7 @@ prometheus:
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
 The alert severity can be defined as `info`, `warn`, `error`, or `fatal` by adding a label.
 Here we use `warn`.
-Here the metric `task_gpu_percent` is used, which describes the GPU utilization at the task level. 
+Here the metric `task_gpu_percent` is used, which describes the GPU utilization at the task level.
 
 Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands [in the dev-box container](./basic-management-operations.md#pai-service-management-and-paictl):
 ```bash
@@ -94,20 +94,20 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions: 
+    actions:
       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
       # if no template specified, 'general-template' will be used.
       email-admin:
-      email-user:  
+      email-user:
         template: 'kill-low-efficiency-job-alert'
       stop-jobs: # no parameters required for stop-jobs action
       tag-jobs:
-        tags: 
+        tags:
         - 'stopped-by-alert-manager'
 
 ```
 
-We have provided so far these following actions: 
+We have provided so far these following actions:
 
   - `email-admin`: Send emails to the assigned admin.
   - `email-user`: Send emails to the owners of jobs. Currently, this action uses the same email template as `email-admin`.
@@ -132,7 +132,7 @@ In addition, some actions may depend on certain fields in the `labels` of alert 
 |                             | depended on label field |
 | :-------------------------: | :---------------------: |
 | cordon-nodes                | node_name               |
-| email-admin                 | -                       | 
+| email-admin                 | -                       |
 | email-user                  | -                       |
 | stop-jobs                   | job_name                |
 | tag-jobs                    | job_name                |
@@ -140,7 +140,7 @@ In addition, some actions may depend on certain fields in the `labels` of alert 
 
 
 The matching rules between alerts and actions are defined using `receivers` and `routes`.
-A `receiver` is simply a group of actions, a `route` matches the alerts to a specific `receiver`. 
+A `receiver` is simply a group of actions, a `route` matches the alerts to a specific `receiver`.
 
 With the default configuration, all the alerts will match the default alert receiver which triggers only `email-admin` action (But if you don't set the email configuration, the action won't work).
 You can add new receivers with related matching rules to assign actions to alerts in the `alert-manager` field in [`service-configuration.yml`](./basic-management-operations.md#pai-service-management-and-paictl).
@@ -158,15 +158,15 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions: 
+    actions:
       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
       # if no template specified, 'general-template' will be used.
       email-admin:
-      email-user:  
+      email-user:
         template: 'kill-low-efficiency-job-alert'
       stop-jobs: # no parameters required for stop-jobs action
       tag-jobs:
-        tags: 
+        tags:
         - 'stopped-by-alert-manager'
   ......
 ```
@@ -183,16 +183,16 @@ For `receivers` definition, you can simply:
 
 - name the receiver in `name` field;
 - list the actions to use in `actions` and fill corresponding parameters for the actions:
-  - `email-admin`: 
+  - `email-admin`:
     - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
-  - `email-user`: 
+  - `email-user`:
     - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
   - `cordon-nodes`: No parameters required
   - `stop-jobs`: No parameters required
   - `tag-jobs`:
     - tags: required, list of tags
 
-You can also add customized email templates by adding a template folder in `pai/src/alert-manager/deploy/alert-templates`. 
+You can also add customized email templates by adding a template folder in `pai/src/alert-manager/deploy/alert-templates`.
 Two files need to be present: one email body template file named `html.ejs` and one email subject template file named `subject.ejs`.
 The folder name will be automatically passed as the template name.
 
@@ -258,7 +258,7 @@ We provide the functionality to send cluster GPU utilization report regularly to
 
 The report includes the statistics for:
 -	Cluster GPU utilization
--	User GPU utilization 
+-	User GPU utilization
 -	Job GPU utilization
 
 To enable this feature, you should configure the `alert-manager` field in `services-configuration.yml`.
@@ -273,6 +273,34 @@ alert-manager:
   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
     schedule: "0 0 * * *" # daily report at UTC 00:00
+```
+
+To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
+
+## Cluster k8s cert expiration checker
+
+We provide the functionality to check the k8s cert expiration date and send warning to admin users.
+
+This feature will be enable by default, if the action `email-admin` is enabled.
+You can configure the `alert-manager`->`cert-expiration-checker` field in `services-configuration.yml`.
+`schedule`, `alert-residual-days` and `cert-path` are necessary fields for this feature, and we have default value for the fields.
+For the syntax of `schedule`, please refer to [Cron Schedule Syntax](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax).
+For example, `"0 0 * * *"` means daily report at UTC 00:00.
+Please also make sure that the [`email-admin`](#Existing-Actions-and-Matching-Rules) action is enabled.
+
+```yaml
+alert-manager:
+  cert-expiration-checker: # cert-expiration-checker is a k8s CronJob which check the cert expiration date
+    # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+    schedule: '0 0 * * *' # daily check at UTC 00:00
+    alert-residual-days: 30 # send alert if the expiration date is coming soon
+    cert-path: '/etc/kubernetes/ssl' # the k8s cert path in master node
 ```
 
 To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:

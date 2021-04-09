@@ -31,3 +31,7 @@ cluster-utilization:
   configured: False
 use-pylon: False
 repeat-interval: '24h'
+cert-expiration-checker:
+  schedule: '0 0 * * *'
+  alert-residual-days: 30
+  cert-path: '/etc/kubernetes/ssl'
