@@ -1,24 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import { cloneDeep, isNil, get } from 'lodash';
+import PropTypes from 'prop-types';
+import { Toggle } from 'office-ui-fabric-react';
 import { Row, Col } from '../../elements';
+import theme from '../../theme';
+
 import { FormItem, FormSection } from '../form-page';
+import { TabForm } from './tab-form';
+import { TaskRoleName } from './task-role-name';
 import { DockerImage } from './docker-image';
-import { Instance } from './instances';
+import { Instances } from './instances';
 import { SKUCount } from './SKU-count';
 import { SKUType } from './SKU-type';
-import { TabForm } from './tab-form';
 import { CommandSection } from './command-section';
 import { TaskRetryCount } from './task-retry-count';
 import { MinFailedInstances } from './min-failed-instances';
 import { MinSucceedInstances } from './min-succeed-instances';
 import { MoreInfo } from '../more-info';
-import { TaskRoleName } from './task-role-name';
-import PropTypes from 'prop-types';
+import { JobTaskRole } from '../../models/job-task-role';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
-import { Toggle } from 'office-ui-fabric-react';
-import theme from '../../theme';
 
 const PureTaskRole = ({
   jobProtocol,
@@ -26,8 +30,51 @@ const PureTaskRole = ({
   expandedFlag,
   onJobProtocolChange,
 }) => {
-  const [advancedFlag, handleAdvancedFlag] = useState(false);
+  const [jobTaskRole, setJobTaskRole] = useState(
+    JobTaskRole.fromProtocol(jobProtocol, currentTaskRole),
+  );
   const [isUseCustomizedDocker, toggleUseCustomizedDocker] = useState(false);
+  const [advancedFlag, setAdvancedFlag] = useState(false);
+
+  useEffect(() => {
+    if (get(jobProtocol, `taskRoles.${currentTaskRole}`)) {
+      const updatedTaskRole = JobTaskRole.fromProtocol(
+        jobProtocol,
+        currentTaskRole,
+      );
+      setJobTaskRole(updatedTaskRole);
+    }
+  }, [jobProtocol, currentTaskRole]);
+
+  const onTaskRoleChange = (itemKey, propValue) => {
+    const updatedJobTaskRole = new JobTaskRole({ ...jobTaskRole });
+    updatedJobTaskRole[itemKey] = propValue;
+
+    const [
+      updatedTaskRole,
+      updatedHivedTaskRole,
+    ] = updatedJobTaskRole.convertToProtocolFormat();
+
+    const updatedTaskRoles = cloneDeep(jobProtocol.taskRoles);
+    const updatedExtras = cloneDeep(jobProtocol.extras);
+    if (isNil(updatedExtras.hivedScheduler)) {
+      updatedExtras.hivedScheduler = {};
+    }
+    const updatedHivedScheduler = updatedExtras.hivedScheduler;
+    if (isNil(updatedHivedScheduler.taskRoles)) {
+      updatedHivedScheduler.taskRoles = {};
+    }
+    const updatedHivedTaskRoles = updatedHivedScheduler.taskRoles;
+
+    updatedTaskRoles[currentTaskRole] = updatedTaskRole;
+    updatedHivedTaskRoles[currentTaskRole] = updatedHivedTaskRole;
+
+    onJobProtocolChange({
+      ...jobProtocol,
+      taskRoles: updatedTaskRoles,
+      extras: updatedExtras,
+    });
+  };
 
   const onCustomizedImageEnable = (_, checked) => {
     if (!checked) {
@@ -36,7 +83,9 @@ const PureTaskRole = ({
     toggleUseCustomizedDocker(checked);
   };
 
-  const toggleMoreInfo = () => handleAdvancedFlag(!advancedFlag);
+  const toggleMoreInfo = () => {
+    setAdvancedFlag(!advancedFlag);
+  };
 
   const { space } = theme;
 
@@ -69,42 +118,55 @@ const PureTaskRole = ({
               />
             }
           >
-            <DockerImage customized={isUseCustomizedDocker} />
+            <DockerImage
+              value={jobTaskRole.dockerImage}
+              onChange={onTaskRoleChange}
+              customized={isUseCustomizedDocker}
+            />
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
           <FormItem label='Instances'>
-            <Instance />
+            <Instances
+              value={jobTaskRole.instances}
+              onChange={onTaskRoleChange}
+            />
           </FormItem>
         </Col>
       </Row>
       <Row gutter={20}>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-          <FormItem label='SKU count'>
-            <SKUCount />
+          <FormItem label='SKU count per instance'>
+            <SKUCount value={jobTaskRole.skuNum} onChange={onTaskRoleChange} />
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
           <FormItem label='SKU type'>
-            <SKUType />
+            <SKUType value={jobTaskRole.skuType} onChange={onTaskRoleChange} />
           </FormItem>
         </Col>
       </Row>
       <Row>
         <Col span={12}>
           <FormItem label='Command'>
-            <CommandSection />
+            <CommandSection
+              value={jobTaskRole.commands}
+              onChange={onTaskRoleChange}
+            />
           </FormItem>
         </Col>
       </Row>
-      {advancedFlag ? (
+      {advancedFlag && (
         <Row gutter={20}>
           <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
             <FormItem
               label='Task retry count'
               tooltip={PROTOCOL_TOOLTIPS.policy}
             >
-              <TaskRetryCount />
+              <TaskRetryCount
+                value={jobTaskRole.taskRetryCount}
+                onChange={onTaskRoleChange}
+              />
             </FormItem>
           </Col>
           <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
@@ -112,7 +174,10 @@ const PureTaskRole = ({
               label='Min failed instances'
               tooltip={PROTOCOL_TOOLTIPS.policy}
             >
-              <MinFailedInstances />
+              <MinFailedInstances
+                value={jobTaskRole.completion}
+                onChange={onTaskRoleChange}
+              />
             </FormItem>
           </Col>
           <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
@@ -120,11 +185,14 @@ const PureTaskRole = ({
               label='Min succeed instances'
               tooltip={PROTOCOL_TOOLTIPS.policy}
             >
-              <MinSucceedInstances />
+              <MinSucceedInstances
+                value={jobTaskRole.completion}
+                onChange={onTaskRoleChange}
+              />
             </FormItem>
           </Col>
         </Row>
-      ) : null}
+      )}
       <MoreInfo isShow={advancedFlag} onChange={toggleMoreInfo} />
     </FormSection>
   );

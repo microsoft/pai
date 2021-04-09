@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { TextField } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import { JobProtocol } from '../../models/job-protocol';
 
 const PureTaskRoleName = ({
   jobProtocol,
@@ -13,27 +13,25 @@ const PureTaskRoleName = ({
   onJobProtocolChange,
   onTaskRoleSelect,
 }) => {
-  const { taskRoles } = jobProtocol;
-
-  const onChange = (_, val) => {
-    if (get(taskRoles, val)) {
+  const onChange = (_, name) => {
+    const taskRoles = get(jobProtocol, 'taskRoles', {});
+    if (Object.hasOwnProperty.call(taskRoles, name)) {
+      console.log('Task role:' + name + 'is already exist');
       return;
     }
-    const newTaskRoles = Object.keys(taskRoles).reduce((res, key) => {
-      if (key === currentTaskRole) {
-        res[val] = taskRoles[key];
-      } else {
-        res[key] = taskRoles[key];
-      }
-      return res;
-    }, {});
-    onJobProtocolChange(
-      new JobProtocol({
-        ...jobProtocol,
-        taskRoles: newTaskRoles,
-      }),
+    const updatedTaskRoles = Object.keys(taskRoles).reduce(
+      (target, itemKey) => {
+        if (itemKey === currentTaskRole) {
+          target[name] = taskRoles[itemKey];
+        } else {
+          target[itemKey] = taskRoles[itemKey];
+        }
+        return target;
+      },
+      {},
     );
-    onTaskRoleSelect(val);
+    onTaskRoleSelect(name);
+    onJobProtocolChange({ ...jobProtocol, taskRoles: updatedTaskRoles });
   };
 
   return (

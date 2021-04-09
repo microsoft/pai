@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Box, Flex } from '../../elements';
@@ -15,8 +16,9 @@ import { createUniqueName } from '../../utils/utils';
 import PropTypes from 'prop-types';
 import { JobProtocol } from '../../models/job-protocol';
 import { DEFAULT_DOCKER_URI } from '../../utils/constants';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, isNil } from 'lodash';
 import { DockerInfo } from '../../models/docker-info';
+import { JobTaskRole } from '../../models/job-task-role';
 
 const { spacing } = getTheme();
 
@@ -53,45 +55,45 @@ const PureTabForm = ({
       prerequisites,
       DEFAULT_DOCKER_URI,
     );
-    let items = Object.assign([], prerequisites);
+    let updatedPrerequisites = Object.assign([], prerequisites);
     if (isEmpty(dockerName)) {
       const [newPrerequisites, newDockerName] = DockerInfo.addDockerInfo(
         prerequisites,
         DEFAULT_DOCKER_URI,
       );
       dockerName = newDockerName;
-      items = Object.assign([], newPrerequisites);
+      updatedPrerequisites = Object.assign([], newPrerequisites);
     }
-    onJobProtocolChange(
-      new JobProtocol({
-        ...jobProtocol,
-        // extras: {
-        //   ...jobProtocol.extras,
-        //   hivedScheduler: {
-        //     ...jobProtocol.extras.hivedScheduler,
-        //     taskRoles: {
-        //       ...jobProtocol.extras.hivedScheduler.taskRoles,
-        //       [taskRoleName]: {
-        //         skuNum: 1,
-        //         skuType: 'GENERIC-WORKER',
-        //       },
-        //     },
-        //   },
-        // },
-        prerequisites: items,
-        taskRoles: {
-          ...jobProtocol.taskRoles,
-          [taskRoleName]: {
-            completion: {
-              minFailedInstances: 1,
-            },
-            dockerImage: dockerName,
-            instances: 1,
-            taskRetryCount: 0,
-          },
-        },
-      }),
-    );
+
+    const updatedJobTaskRole = new JobTaskRole({
+      name: taskRoleName,
+      dockerImage: dockerName,
+    });
+    const [
+      updatedTaskRole,
+      updatedHivedTaskRole,
+    ] = updatedJobTaskRole.convertToProtocolFormat();
+
+    const updatedTaskRoles = cloneDeep(jobProtocol.taskRoles);
+    const updatedExtras = cloneDeep(jobProtocol.extras);
+    if (isNil(updatedExtras.hivedScheduler)) {
+      updatedExtras.hivedScheduler = {};
+    }
+    const updatedHivedScheduler = updatedExtras.hivedScheduler;
+    if (isNil(updatedHivedScheduler.taskRoles)) {
+      updatedHivedScheduler.taskRoles = {};
+    }
+    const updatedHivedTaskRoles = updatedHivedScheduler.taskRoles;
+
+    updatedTaskRoles[taskRoleName] = updatedTaskRole;
+    updatedHivedTaskRoles[taskRoleName] = updatedHivedTaskRole;
+
+    onJobProtocolChange({
+      ...jobProtocol,
+      prerequisites: updatedPrerequisites,
+      taskRoles: updatedTaskRoles,
+      extras: updatedExtras,
+    });
     onTaskRoleSelect(taskRoleName);
   };
 
