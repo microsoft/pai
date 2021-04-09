@@ -618,6 +618,10 @@ const generateTaskRole = (
       if (!storage.name) {
         continue;
       }
+      if (storage.name.startsWith('xcloud')) {
+        frameworkTaskRole.task.pod.metadata.annotations["xvd-path"] = storage.name;
+        continue;
+      }
       frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
         name: `${storage.name}-volume`,
         mountPath: storage.mountPath || `/mnt/${storage.name}`,
@@ -1099,6 +1103,11 @@ const put = async (frameworkName, config, rawConfig) => {
         if (!storage.name) {
           continue;
         }
+        // ingnore xvd format, we should check the permission here
+        // TODO: fix me, check PVC exists
+        if (storage.name.startsWith('xcloud')) {
+          continue;
+        }
         if (!(storage.name in userStorages)) {
           throw createError(
             'Not Found',
@@ -1112,6 +1121,9 @@ const put = async (frameworkName, config, rawConfig) => {
     }
     for (const storage of config.extras.storages) {
       if (!storage.name) {
+        continue;
+      }
+      if (storage.name.startsWith('xcloud')) {
         continue;
       }
       storage.readOnly = (await storageModel.get(storage.name)).readOnly;
