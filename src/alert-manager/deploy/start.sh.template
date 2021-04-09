@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-# crate configmap for alert-templates
+# create configmap for alert-templates
 {% if cluster_cfg["alert-manager"]["alert-handler"]["configured"] -%}
 {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] -%}
 kubectl create configmap alert-templates \
@@ -34,6 +34,7 @@ kubectl create configmap alert-templates \
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager-cert-expiration-check-cronjob.yaml || exit $?
 {% if cluster_cfg["alert-manager"]["cluster-utilization"]["configured"] -%}
 kubectl apply --overwrite=true -f alert-manager-cronjob.yaml || exit $?
 {% endif -%}

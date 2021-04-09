@@ -1,0 +1,38 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cert-expiration-checker
+spec:
+  schedule: "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["schedule"] }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cert-expiration-checker
+            image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}cert-expiration-checker:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+            imagePullPolicy: Always
+            env:
+            - name: PAI_URI
+    {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+              value: "{{ cluster_cfg['pylon']['uri-https']}}"
+    {%- else %}
+              value: "{{ cluster_cfg['pylon']['uri']}}"
+    {%- endif %}
+            - name: ALERT_RESIDUAL_DAYS
+              value: "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["alert-residual-days"] }}"
+            volumeMounts:
+            - mountPath: /etc/kubernetes/ssl
+              name: kubenetes-ssl
+          volumes:
+            - name: kubenetes-ssl
+              hostPath:
+                path: {{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["cert-path"] }}
+          imagePullSecrets:
+          - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+          restartPolicy: OnFailure
+          nodeSelector:
+            pai-master: "true"
