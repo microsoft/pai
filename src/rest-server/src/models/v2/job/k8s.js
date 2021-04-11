@@ -618,8 +618,8 @@ const generateTaskRole = (
       if (!storage.name) {
         continue;
       }
-      if (storage.name.startsWith('xcloud')) {
-        frameworkTaskRole.task.pod.metadata.annotations["xvd-path"] = storage.name;
+      if (storage.xvd) {
+        frameworkTaskRole.task.pod.metadata.annotations["xvd-path"] = `xcloud:${storage.name}:${storage.xvd.blobName}`;
         continue;
       }
       frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
@@ -1105,7 +1105,7 @@ const put = async (frameworkName, config, rawConfig) => {
         }
         // ingnore xvd format, we should check the permission here
         // TODO: fix me, check PVC exists
-        if (storage.name.startsWith('xcloud')) {
+        if (storage.xvd) {
           continue;
         }
         if (!(storage.name in userStorages)) {
@@ -1123,7 +1123,7 @@ const put = async (frameworkName, config, rawConfig) => {
       if (!storage.name) {
         continue;
       }
-      if (storage.name.startsWith('xcloud')) {
+      if (storage.xvd) {
         continue;
       }
       storage.readOnly = (await storageModel.get(storage.name)).readOnly;
