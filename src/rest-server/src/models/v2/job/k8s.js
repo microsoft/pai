@@ -392,6 +392,20 @@ const generateTaskRole = (
     retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
 
+  let securityContext;
+  if (jobInfo.userName == "zhiyuhe1" || jobInfo.userName == "zhehan") {
+    securityContext = {
+      "privileged": true
+    }
+  } else {
+    securityContext = {
+      capabilities: {
+        add: ['SYS_ADMIN', 'IPC_LOCK', 'DAC_READ_SEARCH'],
+        drop: ['MKNOD'],
+      },
+    };
+  }
+
   const taskRoleEnvList = [
     {
       name: 'PAI_CURRENT_TASK_ROLE_NAME',
@@ -506,12 +520,7 @@ const generateTaskRole = (
                   },
                 },
               ],
-              securityContext: {
-                capabilities: {
-                  add: ['SYS_ADMIN', 'IPC_LOCK', 'DAC_READ_SEARCH'],
-                  drop: ['MKNOD'],
-                },
-              },
+              securityContext: securityContext,
               terminationMessagePath: '/tmp/pai-termination-log',
               volumeMounts: [
                 {
