@@ -50,6 +50,8 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
       pai-worker: "true"
   ```
 
+- Make sure that you can access all nodes in the cluster using the settings in `<config-folder>/config.yaml`. If you use SSH key pairs to log in to nodes, please mount the folder `~/.ssh` on the dev box machine to `/root/.ssh` on the dev box docker container。
+
 - Modify HiveD scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details.
 
     *Note*: If you are using Kubernetes default scheduler, you can skip this step.
