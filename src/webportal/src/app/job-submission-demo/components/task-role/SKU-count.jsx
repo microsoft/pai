@@ -8,15 +8,15 @@ import { FormSpinButton } from '../controls/form-spin-button';
 const SKU_COUNT_MIN = 0;
 
 export const SKUCount = ({ value, onChange }) => {
-  const onItemChange = value => {
-    onChange('skuNum', value);
+  const onItemChange = val => {
+    onChange('hivedSku', { ...value, skuNum: val });
   };
 
   return (
     <FormSpinButton
       min={SKU_COUNT_MIN}
       step={1}
-      value={value}
+      value={value.skuNum}
       onChange={onItemChange}
     />
   );
