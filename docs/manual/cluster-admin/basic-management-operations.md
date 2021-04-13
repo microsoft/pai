@@ -119,11 +119,14 @@ Here are some basic usage examples of `paictl`:
 ./paictl.py config get-id
 
 # pull service config to a certain folder
-# the configuration containers two files: layout.yaml and services-configuration.yaml
+# the configuration folder contains three files: config.yaml, layout.yaml and services-configuration.yaml
+# where config.yaml is stored in ~/pai-deploy/cluster-cfg/config.yaml before v1.7.0
 # if <config-folder> already has these files, they will be overridden
 ./paictl.py config pull -o <config-folder>
 
 # push service config to the cluster
+# the configuration folder should contains three files: config.yaml, layout.yaml and services-configuration.yaml
+# where config.yaml is stored in ~/pai-deploy/cluster-cfg/config.yaml before v1.7.0
 # only pushed config is effective
 ./paictl.py config push -p <config-folder> -m service
 

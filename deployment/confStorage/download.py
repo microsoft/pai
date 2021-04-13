@@ -73,6 +73,13 @@ class download_configuration:
             self.logger.error("The configuration doesn't exists on your cluster. Please upload it first.")
             sys.exit(1)
 
+        if u'config.yaml' not in configuration_dict:
+            self.logger.warning("config.yaml doesn't exists on your cluster.")
+            self.logger.warning("Before v1.7.0, config.yaml is stored in ~/pai-deploy/cluster-cfg/config.yaml on the dev box machine.")
+            self.logger.warning("If you have upgraded to v1.7.0, please copy config.yaml to the config folder and push it to the cluster.")
+            self.logger.warning("If your `config.yaml` is lost, you need to create a new one. Here is an example for reference:")
+            self.logger.warning("https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#configyaml-example")
+
         conf_storage_util.create_path("{0}".format(local_path))
         for key in configuration_dict:
             conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}".format(local_path, key))

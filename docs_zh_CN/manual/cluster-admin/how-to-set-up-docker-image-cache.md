@@ -9,7 +9,6 @@ Docker 镜像缓存提供了三种使用方式：
 
 ## 安装时配置 Docker 镜像缓存
 
-During installation, the only effort you need to perform is change `config.yaml` in `contrib/kubespray/config.yaml`. Those setting with "docker_cache" substring are related in "OpenPAI Customized Settings" section. 
 在安装时，启用 Docker 镜像缓存只需要修改 `contrib/kubespray/config.yaml` 中的 `config.yaml`。"OpenPAI Customized Settings"段中，有"docker_cache"字段的是相关配置。
 
 * `enable_docker_cache`: 如果希望使用 docker-cache 服务需要设置为 true，默认为 false 并让后续的所有其它配置失效。

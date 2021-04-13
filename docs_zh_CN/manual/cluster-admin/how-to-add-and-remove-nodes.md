@@ -30,11 +30,13 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
 
 - 使用`paictl.py`将集群中正在使用的设置拉取到`<配置文件夹>`。
 
+    *注意*：请检查拉取的配置文件是否包含`config.yaml`。在v1.7.0版本以前，`config.yaml`存储于`dev box`机器上的`~/pai-deploy/cluster-cfg/config.yaml`位置。如果您已升级到 v1.7.0，请将它复制到`<配置文件夹>`并上传到K8s集群中。如果您的`config.yaml`已丢失，请参考[config.yaml格式示例](./installation-guide.md#configyamlexample)重新创建一个。
+
   ```bash
   ./paictl.py config pull -o <配置文件夹>
   ```
 
-- 修改`<配置文件夹>/layout.yaml`。向 `machine-list`中添加新结点，如有必要请创建一个新的`machine-sku`。请参考[layout.yaml的格式约定](./installation-guide.md#layoutyaml-format)。
+- 修改`<配置文件夹>/layout.yaml`。向`machine-list`中添加新结点，如有必要请创建一个新的`machine-sku`。请参考[layout.yaml格式示例](./installation-guide.md#layoutyaml-format)。
 
     *注意*：如果您只需要删除结点，请跳过这一步。
 
@@ -50,6 +52,8 @@ OpenPAI暂时不支持修改master结点。因此，这里只提供添加worker�
       machine-type: xxx-sku
       pai-worker: "true"
   ```
+
+- 检查`<配置文件夹>/config.yaml`中的设置是否能确保您连接到集群中的所有机器。如果您使用SSH密钥对连接到集群，请将`dev box`机器上的`~/.ssh`文件夹挂载到`dev box` Docker容器的`/root/.ssh`。
 
 - 在`<配置文件夹>/services-configuration.yaml`中适当修改HiveD的配置。 请参考[如何设置虚拟集群](./how-to-set-up-virtual-clusters.md)和[HiveD调度器的文档](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md)。
 
