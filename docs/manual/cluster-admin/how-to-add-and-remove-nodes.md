@@ -27,7 +27,9 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
   cd /pai
   ```
 
-- Use `paictl.py` to pull service config to a certain folder.
+- Use `paictl.py` to pull config files to a certain folder.
+
+    *Note*: Check if the files you pulled contain `config.yaml`. Before v1.7.0, `config.yaml` is stored in `~/pai-deploy/cluster-cfg/config.yaml` on the dev box machine. If you have upgraded to v1.7.0, please copy `config.yaml` to the `<config-folder>` and push it to the cluster. If your `config.yaml` is lost, you need to create a new one. Refer to [config.yaml example](./installation-guide.md#configyaml-example).
 
   ```bash
   ./paictl.py config pull -o <config-folder>

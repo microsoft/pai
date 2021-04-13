@@ -80,7 +80,7 @@ class Synchronization:
             if missing_file == "config.yaml":
                 self.logger.error("Before v1.7.0, this file is stored in ~/pai-deploy/cluster-cfg/config.yaml on the dev box machine.")
                 self.logger.error("If you have upgraded to v1.7.0, please copy this file to the config folder.")
-                self.logger.warning("If `config.yaml` is lost, you need to write a new one. Here is an example for reference:")
+                self.logger.warning("If `config.yaml` is lost, you need to create a new one. Here is an example for reference:")
                 self.logger.warning("https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#configyaml-example")
         if len(missing_files) > 0:
             raise Exception("Some configuration files not found.")
