@@ -255,7 +255,8 @@ const Sidebar = ({ className, style }) => {
                 style: { display: isEmpty(plugins) ? 'none' : undefined },
                 links: (plugins || []).map((item, idx) => ({
                   name: item.title,
-                  url: `/plugin.html?index=${idx}`,
+                  onClick: () =>
+                    (window.location.href = `/plugin.html?index=${idx}`),
                   key: KEY_PLUGIN_PREFIX + idx,
                   icon: 'Puzzle',
                 })),
