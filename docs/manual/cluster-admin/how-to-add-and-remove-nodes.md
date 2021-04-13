@@ -27,7 +27,9 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
   cd /pai
   ```
 
-- Use `paictl.py` to pull service config to a certain folder.
+- Use `paictl.py` to pull config files to a certain folder.
+
+    *Note*: Check if the files you pulled contain `config.yaml`. Before v1.7.0, `config.yaml` is stored in `~/pai-deploy/cluster-cfg/config.yaml` on the dev box machine. If you have upgraded to v1.7.0, please copy `config.yaml` to the `<config-folder>` and push it to the cluster. If your `config.yaml` is lost, you need to create a new one. Refer to [config.yaml example](./installation-guide.md#configyaml-example).
 
   ```bash
   ./paictl.py config pull -o <config-folder>
@@ -49,6 +51,8 @@ OpenPAI doesn't support changing master nodes, thus, only the solution of adding
       machine-type: xxx-sku
       pai-worker: "true"
   ```
+
+- Make sure that you can access all nodes in the cluster using the settings in `<config-folder>/config.yaml`. If you use SSH key pairs to log in to nodes, please mount the folder `~/.ssh` on the dev box machine to `/root/.ssh` on the dev box docker container。
 
 - Modify HiveD scheduler settings in `<config-folder>/services-configuration.yaml` properly. Please refer to [How to Set up Virtual Clusters](./how-to-set-up-virtual-clusters.md) and the [Hived Scheduler Doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details.
 

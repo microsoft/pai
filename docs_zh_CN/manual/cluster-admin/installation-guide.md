@@ -173,7 +173,7 @@ git checkout v1.6.0
 
 如果您是中国用户，在编辑这两个文件前，请先阅读[这个文档](./configuration-for-china.md)。
 
-#### `layout.yaml` 格式示例
+#### <div id="layoutyaml-format">`layout.yaml` 格式示例</div>
 
 ``` yaml
 # GPU cluster example
@@ -216,7 +216,7 @@ machine-list:
     pai-worker: "true"
 ```
 
-#### `config.yaml` 格式示例
+#### <div id="configyaml-example">`config.yaml` 格式示例</div>
 
 ``` yaml
 user: forexample

@@ -119,11 +119,14 @@ cd /pai
 ./paictl.py config get-id
 
 # 将集群中正在使用的设置拉取到一个文件夹中
-# 集群设置包含两个文件： layout.yaml 和 services-configuration.yaml
-# 如果 <config-folder>中已经有这两个文件了，老的文件将会被覆盖
+# 集群设置文件夹包含三个文件: config.yaml, layout.yaml 和 services-configuration.yaml
+# 其中 config.yaml 在 v1.7.0 版本之前存储于 ~/pai-deploy/cluster-cfg/config.yaml
+# 如果 <config-folder>中已经有这三个文件了，老的文件将会被覆盖
 ./paictl.py config pull -o <config-folder>
 
 # 将文件夹中的配置上传到集群内
+# 集群设置文件夹应该包含三个文件: config.yaml, layout.yaml 和 services-configuration.yaml
+# 其中 config.yaml 在 v1.7.0 版本之前存储于 ~/pai-deploy/cluster-cfg/config.yaml
 # 只有被成功上传的配置才会被应用
 ./paictl.py config push -p <config-folder> -m service
 
