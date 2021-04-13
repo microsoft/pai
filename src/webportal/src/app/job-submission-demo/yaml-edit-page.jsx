@@ -10,8 +10,9 @@ import {
   MessageBar,
   MessageBarType,
   PrimaryButton,
+  Stack,
 } from 'office-ui-fabric-react';
-import { Flex } from './elements';
+import { Box, Flex } from './elements';
 import { SaveTemplateDialog } from './components/save-template-dialog';
 import MonacoEditor from '../components/monaco-editor';
 import { JobProtocol } from './models/job-protocol';
@@ -87,7 +88,14 @@ const PureYamlEditPage = ({ jobProtocol, onJobProtocolChange }) => {
         <MonacoEditor
           style={{ flex: '1 1 100%' }}
           monacoProps={{
-            theme: 'vs',
+            theme: {
+              base: 'vs',
+              inherit: true,
+              rules: [],
+              colors: {
+                'editor.background': '#202124',
+              },
+            },
             onChange: debounce(onTextChange, 100),
             value: protocolYaml,
             options: {
@@ -98,24 +106,29 @@ const PureYamlEditPage = ({ jobProtocol, onJobProtocolChange }) => {
           }}
         />
       </Flex>
-      <Flex justifyContent='flex-end' padding='m' marginTop='m' bg='white'>
-        {isReadOnly && (
-          <DefaultButton styles={{ root: { marginRight: 8 } }} onClick={onEdit}>
-            Edit
-          </DefaultButton>
-        )}
-        {!isReadOnly && (
-          <DefaultButton styles={{ root: { marginRight: 8 } }} onClick={onSave}>
-            Save
-          </DefaultButton>
-        )}
-        <PrimaryButton onClick={onSubmit}>Submit</PrimaryButton>
-        {config.saveTemplate === 'true' && (
-          <DefaultButton onClick={toggleHideDialog}>
-            Save to Templates
-          </DefaultButton>
-        )}
-      </Flex>
+      <Box padding='m' marginTop='m' bg='white'>
+        <Stack horizontal horizontalAlign='end' gap='m'>
+          {isReadOnly ? (
+            <DefaultButton onClick={onEdit}>Edit</DefaultButton>
+          ) : (
+            <PrimaryButton onClick={onSave}>Save</PrimaryButton>
+          )}
+          <PrimaryButton
+            disabled={validStatus.barType === MessageBarType.error}
+            onClick={onSubmit}
+          >
+            Submit
+          </PrimaryButton>
+          {config.saveTemplate === 'true' && (
+            <DefaultButton
+              disabled={validStatus.barType === MessageBarType.error}
+              onClick={toggleHideDialog}
+            >
+              Save to Templates
+            </DefaultButton>
+          )}
+        </Stack>
+      </Box>
       <SaveTemplateDialog
         hideDialog={hideDialog}
         toggleHideDialog={toggleHideDialog}

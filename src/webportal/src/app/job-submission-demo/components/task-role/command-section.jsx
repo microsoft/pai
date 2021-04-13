@@ -21,7 +21,7 @@ export const CommandSection = ({ value, onChange }) => {
 
   return (
     <MonacoTextField
-      monacoProps={{ height: 250, language: 'shell' }}
+      monacoProps={{ theme: 'vs', height: 250, language: 'shell' }}
       value={yamlText}
       placeholder={COMMAND_PLACEHOLDER}
       onChange={onItemChange}

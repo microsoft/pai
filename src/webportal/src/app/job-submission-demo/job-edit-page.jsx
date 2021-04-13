@@ -44,8 +44,8 @@ const PureJobEditPage = ({ jobProtocol, fetchVirtualClusters }) => {
     <>
       <Flex flex='1 1 100%'>
         {/* left */}
-        <Box flex='1 1 100%'>
-          <Box bg='white'>
+        <Box flex='1 1 100%' bg='white'>
+          <Box>
             <TemplateSelection />
           </Box>
           <Box>

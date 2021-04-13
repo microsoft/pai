@@ -49,7 +49,7 @@ const PureSecrets = ({ jobProtocol, onJobProtocolChange }) => {
   return (
     <FormSection title='Secrets' tooltip={PROTOCOL_TOOLTIPS.secrets}>
       <Box>
-        <Box fontSize='s2'>
+        <Box fontSize='s2' lineHeight={2}>
           Secret is a special type of parameter which will be masked after
           submission. You could reference these secrets in command by{' '}
           <Code color='dark-red' bg='black-05'>

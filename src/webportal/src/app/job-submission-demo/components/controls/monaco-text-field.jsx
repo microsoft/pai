@@ -82,7 +82,7 @@ export const MonacoTextField = props => {
         completionItems={completionItems}
         monacoRef={monacoRef}
         monacoProps={{
-          theme: 'vs',
+          theme: 'vs-dark',
           language: 'plaintext',
           options: {
             automaticLayout: true,
