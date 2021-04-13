@@ -38,8 +38,6 @@ const PureSKUType = ({ value, onChange, availableHivedSkuTypes }) => {
     }
   }, [value, skuOptions]);
 
-  console.log(value);
-
   return (
     <Dropdown
       placeholder='Select SKU type'

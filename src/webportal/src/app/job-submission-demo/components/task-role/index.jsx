@@ -50,8 +50,6 @@ const PureTaskRole = ({
   const onTaskRoleChange = (itemKey, propValue) => {
     const updatedJobTaskRole = new JobTaskRole({ ...jobTaskRole });
     updatedJobTaskRole[itemKey] = propValue;
-    // debugger;
-    console.log(jobTaskRole);
 
     const [
       updatedTaskRole,
@@ -77,8 +75,6 @@ const PureTaskRole = ({
       taskRoles: updatedTaskRoles,
       extras: updatedExtras,
     });
-
-    console.log(jobTaskRole);
   };
 
   const onCustomizedImageEnable = (_, checked) => {
@@ -93,8 +89,6 @@ const PureTaskRole = ({
   };
 
   const { space } = theme;
-
-  console.log(jobTaskRole);
 
   return (
     <FormSection

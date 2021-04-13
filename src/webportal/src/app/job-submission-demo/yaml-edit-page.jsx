@@ -109,23 +109,31 @@ const PureYamlEditPage = ({ jobProtocol, onJobProtocolChange }) => {
       <Box padding='m' marginTop='m' bg='white'>
         <Stack horizontal horizontalAlign='end' gap='m'>
           {isReadOnly ? (
-            <DefaultButton onClick={onEdit}>Edit</DefaultButton>
+            <>
+              <DefaultButton onClick={onEdit}>Edit</DefaultButton>
+              <PrimaryButton
+                disabled={validStatus.barType === MessageBarType.error}
+                onClick={onSubmit}
+              >
+                Submit
+              </PrimaryButton>
+              {config.saveTemplate === 'true' && (
+                <DefaultButton
+                  disabled={validStatus.barType === MessageBarType.error}
+                  onClick={toggleHideDialog}
+                >
+                  Save to Templates
+                </DefaultButton>
+              )}
+            </>
           ) : (
-            <PrimaryButton onClick={onSave}>Save</PrimaryButton>
-          )}
-          <PrimaryButton
-            disabled={validStatus.barType === MessageBarType.error}
-            onClick={onSubmit}
-          >
-            Submit
-          </PrimaryButton>
-          {config.saveTemplate === 'true' && (
-            <DefaultButton
-              disabled={validStatus.barType === MessageBarType.error}
-              onClick={toggleHideDialog}
-            >
-              Save to Templates
-            </DefaultButton>
+            <>
+              <PrimaryButton onClick={onSave}>Save</PrimaryButton>
+              <DefaultButton disabled>Submit</DefaultButton>
+              {config.saveTemplate === 'true' && (
+                <DefaultButton disabled>Save to Templates</DefaultButton>
+              )}
+            </>
           )}
         </Stack>
       </Box>
