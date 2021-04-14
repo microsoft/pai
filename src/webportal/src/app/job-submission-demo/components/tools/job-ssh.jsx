@@ -72,7 +72,7 @@ const PureJobSSH = ({ jobProtocol, onJobProtocolChange }) => {
 
   return (
     <>
-      <Flex flexDirection='horizontal' alignItems='baseline'>
+      <Flex flexDirection='horizontal' alignItems='baseline' marginBottom='s1'>
         <Text>SSH</Text>
         <TooltipIcon content={PROTOCOL_TOOLTIPS.ssh} />
       </Flex>
@@ -83,7 +83,7 @@ const PureJobSSH = ({ jobProtocol, onJobProtocolChange }) => {
       />
       {!isEmpty(sshPlugin.userssh) && (
         <Box>
-          <Box fontSize='s2'>
+          <Box fontSize='s2' lineHeight={2} marginBottom='s1'>
             Your pre-defined SSH public keys on the{' '}
             <a href='/user-profile.html'>User Profile</a> page will be set
             automatically.

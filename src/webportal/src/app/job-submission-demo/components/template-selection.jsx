@@ -1,16 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React, { useState, useEffect } from 'react';
-import { Dropdown, DropdownMenuItemType } from 'office-ui-fabric-react';
 import { connect } from 'react-redux';
 import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
+import { Dropdown, DropdownMenuItemType } from 'office-ui-fabric-react';
 import { Box } from '../elements';
-import { JobProtocol } from '../../job-submission/models/job-protocol';
-import { fetchMyPrivateTemplates, fetchPublicTemplates } from '../utils/conn';
 import { FormItem } from './form-page';
+import { JobProtocol } from '../models/job-protocol';
+import { JobTaskRole } from '../models/job-task-role';
+import { fetchMyPrivateTemplates, fetchPublicTemplates } from '../utils/conn';
 
 const loginUser = cookies.get('user');
+
+function getChecksum(str) {
+  let res = 0;
+  for (const c of str) {
+    res ^= c.charCodeAt(0) & 0xff;
+  }
+  return res.toString(16);
+}
 
 const PureTemplateSelection = props => {
   const { onJobProtocolChange, onCurrentTaskRoleChange } = props;
@@ -58,6 +68,33 @@ const PureTemplateSelection = props => {
 
   const onTemplateChange = (_, item) => {
     if (item.key === 'No') {
+      let suffix = Date.now().toString(16);
+      suffix = suffix.substring(suffix.length - 6);
+      let name = `${loginUser}_${suffix}`;
+      name = name + getChecksum(name);
+
+      const updatedJobTaskRole = new JobTaskRole({ name: 'taskrole' });
+      const [
+        updatedTaskRole,
+        updatedHivedTaskRole,
+      ] = updatedJobTaskRole.convertToProtocolFormat();
+
+      onJobProtocolChange(
+        new JobProtocol({
+          name,
+          taskRoles: {
+            [updatedJobTaskRole.name]: updatedTaskRole,
+          },
+          extras: {
+            hivedScheduler: {
+              taskRoles: {
+                [updatedJobTaskRole.name]: updatedHivedTaskRole,
+              },
+            },
+          },
+        }),
+      );
+      onCurrentTaskRoleChange(updatedJobTaskRole.name);
       return;
     }
     const jobConfig = JobProtocol.fromYaml(item.protocol);

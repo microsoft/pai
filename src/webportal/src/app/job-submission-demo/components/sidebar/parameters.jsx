@@ -52,8 +52,8 @@ const PureParameters = ({ jobProtocol, onJobProtocolChange }) => {
   return (
     <FormSection title='Parameters' tooltip={PROTOCOL_TOOLTIPS.parameters}>
       <Box>
-        <Box fontSize='s2'>
-          You could reference these parameters in command by
+        <Box fontSize='s2' lineHeight={2}>
+          You could reference these parameters in command by{' '}
           <Code color='dark-red' bg='black-05'>
             {'<% $parameters.paramKey %>'}
           </Code>

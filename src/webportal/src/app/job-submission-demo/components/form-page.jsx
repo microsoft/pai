@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import React from 'react';
 import { Label } from 'office-ui-fabric-react';
 import { TooltipIcon } from './controls/tooltip-icon';
@@ -9,8 +10,7 @@ import PropTypes from 'prop-types';
 export const FormSection = ({ title, extra, children, tooltip, ...props }) => {
   return (
     <Flex
-      bg='white'
-      borderBottom='1px solid #f0f0f0'
+      // borderBottom='1px solid #f0f0f0'
       flexDirection='column'
       {...props}
     >
@@ -19,9 +19,7 @@ export const FormSection = ({ title, extra, children, tooltip, ...props }) => {
           {title}
           {tooltip && <TooltipIcon content={tooltip} />}
         </Box>
-        <Box pl='s1' borderBottom='1px solid #f0f0f0'>
-          {extra}
-        </Box>
+        <Box pl='s1'>{extra}</Box>
       </Flex>
       <Box p='m'>{children}</Box>
     </Flex>

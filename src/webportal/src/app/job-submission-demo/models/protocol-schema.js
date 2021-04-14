@@ -28,7 +28,7 @@ export const taskRoleSchema = Joi.object().keys({
     infiniband: Joi.boolean(),
   }),
   resourcePerInstance: Joi.object()
-    // .required()
+    .required()
     .keys({
       cpu: Joi.number().required(),
       memoryMB: Joi.number().required(),

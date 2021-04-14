@@ -40,9 +40,11 @@ export const Topbar = React.memo(
     history,
     setYamlText,
   }) => {
-    const generateNewVersionHref = href => {
-      const urlOptions = href.split('submit');
-      return urlOptions[0] + 'submit_demo' + urlOptions[1];
+    const generateNewVersionHref = url => {
+      return url.replace(
+        /(submit.html)(\?[\s\S]+)?(#\/[\w]+)$/gm,
+        'submit_demo.html$2#/general',
+      );
     };
     return (
       <Stack horizontal horizontalAlign='space-between' padding='0 m'>

@@ -8,9 +8,9 @@ import { JobSSH } from './job-ssh';
 
 export const Tools = () => {
   return (
-    <FormSection title='Tools' tooltip={PROTOCOL_TOOLTIPS.tools}>
+    <FormSection title='SSH' tooltip={PROTOCOL_TOOLTIPS.tools}>
       <Box>
-        <Box fontSize='s2'>
+        <Box fontSize='s2' lineHeight={2} marginBottom='m'>
           Tools section is used to configure the tools that are useful for jobs.
         </Box>
         <JobSSH />

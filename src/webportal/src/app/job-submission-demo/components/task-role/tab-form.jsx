@@ -3,7 +3,8 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { Box, Flex } from '../../elements';
+import PropTypes from 'prop-types';
+import { cloneDeep, isEmpty, isNil, get } from 'lodash';
 import {
   ActionButton,
   getTheme,
@@ -12,13 +13,12 @@ import {
   Pivot,
   PivotItem,
 } from 'office-ui-fabric-react';
+import { Box, Flex } from '../../elements';
 import { createUniqueName } from '../../utils/utils';
-import PropTypes from 'prop-types';
-import { JobProtocol } from '../../models/job-protocol';
 import { DEFAULT_DOCKER_URI } from '../../utils/constants';
-import { cloneDeep, isEmpty, isNil } from 'lodash';
-import { DockerInfo } from '../../models/docker-info';
+import { JobProtocol } from '../../models/job-protocol';
 import { JobTaskRole } from '../../models/job-task-role';
+import { DockerInfo } from '../../models/docker-info';
 
 const { spacing } = getTheme();
 
@@ -113,11 +113,15 @@ const PureTabForm = ({
 
     delete updateTaskRoles[itemKey];
 
+    const updatedExtras = get(jobProtocol, 'extras', {});
+    delete updatedExtras.hivedScheduler.taskRoles[itemKey];
+
     onJobProtocolChange(
       new JobProtocol({
         ...jobProtocol,
         prerequisites: updatePrerequisites,
         taskRoles: updateTaskRoles,
+        extras: updatedExtras,
       }),
     );
     onTaskRoleSelect(Object.keys(taskRoles)[0]);

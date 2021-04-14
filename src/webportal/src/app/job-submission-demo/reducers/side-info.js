@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { SIDEBAR_PARAM, SIDEBAR_CONFIG } from '../utils/constants';
+
+import { SIDEBAR_CONFIG, SIDEBAR_TOOL } from '../utils/constants';
 
 const initialState = {
-  expandedFlag: false,
-  currentSideKey: SIDEBAR_PARAM,
+  expandedFlag: true,
+  currentSideKey: SIDEBAR_TOOL,
   currentSideList: SIDEBAR_CONFIG.map(item => ({
     ...item,
     checked: true,
@@ -17,12 +18,12 @@ export const SideInfo = (state = initialState, action) => {
     case 'TOGGLE_EXPANDED_FLAG':
       return {
         ...state,
-        expandedFlag: action.payload || false,
+        expandedFlag: action.payload || true,
       };
     case 'TOGGLE_CURRENT_SIDEBAR':
       return {
         ...state,
-        currentSideKey: action.payload || SIDEBAR_PARAM,
+        currentSideKey: action.payload || SIDEBAR_TOOL,
       };
     case 'UPDATE_SIDEBAR_CONFIG':
       currentSideList = action.payload || [];

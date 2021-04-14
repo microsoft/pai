@@ -23,6 +23,7 @@ import { MinSucceedInstances } from './min-succeed-instances';
 import { MoreInfo } from '../more-info';
 import { JobTaskRole } from '../../models/job-task-role';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
+import { PortsList } from './ports-list';
 
 const PureTaskRole = ({
   jobProtocol,
@@ -137,12 +138,15 @@ const PureTaskRole = ({
       <Row gutter={20}>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
           <FormItem label='SKU count per instance'>
-            <SKUCount value={jobTaskRole.skuNum} onChange={onTaskRoleChange} />
+            <SKUCount
+              value={jobTaskRole.hivedSku}
+              onChange={onTaskRoleChange}
+            />
           </FormItem>
         </Col>
         <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
           <FormItem label='SKU type'>
-            <SKUType value={jobTaskRole.skuType} onChange={onTaskRoleChange} />
+            <SKUType value={jobTaskRole.hivedSku} onChange={onTaskRoleChange} />
           </FormItem>
         </Col>
       </Row>
@@ -157,41 +161,53 @@ const PureTaskRole = ({
         </Col>
       </Row>
       {advancedFlag && (
-        <Row gutter={20}>
-          <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
-            <FormItem
-              label='Task retry count'
-              tooltip={PROTOCOL_TOOLTIPS.policy}
-            >
-              <TaskRetryCount
-                value={jobTaskRole.taskRetryCount}
-                onChange={onTaskRoleChange}
-              />
-            </FormItem>
-          </Col>
-          <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-            <FormItem
-              label='Min failed instances'
-              tooltip={PROTOCOL_TOOLTIPS.policy}
-            >
-              <MinFailedInstances
-                value={jobTaskRole.completion}
-                onChange={onTaskRoleChange}
-              />
-            </FormItem>
-          </Col>
-          <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-            <FormItem
-              label='Min succeed instances'
-              tooltip={PROTOCOL_TOOLTIPS.policy}
-            >
-              <MinSucceedInstances
-                value={jobTaskRole.completion}
-                onChange={onTaskRoleChange}
-              />
-            </FormItem>
-          </Col>
-        </Row>
+        <>
+          <Row gutter={20}>
+            <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
+              <FormItem label='Ports'>
+                <PortsList
+                  ports={jobTaskRole.ports}
+                  onChange={onTaskRoleChange}
+                />
+              </FormItem>
+            </Col>
+          </Row>
+          <Row gutter={20}>
+            <Col span={{ _: 12, sm: 12, md: 12, lg: expandedFlag ? 12 : 4 }}>
+              <FormItem
+                label='Task retry count'
+                tooltip={PROTOCOL_TOOLTIPS.policy}
+              >
+                <TaskRetryCount
+                  value={jobTaskRole.taskRetryCount}
+                  onChange={onTaskRoleChange}
+                />
+              </FormItem>
+            </Col>
+            <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
+              <FormItem
+                label='Min failed instances'
+                tooltip={PROTOCOL_TOOLTIPS.policy}
+              >
+                <MinFailedInstances
+                  value={jobTaskRole.completion}
+                  onChange={onTaskRoleChange}
+                />
+              </FormItem>
+            </Col>
+            <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
+              <FormItem
+                label='Min succeed instances'
+                tooltip={PROTOCOL_TOOLTIPS.policy}
+              >
+                <MinSucceedInstances
+                  value={jobTaskRole.completion}
+                  onChange={onTaskRoleChange}
+                />
+              </FormItem>
+            </Col>
+          </Row>
+        </>
       )}
       <MoreInfo isShow={advancedFlag} onChange={toggleMoreInfo} />
     </FormSection>

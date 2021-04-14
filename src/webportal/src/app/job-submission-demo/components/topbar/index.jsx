@@ -10,9 +10,11 @@ import { Flex } from '../../elements';
 import theme from '../../theme';
 
 export const Topbar = () => {
-  const generateOldVersionHref = href => {
-    const urlOptions = href.split('submit_demo');
-    return urlOptions[0] + 'submit' + urlOptions[1];
+  const generateOldVersionHref = url => {
+    return url.replace(
+      /(submit_demo.html)(\?[\s\S]+)?(#\/[\w]+)$/gm,
+      'submit.html$2#/general',
+    );
   };
   return (
     <Flex justifyContent='space-between'>

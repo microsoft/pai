@@ -32,8 +32,8 @@ export const EnvVar = () => {
   return (
     <FormSection title='PAI environment variables'>
       <Box>
-        <Box fontSize='s2'>
-          You could reference these PAI Environment Variables in command by
+        <Box fontSize='s2' lineHeight={2}>
+          You could reference these PAI Environment Variables in command by{' '}
           <Code fontSize='s2' color='dark-red' bg='black-05'>
             {'$envKey'}
           </Code>

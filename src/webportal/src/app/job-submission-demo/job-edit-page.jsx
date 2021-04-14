@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
-import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react';
+import { DefaultButton, PrimaryButton, Stack } from 'office-ui-fabric-react';
 import { Flex, Box } from './elements';
 import { TemplateSelection } from './components/template-selection';
 import { SaveTemplateDialog } from './components/save-template-dialog';
@@ -44,8 +44,8 @@ const PureJobEditPage = ({ jobProtocol, fetchVirtualClusters }) => {
     <>
       <Flex flex='1 1 100%'>
         {/* left */}
-        <Box flex='1 1 100%'>
-          <Box bg='white'>
+        <Box flex='1 1 100%' bg='white'>
+          <Box>
             <TemplateSelection />
           </Box>
           <Box>
@@ -58,14 +58,16 @@ const PureJobEditPage = ({ jobProtocol, fetchVirtualClusters }) => {
         {/* right */}
         <Sidebar />
       </Flex>
-      <Flex justifyContent='flex-end' padding='m' marginTop='m' bg='white'>
-        <PrimaryButton onClick={onSubmit}>Submit</PrimaryButton>
-        {config.saveTemplate === 'true' && (
-          <DefaultButton onClick={toggleHideDialog}>
-            Save to Templates
-          </DefaultButton>
-        )}
-      </Flex>
+      <Box padding='m' marginTop='m' bg='white'>
+        <Stack horizontal horizontalAlign='end' gap='m'>
+          <PrimaryButton onClick={onSubmit}>Submit</PrimaryButton>
+          {config.saveTemplate === 'true' && (
+            <DefaultButton onClick={toggleHideDialog}>
+              Save to Templates
+            </DefaultButton>
+          )}
+        </Stack>
+      </Box>
       <SaveTemplateDialog
         hideDialog={hideDialog}
         toggleHideDialog={toggleHideDialog}

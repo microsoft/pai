@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty, isNil, get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'office-ui-fabric-react';
 
@@ -18,15 +18,23 @@ const PureSKUType = ({ value, onChange, availableHivedSkuTypes }) => {
   });
 
   const onItemChange = (_, item) => {
-    onChange('skuType', item.key);
+    onChange('hivedSku', { ...value, skuType: item.key, sku: item.sku });
   };
 
   useEffect(() => {
-    if (!isNil(value)) {
-      const selected = skuOptions.find(option => option.key === value);
-      if (isNil(selected)) onChange('skuType', null);
+    if (!isNil(value.skuType)) {
+      const selected = skuOptions.find(option => option.key === value.skuType);
+      if (isNil(selected)) {
+        onChange('hivedSku', { ...value, skuType: null, sku: null });
+      } else if (value.sku == null) {
+        value.sku = get(selected, 'sku', null);
+      }
     } else if (!isEmpty(skuOptions)) {
-      onChange('skuType', skuOptions[0].key);
+      onChange('hivedSku', {
+        ...value,
+        skuType: skuOptions[0].key,
+        sku: skuOptions[0].sku,
+      });
     }
   }, [value, skuOptions]);
 
@@ -34,7 +42,7 @@ const PureSKUType = ({ value, onChange, availableHivedSkuTypes }) => {
     <Dropdown
       placeholder='Select SKU type'
       options={skuOptions}
-      selectedKey={value}
+      selectedKey={value.skuType}
       onChange={onItemChange}
     />
   );
