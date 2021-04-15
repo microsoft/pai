@@ -24,6 +24,8 @@ import { MoreInfo } from '../more-info';
 import { JobTaskRole } from '../../models/job-task-role';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import { PortsList } from './ports-list';
+import { ContainerSizeSection } from './container-size-section';
+import config from '../../../config/webportal.config';
 
 const PureTaskRole = ({
   jobProtocol,
@@ -135,21 +137,32 @@ const PureTaskRole = ({
           </FormItem>
         </Col>
       </Row>
-      <Row gutter={20}>
-        <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-          <FormItem label='SKU count per instance'>
-            <SKUCount
-              value={jobTaskRole.hivedSku}
-              onChange={onTaskRoleChange}
-            />
-          </FormItem>
-        </Col>
-        <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
-          <FormItem label='SKU type'>
-            <SKUType value={jobTaskRole.hivedSku} onChange={onTaskRoleChange} />
-          </FormItem>
-        </Col>
-      </Row>
+      {config.launcherScheduler === 'hivedscheduler' ? (
+        <Row gutter={20}>
+          <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
+            <FormItem label='SKU count per instance'>
+              <SKUCount
+                value={jobTaskRole.hivedSku}
+                onChange={onTaskRoleChange}
+              />
+            </FormItem>
+          </Col>
+          <Col span={{ _: 12, sm: 12, md: 6, lg: expandedFlag ? 6 : 4 }}>
+            <FormItem label='SKU type'>
+              <SKUType
+                value={jobTaskRole.hivedSku}
+                onChange={onTaskRoleChange}
+              />
+            </FormItem>
+          </Col>
+        </Row>
+      ) : (
+        <ContainerSizeSection
+          value={jobTaskRole.containerSize}
+          onChange={onTaskRoleChange}
+          isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
+        />
+      )}
       <Row>
         <Col span={12}>
           <FormItem label='Command'>

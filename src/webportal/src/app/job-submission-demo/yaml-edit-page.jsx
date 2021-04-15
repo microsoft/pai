@@ -63,6 +63,10 @@ const PureYamlEditPage = ({ jobProtocol, onJobProtocolChange }) => {
   };
 
   const onSave = () => {
+    if (validStatus.barType === MessageBarType.error) {
+      alert('Error when saving the yaml page');
+      return;
+    }
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
     onJobProtocolChange({ ...updatedJob });
     handleReadOnly(true);
