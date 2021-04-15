@@ -37,7 +37,7 @@ class NodeCmd():
         remove_parser.set_defaults(handler=self._remove_node)
 
         def add_arguments(parser):
-            parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Display ansible logs of skip and ok hosts")
+            parser.add_argument("-s", "--silence", action="store_true", dest="silence", default=False, help="Display ansible logs of skip and ok hosts")
             parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             group = parser.add_mutually_exclusive_group()
             group.add_argument("-n", "--node-list", nargs='+', dest="node_list", default=None, help="Node list to add / remove")
@@ -46,7 +46,7 @@ class NodeCmd():
         add_arguments(remove_parser)
 
     def _add_node(self, args):
-        change_node.ChangeNode(args.kube_config_path, args.verbose).run(mode="add", node_list=args.node_list)
+        change_node.ChangeNode(args.kube_config_path, args.silence).run(mode="add", node_list=args.node_list)
 
     def _remove_node(self, args):
-        change_node.ChangeNode(args.kube_config_path, args.verbose).run(mode="remove", node_list=args.node_list)
+        change_node.ChangeNode(args.kube_config_path, args.silence).run(mode="remove", node_list=args.node_list)
