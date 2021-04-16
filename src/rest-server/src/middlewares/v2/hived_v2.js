@@ -307,9 +307,6 @@ const hivedValidate = async (protocolObj, username) => {
     group.childGroups.push({
       name: `${rootGroupName}/${taskRole}`,
       withinOneCell: withinOneCell,
-      // This field marks what taskrole generates this child group.
-      // It will be replaced by containsCurrentPod later.
-      generatedBy: taskRole,
       pods: [
         {
           podMinNumber: instanceNum,
@@ -318,6 +315,9 @@ const hivedValidate = async (protocolObj, username) => {
             cellType: cellType,
             cellNumber: cellNumber,
           },
+          // This field marks what taskrole generates this child group.
+          // It will be replaced by containsCurrentPod later.
+          generatedBy: taskRole,
         },
       ],
       childGroups: null,
@@ -416,18 +416,26 @@ const hivedValidate = async (protocolObj, username) => {
       const group = _.cloneDeep(rootPodGroups[rootGroupName]);
       // replace generatedBy with containsCurrentPod
       for (const childGroup of group.childGroups) {
-        if (taskRole === childGroup.generatedBy) {
-          childGroup.containsCurrentPod = true;
+        // For now, only 1 pod spec could exist in one child groups
+        const podSpec = childGroup.pods[0];
+        if (taskRole === podSpec.generatedBy) {
+          podSpec.containsCurrentPod = true;
         } else {
-          childGroup.containsCurrentPod = false;
+          podSpec.containsCurrentPod = false;
         }
-        delete childGroup.generatedBy;
+        delete podSpec.generatedBy;
+      }
+      // If the group only has one child group, we can put the child group into the top level
+      if (group.childGroups.length === 1) {
+        const childGroup = group.childGroups[0];
+        group.withinOneCell = childGroup.withinOneCell;
+        group.pods = _.cloneDeep(childGroup.pods);
+        delete group.childGroups;
       }
       podSpec.podRootGroup = group;
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
-
   return protocolObj;
 };
 
