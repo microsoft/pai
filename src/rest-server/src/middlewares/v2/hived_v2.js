@@ -232,23 +232,183 @@ const hivedValidate = async (protocolObj, username) => {
 
   const hivedConfig = _.get(protocolObj, 'extras.hivedScheduler');
   const opportunistic = !!(_.get(hivedConfig, 'jobPriorityClass') === 'oppo');
-  // for v2 schema, gangAllocation can be true, false, null
-  let gangAllocation = _.get(protocolObj, 'extras.gangAllocation', null)
-  if ( gangAllocation !== true || gangAllocation !== false || gangAllocation !== null ) {
-    gangAllocation = null
-  }
+  const gangAllocation = !!(
+    _.get(protocolObj, 'extras.gangAllocation', true) === true
+  );
   const virtualCluster = _.get(protocolObj, 'defaults.virtualCluster', 'default');
   const vcCellInfo = await getVcCellInfo(virtualCluster);
-  logger.info(vcCellInfo)
   validateSkuType(hivedConfig, opportunistic, vcCellInfo)
   validateWithinOne(hivedConfig, opportunistic, vcCellInfo)
   calculateSkuNum(protocolObj, opportunistic, vcCellInfo)
 
-  throw createError(
-      'Bad Request',
-      'V2 OK',
-      `V2 OK!`,
-    );
+  // Step 1: Initialize root groups
+  const taskRole2GroupName = {}
+  const rootPodGroups = {}
+  // No matter whether gangAllocation is true or not, respect settings in taskRoleGroups first.
+  for (const taskRoleGroup of _.get(hivedConfig, 'taskRoleGroups', [])) {
+    const rootGroupName = `${username}~${protocolObj.name}/taskRoleGroups/${taskRoleGroup.taskRoles.join('_')}`
+    for (const taskRole of taskRoleGroup.taskRoles) {
+      taskRole2GroupName[taskRole] = rootGroupName
+    }
+    const withinOneCell = taskRoleGroup.withinOne
+    rootPodGroups[rootGroupName] = {
+      name: rootGroupName,
+      withinOneCell: withinOneCell,
+      pods: null,
+      childGroups: [],
+    }
+  }
+  // For remaining task roles, if gangAllocation is true (or not set explicitly), put them in a default group.
+  // If gangAllocation is false, no group will be generated for them.
+  if (gangAllocation === true) {
+    const defaultRootGroupName = `${username}~${protocolObj.name}/default`
+    for (const taskRole of _.keys(protocolObj.taskRoles)) {
+      if (!(taskRole in taskRole2GroupName)) {
+        taskRole2GroupName[taskRole] = defaultRootGroupName
+        // initialize default root group
+        if (!(defaultRootGroupName in rootPodGroups)) {
+          rootPodGroups[defaultRootGroupName] = {
+            name: defaultRootGroupName,
+            withinOneCell: null,
+            pods: null,
+            childGroups: [],
+          }
+        }
+      }
+    }
+  }
+
+  // Step 2: Fill in childGroups
+  for (const taskRole in taskRole2GroupName) {
+    const rootGroupName = taskRole2GroupName[taskRole]
+    const group = rootPodGroups[rootGroupName]
+    const taskRoleSetting = hivedConfig.taskRoles[taskRole]
+    const pinnedCellId = taskRoleSetting.pinnedCellId
+    const cellType = taskRoleSetting.resourcePerInstance.skuType
+    const cellNumber = taskRoleSetting.resourcePerInstance.skuNum
+    const withinOneCell = taskRoleSetting.withinOne
+    const instanceNum = protocolObj.taskRoles[taskRole].instances
+    group.childGroups.push({
+      name: `${rootGroupName}/${taskRole}`,
+      withinOneCell: withinOneCell,
+      // This field marks what taskrole generates this child group.
+      // It will be replaced by containsCurrentPod later.
+      generatedBy: taskRole,
+      pods: [{
+        podMinNumber: instanceNum,
+        podMaxNumber: instanceNum,
+        cellsPerPod: {
+          cellType: cellType,
+          cellNumber: cellNumber,
+        }
+      }],
+      childGroups: null,
+    })
+  }
+
+  // Step 3: Validate quota (best effort)
+  if (!opportunistic) {
+    // cellTypeCount[<group name>][<cell type>] represents used cell number of <cell type> in <group name>
+    const cellTypeCount = {}
+    // cellTypeCount[<group name>] reprensts used cell number of null type in <group name>
+    const anyTypeCount = {}
+    for (const rootGroupName in rootPodGroups) {
+      const group = rootPodGroups[rootGroupName]
+      if (!(rootGroupName in cellTypeCount)) {
+        cellTypeCount[rootGroupName] = {}
+      }
+      if (!(rootGroupName in anyTypeCount)) {
+        anyTypeCount[rootGroupName] = 0
+      }
+      for (const childGroup of group.childGroups) {
+        for (const pod of childGroup.pods) {
+          if (pod.cellsPerPod.cellType === null) {
+            anyTypeCount[rootGroupName] += pod.podMinNumber * pod.cellsPerPod.cellNumber
+          } else {
+            if (!(pod.cellsPerPod.cellType in cellTypeCount[rootGroupName])) {
+              cellTypeCount[rootGroupName][pod.cellsPerPod.cellType] = 0
+            }
+            cellTypeCount[rootGroupName][pod.cellsPerPod.cellType] += pod.podMinNumber * pod.cellsPerPod.cellNumber
+          }
+        }
+      }
+    }
+    // For non-null cell type: Used number should less than quota
+    for (const cellType in vcCellInfo) {
+      for (const rootGroupName in cellTypeCount){
+        if (cellType in cellTypeCount[rootGroupName]) {
+          const requestCellCount = cellTypeCount[rootGroupName][cellType]
+          const cellQuota =  vcCellInfo[cellType].quota
+          if (requestCellCount > cellQuota) {
+            throw createError(
+              'Bad Request',
+              'InvalidProtocolError',
+              `Job requests ${requestCellCount} of cell type ${cellType} in one group, exceeds maximum ${cellQuota} in VC ${virtualCluster}.`,
+            );
+          }
+        }
+      }
+    }
+    // For null cell type:
+    // number of (used number of null cell type + used number of non-null leaf cell type) should <= quota of all leaf cell types
+    let vcLeafCellQuota = 0
+    for (const cellType in vcCellInfo) {
+      if (vcCellInfo[cellType].isLeafCell) {
+        vcLeafCellQuota += vcCellInfo[cellType].quota
+      }
+    }
+    for (const rootGroupName in anyTypeCount) {
+      const groupAnyTypeCount = anyTypeCount[rootGroupName]
+      let groupLeafTypeCount = 0
+      for (const cellType in cellTypeCount[rootGroupName]) {
+        if (vcCellInfo[cellType].isLeafCell) {
+          groupLeafTypeCount += cellTypeCount[rootGroupName][cellType]
+        }
+      }
+      if (groupAnyTypeCount + groupLeafTypeCount > vcLeafCellQuota) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Job requests ${groupAnyTypeCount} cells of null cell type, and ${groupLeafTypeCount} cells with explicit leaf cell type in one group, exceeds maximum ${vcLeafCellQuota} leaf cell quota in VC ${virtualCluster}.`,
+        );
+      }
+    }
+  }
+
+
+  // Step 4: Generate hived pod spec
+  const priority = convertPriority(hivedConfig.jobPriorityClass)
+  for (const taskRole in protocolObj.taskRoles) {
+    const taskRoleSetting = hivedConfig.taskRoles[taskRole]
+    const pinnedCellId = taskRoleSetting.pinnedCellId
+    const cellType = taskRoleSetting.resourcePerInstance.skuType
+    const cellNumber = taskRoleSetting.resourcePerInstance.skuNum
+    const podSpec = {
+      version: 'v2',
+      virtualCluster: virtualCluster,
+      priority: priority,
+      pinnedCellId: pinnedCellId,
+      cellType: cellType,
+      cellNumber: cellNumber,
+      podRootGroup: null,
+    }
+    if (taskRole in taskRole2GroupName) {
+      const rootGroupName = taskRole2GroupName[taskRole]
+      const group = _.cloneDeep(rootPodGroups[rootGroupName])
+      // replace generatedBy with containsCurrentPod
+      for (const childGroup of group.childGroups) {
+        if (taskRole === childGroup.generatedBy) {
+          childGroup.containsCurrentPod = true
+        } else {
+          childGroup.containsCurrentPod = false
+        }
+        delete childGroup.generatedBy
+      }
+      podSpec.podRootGroup = group
+    }
+    protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec
+  }
+
   return protocolObj
 }
 

@@ -36,14 +36,6 @@ const hivedSchema = {
               enum: ['crit', 'prod', 'test', 'oppo'],
               default: 'test',
             },
-            gangReleaseEnable: {
-              type: 'boolean',
-              default: false,
-            },
-            lazyPreemptionEnable: {
-              type: 'boolean',
-              default: false,
-            },
             taskRoles: {
               minProperties: 1,
               patternProperties: {
