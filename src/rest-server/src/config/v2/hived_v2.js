@@ -53,13 +53,13 @@ const hivedSchema = {
                       properties: {
                         skuNum: {
                           type: ['integer', 'null'],
-                          default: null
+                          default: null,
                         },
                         skuType: {
                           type: ['string', 'null'],
                           default: null,
                         },
-                      }
+                      },
                     },
                     withinOne: {
                       type: ['string', 'null'],
@@ -81,7 +81,7 @@ const hivedSchema = {
                     minItems: 1,
                     items: {
                       type: 'string',
-                    }
+                    },
                   },
                   withinOne: {
                     type: ['string', 'null'],
@@ -110,7 +110,7 @@ const schemaValidate = (protocolObj) => {
 
   // set extras.hivedScheduler to let the defaulting happen
   if (!_.has(protocolObj, 'extras.hivedScheduler')) {
-    _.set(protocolObj, 'extras.hivedScheduler', {})
+    _.set(protocolObj, 'extras.hivedScheduler', {});
   }
   // extras.hivedScheduler.taskRoles.<taskrole> can be missing for some taskroles.
   // we set the following default value for these taskroles.
@@ -119,7 +119,7 @@ const schemaValidate = (protocolObj) => {
   //    resourcePerInstance:
   //      skuNum: null
   //      skuType: null
-  const hivedConfig = _.get(protocolObj, 'extras.hivedScheduler')
+  const hivedConfig = _.get(protocolObj, 'extras.hivedScheduler');
   for (const taskRole of _.keys(_.get(protocolObj, 'taskRoles', {}))) {
     if (!_.has(hivedConfig, ['taskRoles', taskRole])) {
       _.set(hivedConfig, ['taskRoles', taskRole], {
@@ -132,38 +132,53 @@ const schemaValidate = (protocolObj) => {
     }
   }
   if (!hivedValidate(protocolObj)) {
-    return [false, hivedValidate.errors]
+    return [false, hivedValidate.errors];
   }
   // all taskroles in extras.hivedScheduler.taskRoles must appear in job's taskRoles
   for (const taskRole of _.keys(_.get(hivedConfig, 'taskRoles', {}))) {
     if (!_.has(protocolObj, ['taskRoles', taskRole])) {
-      return [false, `Task role ${taskRole} found in extras.hivedScheduler.taskRoles but not specified in the job!`]
+      return [
+        false,
+        `Task role ${taskRole} found in extras.hivedScheduler.taskRoles but not specified in the job!`,
+      ];
     }
     const pinnedCellId = hivedConfig.taskRoles[taskRole].pinnedCellId;
     const skuType = hivedConfig.taskRoles[taskRole].resourcePerInstance.skuType;
     if (skuType != null && pinnedCellId != null) {
-        return [false,  `Taskrole ${taskRole} has both skuType and pinnedCellId, only one is allowed.`]
+      return [
+        false,
+        `Taskrole ${taskRole} has both skuType and pinnedCellId, only one is allowed.`,
+      ];
     }
   }
   // All taskroles in extras.hivedScheduler.taskRoleGroups must appear in job's taskRoles.
   // Also, all task role groups should have at least 2 memebers and have no overlap.
-  const includedTaskRoles = new Set()
+  const includedTaskRoles = new Set();
   for (const taskRoleGroup of _.get(hivedConfig, 'taskRoleGroups', [])) {
-    if (taskRoleGroup.taskRoles.length == 1) {
-      return [false, 'Task role group in extras.hivedScheduler.taskRoleGroups must have at least 2 members!']
+    if (taskRoleGroup.taskRoles.length === 1) {
+      return [
+        false,
+        'Task role group in extras.hivedScheduler.taskRoleGroups must have at least 2 members!',
+      ];
     }
     for (const taskRole of taskRoleGroup.taskRoles) {
       if (!_.has(protocolObj, ['taskRoles', taskRole])) {
-        return [false, `Task role ${taskRole} found in extras.hivedScheduler.taskRoleGroups but not specified in the job!`]
+        return [
+          false,
+          `Task role ${taskRole} found in extras.hivedScheduler.taskRoleGroups but not specified in the job!`,
+        ];
       }
       if (includedTaskRoles.has(taskRole)) {
-        return [false, `There is an overlap in extras.hivedScheduler.taskRoleGroups!`]
+        return [
+          false,
+          `There is an overlap in extras.hivedScheduler.taskRoleGroups!`,
+        ];
       }
       includedTaskRoles.add(taskRole);
     }
   }
-  return [true, '']
-}
+  return [true, ''];
+};
 
 // module exports
 module.exports = {
