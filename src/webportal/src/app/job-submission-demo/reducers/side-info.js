@@ -18,7 +18,7 @@ export const SideInfo = (state = initialState, action) => {
     case 'TOGGLE_EXPANDED_FLAG':
       return {
         ...state,
-        expandedFlag: action.payload || true,
+        expandedFlag: action.payload || false,
       };
     case 'TOGGLE_CURRENT_SIDEBAR':
       return {
