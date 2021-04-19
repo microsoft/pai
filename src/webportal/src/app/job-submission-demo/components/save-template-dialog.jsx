@@ -107,6 +107,9 @@ const PureSaveTemplateDialog = props => {
       return;
     }
     const protocol = cloneDeep(jobProtocol);
+    if (!isNil(protocol.secrets)) {
+      protocol.secrets = null;
+    }
     const template = {};
     template.name = templateName;
     template.summary = templateSummary;
