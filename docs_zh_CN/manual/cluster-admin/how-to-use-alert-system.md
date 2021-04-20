@@ -91,13 +91,13 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
-    actions: 
+    actions:
       email-admin:
-      email-user:  
+      email-user:
         template: 'kill-low-efficiency-job-alert'
       stop-jobs:
       tag-jobs:
-        tags: 
+        tags:
         - 'stopped-by-alert-manager'
 
 ```
@@ -125,7 +125,7 @@ alert-manager:
 |              | 在`labels`中依赖的字段 |
 | :-----------:| :------------------: |
 | cordon-nodes | node_name            |
-| email-admin  | -                    | 
+| email-admin  | -                    |
 | email-user   | -                    |
 | stop-jobs    | job_name             |
 | tag-jobs     | job_name             |
@@ -145,13 +145,13 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
-    actions: 
+    actions:
       email-admin:
-      email-user:  
+      email-user:
         template: 'kill-low-efficiency-job-alert'
       stop-jobs:
       tag-jobs:
-        tags: 
+        tags:
         - 'stopped-by-alert-manager'
   ......
 ```
@@ -246,7 +246,7 @@ alert-manager:
 `pai-bearer-token`和`cluster-utilization`->`schedule`是此功能的必要字段。
 有关`schedule`字段的语法，请参阅[定时计划语法](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax)。
 例如，`"0 0 * * *"`表示每日在UTC 00:00发送报告。
-同时请确保已启用[`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施。 
+同时请确保已启用[`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施。
 
 ```yaml
 alert-manager:
@@ -254,6 +254,33 @@ alert-manager:
   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
     schedule: "0 0 * * *" # daily report at UTC 00:00
+```
+
+为使配置生效，请在dev box容器中使用以下命令重启`alert-manager`服务：
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
+
+## Cluster k8s cert expiration checker
+
+我们提供了定期检查k8s证书过期时间，并将快到期提醒发送给管理员用户的功能。
+
+如果已经启用了 `email-admin`，该功能将会被默认开启。
+您可以通过在 `services-configuration.yml` 中配置 `alert-manager`->`cert-expiration-checker`, `schedule`, `alert-residual-days` 和 `cert-path` 来管理这个功能。
+有关 `schedule` 字段的语法，请参阅[定时计划语法](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax)。
+例如，`"0 0 * * *"`表示每日在UTC 00:00发送报告。
+同时请确保已启用[`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施。
+
+```yaml
+alert-manager:
+  cert-expiration-checker: # cert-expiration-checker is a k8s CronJob which check the cert expiration date
+    # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+    schedule: '0 0 * * *' # daily check at UTC 00:00
+    alert-residual-days: 30 # send alert if the expiration date is coming soon
+    cert-path: '/etc/kubernetes/ssl' # the k8s cert path in master node
 ```
 
 为使配置生效，请在dev box容器中使用以下命令重启`alert-manager`服务：
