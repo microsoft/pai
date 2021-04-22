@@ -34,7 +34,8 @@ sudo kubeadm alpha kubeconfig user --org system:nodes --client-name system:node:
 sudo kubeadm alpha kubeconfig user --client-name system:kube-scheduler > scheduler.conf
 
 # chown and chmod so they match existing files
-sudo chown root:root {admin,controller-manager,kubelet,scheduler}.conf
+# please replace <user> to your current user name (e.g. root, core)
+sudo chown <user> {admin,controller-manager,kubelet,scheduler}.conf
 sudo chmod 600 {admin,controller-manager,kubelet,scheduler}.conf
 
 # Move to replace existing kubeconfigs
@@ -63,7 +64,8 @@ echo -n | openssl s_client -connect localhost:10259 2>&1 | sed -ne '/-BEGIN CERT
 
 ```bash
 sudo kubeadm alpha kubeconfig user --org system:nodes --client-name system:node:$(hostname) > kubelet.conf
-sudo chown root:root kubelet.conf
+# please replace <user> to your current user name (e.g. root, core)
+sudo chown <user> kubelet.conf
 sudo chmod 600 kubelet.conf
 
 # Stop kubelet
