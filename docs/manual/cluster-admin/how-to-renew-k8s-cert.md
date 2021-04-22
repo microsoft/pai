@@ -115,7 +115,7 @@ contrib/kubespray/script/k8s_generator.py -l layout.yaml -c config.yaml -o <outp
 And run the following commands:
 
 ```bash
-ansible-playbook -i hosts.yml --limit '!prodheads000001' --become --become-user root renew-worker-cert.yaml
+ansible-playbook -i hosts.yml --limit '!master-node' --become --become-user root renew-worker-cert.yaml
 ```
 
 ### Remove token after all workers have been updated

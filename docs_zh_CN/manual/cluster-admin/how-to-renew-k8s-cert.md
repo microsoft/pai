@@ -115,7 +115,7 @@ contrib/kubespray/script/k8s_generator.py -l layout.yaml -c config.yaml -o <outp
 然后执行以下指令，来更新worker节点的证书:
 
 ```bash
-ansible-playbook -i hosts.yml --limit '!prodheads000001' --become --become-user root renew-worker-cert.yaml
+ansible-playbook -i hosts.yml --limit '!master-node' --become --become-user root renew-worker-cert.yaml
 ```
 
 ### 更新结束后删除令牌
