@@ -1,4 +1,4 @@
-# How to renew kubenetes certs
+# How to renew kubernetes certs
 
 The k8s API server's cert will expire every year, and will cause OpenPAI cluster not available.
 For more details, please refer to [Certificate Management with kubeadm](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/).

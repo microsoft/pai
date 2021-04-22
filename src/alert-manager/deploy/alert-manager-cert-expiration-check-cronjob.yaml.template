@@ -26,9 +26,9 @@ spec:
               value: "{{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["alert-residual-days"] }}"
             volumeMounts:
             - mountPath: /etc/kubernetes/ssl
-              name: kubenetes-ssl
+              name: kubernetes-ssl
           volumes:
-            - name: kubenetes-ssl
+            - name: kubernetes-ssl
               hostPath:
                 path: {{ cluster_cfg["alert-manager"]["cert-expiration-checker"]["cert-path"] }}
           imagePullSecrets:

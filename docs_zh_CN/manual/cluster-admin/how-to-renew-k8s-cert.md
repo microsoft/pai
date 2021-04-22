@@ -1,4 +1,4 @@
-# 如何更新 kubenetes 证书
+# 如何更新 kubernetes 证书
 
 由于 k8s API server 的证书会在部署一年后过期，并将导致 OpenPAI 的集群不可访问，因此需要在即将到期的时候对其进行更新。
 请参考 [使用 kubeadm 进行证书管理](https://kubernetes.io/zh/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)，以获取更详细的信息。
