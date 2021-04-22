@@ -120,8 +120,9 @@ ansible-playbook -i hosts.yml --limit '!master-node' --become --become-user root
 
 ### 更新结束后删除令牌
 
-如果不执行这一步，令牌依然会在24小时后失效。
+在master节点上删除令牌，如果不执行这一步，令牌依然会在24小时后失效。
 
 ```bash
+# On master node
 sudo kubeadm token delete TOKEN-FROM-CREATION-ON-MASTER
 ```

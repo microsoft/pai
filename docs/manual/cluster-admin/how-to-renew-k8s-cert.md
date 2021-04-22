@@ -120,8 +120,9 @@ ansible-playbook -i hosts.yml --limit '!master-node' --become --become-user root
 
 ### Remove token after all workers have been updated
 
-The token will expire in 24h if we don't do this step.
+Delete the token on master node, The token will expire in 24h if we don't do this step.
 
 ```bash
+# On master node
 sudo kubeadm token delete TOKEN-FROM-CREATION-ON-MASTER
 ```
