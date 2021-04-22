@@ -66,8 +66,6 @@ sudo kubeadm alpha kubeconfig user --org system:nodes --client-name system:node:
 sudo chown root:root kubelet.conf
 sudo chmod 600 kubelet.conf
 
-# Drain
-kubectl drain --ignore-daemonsets $(hostname)
 # Stop kubelet
 sudo systemctl stop kubelet
 # Delete files
