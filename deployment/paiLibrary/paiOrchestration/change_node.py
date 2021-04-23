@@ -27,13 +27,13 @@ from ...confStorage.upload import UploadConfiguration
 
 class ChangeNode:
 
-    def __init__(self, kube_config_path=None, verbose=False):
+    def __init__(self, kube_config_path=None, silence=False):
         self._logger = logging.getLogger(__name__)
         self._kube_config_path = kube_config_path
-        if verbose:
-            self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=yes && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes && export ANSIBLE_CALLBACK_WHITELIST=\"profile_tasks\" &&"
-        else:
+        if silence:
             self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=no && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=no && export ANSIBLE_CALLBACK_WHITELIST=\"\" &&"
+        else:
+            self._ansible_callback_vars = "export ANSIBLE_DISPLAY_OK_HOSTS=yes && export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes && export ANSIBLE_CALLBACK_WHITELIST=\"profile_tasks\" &&"
 
     def _update_layout_yaml(self, layout_yaml_path, remove_node_list):
         self._logger.info("Remove nodes in `layout.yaml`")

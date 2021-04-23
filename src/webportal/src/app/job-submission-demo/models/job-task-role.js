@@ -3,6 +3,10 @@
 
 import { get, isEmpty, isNil } from 'lodash';
 import { Completion } from './completion';
+import {
+  getDefaultContainerSize,
+  isDefaultContainerSize,
+} from '../models/container-size';
 import { removeEmptyProperties } from '../utils/utils';
 import config from '../../config/webportal.config';
 
@@ -13,6 +17,8 @@ export class JobTaskRole {
       dockerImage,
       instances,
       commands,
+      containerSize,
+      isContainerSizeEnabled,
       ports,
       taskRetryCount,
       completion,
@@ -22,6 +28,8 @@ export class JobTaskRole {
     this.instances = instances || 1;
     this.dockerImage = dockerImage || 'docker_image_0';
     this.commands = commands || '';
+    this.containerSize = containerSize || getDefaultContainerSize();
+    this.isContainerSizeEnabled = isContainerSizeEnabled || false;
     this.ports = ports || [];
     this.taskRetryCount = taskRetryCount || 0;
     this.completion = completion || new Completion({});
@@ -47,7 +55,11 @@ export class JobTaskRole {
     const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
     const completion = get(taskRoleProtocol, 'completion', {});
 
-    const skuNum = get(extraProtocol, 'skuNum', 1);
+    const skuNum = get(
+      extraProtocol,
+      'skuNum',
+      Math.max(get(resourcePerInstance, 'gpu', 1), 1),
+    );
     const skuType = get(extraProtocol, 'skuType', null);
 
     const ports = isNil(resourcePerInstance.ports)
@@ -68,16 +80,24 @@ export class JobTaskRole {
       instances: instances,
       dockerImage: dockerImage,
       commands: isNil(commands) ? '' : commands.join('\n'),
+      containerSize: resourcePerInstance,
       ports: ports,
       taskRetryCount: taskRetryCount,
       completion: Completion.fromProtocol(completion),
       hivedSku: hivedSku,
     });
 
+    if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
+      jobTaskRole.isContainerSizeEnabled = true;
+    }
+
     return jobTaskRole;
   }
 
   convertToProtocolFormat() {
+    let taskRole = {};
+    let hivedTaskRole = {};
+
     const ports = this.ports.reduce((val, x) => {
       if (typeof x.value === 'string') {
         val[x.key] = parseInt(x.value);
@@ -102,7 +122,7 @@ export class JobTaskRole {
       );
     }
 
-    const taskRole = removeEmptyProperties({
+    taskRole = removeEmptyProperties({
       instances: this.instances,
       dockerImage: this.dockerImage,
       resourcePerInstance: resourcePerInstance,
@@ -112,10 +132,12 @@ export class JobTaskRole {
         ? []
         : this.commands.split('\n').map(line => line.trim()),
     });
-    const hivedTaskRole = {
-      skuNum: this.hivedSku.skuNum,
-      skuType: this.hivedSku.skuType,
-    };
+    if (config.launcherScheduler === 'hivedscheduler') {
+      hivedTaskRole = {
+        skuNum: this.hivedSku.skuNum,
+        skuType: this.hivedSku.skuType,
+      };
+    }
     return [taskRole, hivedTaskRole];
   }
 }

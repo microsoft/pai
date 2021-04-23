@@ -517,7 +517,6 @@ paths:
       summary: Get a user's data.
       description: >-
         Get a user's data.
-        Only allowed in basic mode
       operationId: getUser
       security:
         - bearerAuth: []
