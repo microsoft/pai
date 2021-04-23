@@ -1,5 +1,25 @@
 # OpenPAI Release Note
 
+## April 2021 (version 1.7.0)
+
+- Marketplace related update
+  - Please see [Marketplace](https://github.com/microsoft/openpaimarketplace/releases/tag/v1.7.0) for more details
+
+- Introduce new job submission page
+
+- Alert system enhancement
+  - Add alert & auto-fix for GPU perf issue #5342 #5383
+  - Add `kill-long-running-job` email templates #5384
+  - Add alert for API server cert expired #5334
+
+- Support sort by `completionTime` for get job list API #5347
+
+- Deployment
+  - Support add/remove nodes #5321 #5167. (**Warning** `config.yaml` need to be added for this feature. refer: https://github.com/microsoft/pai/blob/master/docs/manual/cluster-admin/how-to-add-and-remove-nodes.md#pull--modify-cluster-settings)
+
+- Bug fixes:
+  - Webportal package build issue #5378
+
 ## Mar 2021 (version 1.6.0)
 
 - Job protocol update: Add prerequisites #5145
