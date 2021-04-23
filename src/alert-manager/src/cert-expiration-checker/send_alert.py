@@ -30,6 +30,7 @@ def send_alert(pai_url: str, residualTime: int, certExpirationInfo: str):
     post_url = pai_url.rstrip("/") + ALERT_PREFIX
     alerts = []
     alert = {
+        "status": "firing",
         "labels": {
             "alertname": "k8s cert expiration",
             "severity": "fatal",
