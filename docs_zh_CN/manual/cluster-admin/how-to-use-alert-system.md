@@ -268,11 +268,10 @@ alert-manager:
 
 我们提供了定期检查k8s证书过期时间，并将快到期提醒发送给管理员用户的功能。
 
-如果已经启用了 `email-admin`，该功能将会被默认开启。
 您可以通过在 `services-configuration.yml` 中配置 `alert-manager`->`cert-expiration-checker`, `schedule`, `alert-residual-days` 和 `cert-path` 来管理这个功能。
 有关 `schedule` 字段的语法，请参阅[定时计划语法](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax)。
 例如，`"0 0 * * *"`表示每日在UTC 00:00发送报告。
-同时请确保已启用[`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施。
+在启用了 [`email-admin`]（#Existing-Actions-and-Matching-Rules）处理措施之后，将会给管理员发送邮件提醒。
 
 ```yaml
 alert-manager:
