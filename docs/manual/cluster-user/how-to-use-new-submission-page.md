@@ -25,17 +25,17 @@ python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data 
 
 **Step 4** Specify the resources you need. If you use the default scheduler, OpenPAI allows you to quantify the three resources of GPU, CPU, and memory. When `custom` is selected, the three resources will be configured independently. If you use the hived scheduler, OpenPAI uses **resource SKU** to quantify the resource in one instance. For example, here 1 `DT` SKU means 1 GPU, 5 CPUs, and 53914 MB memory. If you specify one `DT` SKU, you will get a container with 1 GPU, 5 CPUs, and 53914 MB memory. If you specify two `DT` SKUs, you will get a container with 2 GPUs, 10 CPUs, and 107828 MB memory.
 
-<img src="./imgs/default-scheduler-resource.png" width="90%" height="90%" />
+<img src="./imgs/default-scheduler-resource.gif" width="90%" height="90%" />
 
 <img src="./imgs/sku-scheduler-resource.png" width="90%" height="90%" />
 
 **Step 5.** Specify the Docker image. You can either use the listed docker images or take advantage of your own. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Docker Images and Job Examples](./docker-images-and-job-examples.md).
 
-<img src="./imgs/new-docker-image.png" width="90%" height="90%" />
+<img src="./imgs/new-docker-image.gif" width="90%" height="90%" />
 
 **Step 6.** If you need to configure some additional properties, you can click `More info` to expand the additional properties configuration.
 
-<img src="./imgs/more-info.png" width="90%" height="90%" />
+<img src="./imgs/more-info.gif" width="90%" height="90%" />
 
 **Step 7.** Click **Submit** to submit the job.
 
@@ -45,13 +45,13 @@ In the new version, you can switch between `Web UI` and `YAML Config` pages to a
 
 **Step 1.** Click the `YAML Config` to reach the yaml editor page.
 
-<img src="./imgs/switch-to-yaml.png" width="90%" height="90%" />
+<img src="./imgs/switch-to-yaml.gif" width="90%" height="90%" />
 
 **Step 2.** In default case, the editor is in the read-only state. Then click the `Edit` to change into the write mode.
 
 **Step 3.** If no error message in yaml content, click `save` to save it. Otherwise, it will prompt a warning `Error when saving the yaml page`
 
-<img src="./imgs/yaml-edit.png" width="90%" height="90%" />
+<img src="./imgs/yaml-edit.gif" width="90%" height="90%" />
 
 **Step 4.** Click **Submit** to submit the job.
 
