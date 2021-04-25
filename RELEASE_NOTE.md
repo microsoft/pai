@@ -5,7 +5,14 @@
 - Marketplace related update
   - Please see [Marketplace](https://github.com/microsoft/openpaimarketplace/releases/tag/v1.7.0) for more details
 
-- Introduce new job submission page
+- New job submission page
+  - Please refer to [new submission tutorial](docs/manual/cluster-user/how-to-use-new-submission-page.md) for how to use new submission page.
+  - New submission page replaces `Advanced` with `More info` and places it under each section to improve user experience.
+  - In new submission page, the sidebar can be shrank to give the main area more visual space.
+  - The new submission page moves the yaml editor into a single page, which allows user to focus on setting config or editing yaml protocol.
+  - The new submission page improves the responsive design in small and medium resolution.
+  
+> Know Issue: Tensorboard tool is not implemented in the new submission page yet. If you need to use it, please use the old version.
 
 - Alert system enhancement
   - Add alert & auto-fix for GPU perf issue #5342 #5383
