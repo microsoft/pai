@@ -57,12 +57,12 @@ In the new version, you can switch between `Web UI` and `YAML Config` pages to a
 
 ## Compare the new version with the old version
 
-**1.** The new version replaces `Advanced` with `More info` and places it under each section, which improves the user experience.
+- New submission page replaces `Advanced` with `More info` and places it under each section to improve user experience.
 
-**2.** The new version places non-subject information in the sidebar, and can shrink the sidebar, greatly improving the visual range of the subject area.
+- In new submission page, the sidebar can be shrank to give the main area more visual space.
 
-**3.** The new version separates the yaml editor into a single page, which not only optimizes the user switching experience, but also facilitates the writing experience of users who mainly write yaml files.
+- The new submission page moves the yaml editor into a single page, which allows user to focus on setting config or editing yaml protocol.
 
-**4.** The new version greatly improves the responsive design to optimize the experience of small and medium screens.
+- The new submission page improves the responsive design in small and medium resolution.
 
-**5.** Tensorboard is not currently configured in the new version. If you need to use it, please use the old version.
+> Know Issue: Tensorboard tool is not implemented in the new submission page yet. If you need to use it, please use the old version.
