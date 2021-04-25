@@ -6,7 +6,7 @@
   - Please see [Marketplace](https://github.com/microsoft/openpaimarketplace/releases/tag/v1.7.0) for more details
 
 - New job submission page
-  - Please refer to [new submission tutorial](docs/manual/cluster-user/how-to-use-new-submission-page.md) for how to use new submission page.
+  - Please refer to [new submission tutorial](https://github.com/microsoft/pai/blob/pai-1.7.y/docs/manual/cluster-user/how-to-use-new-submission-page.md) for how to use new submission page.
   - New submission page replaces `Advanced` with `More info` and places it under each section to improve user experience.
   - In new submission page, the sidebar can be shrank to give the main area more visual space.
   - The new submission page moves the yaml editor into a single page, which allows user to focus on setting config or editing yaml protocol.
