@@ -12,7 +12,7 @@
   - The new submission page moves the yaml editor into a single page, which allows user to focus on setting config or editing yaml protocol.
   - The new submission page improves the responsive design in small and medium resolution.
   
-> Know Issue: Tensorboard currently is not implemented in the new version. If you need to use it, please use the old version. It is planed to add tensorboard tool in next release with other features.
+> Know Issue: Tensorboard currently is not implemented in the new version. If you need to use it, please use the old version.
 
 - Alert system enhancement
   - Add alert & auto-fix for GPU perf issue #5342 #5383
