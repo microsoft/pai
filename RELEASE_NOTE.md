@@ -12,17 +12,17 @@
   - The new submission page moves the yaml editor into a single page, which allows user to focus on setting config or editing yaml protocol.
   - The new submission page improves the responsive design in small and medium resolution.
   
-> Know Issue: Tensorboard tool is not implemented in the new submission page yet. If you need to use it, please use the old version.
+  > Know Issue: Tensorboard tool is not implemented in the new submission page yet. If you need to use it, please use the old version.
 
 - Alert system enhancement
   - Add alert & auto-fix for GPU perf issue #5342 #5383
-  - Add `kill-long-running-job` email templates #5384
+  - Refine `kill-low-efficiency-job-alert` email templates #5384
   - Add alert for API server cert expired #5334
 
 - Support sort by `completionTime` for get job list API #5347
 
 - Deployment
-  - Support add/remove nodes #5321 #5167. (**Warning** `config.yaml` need to be added for this feature. refer: https://github.com/microsoft/pai/blob/master/docs/manual/cluster-admin/how-to-add-and-remove-nodes.md#pull--modify-cluster-settings)
+  - Support add/remove nodes via `paictl.py` #5321 #5167. (**Warning** `config.yaml` need to be added for this feature. refer: https://github.com/microsoft/pai/blob/master/docs/manual/cluster-admin/how-to-add-and-remove-nodes.md#pull--modify-cluster-settings)
 
 - Bug fixes:
   - Webportal package build issue #5378
