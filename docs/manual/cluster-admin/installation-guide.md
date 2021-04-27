@@ -163,7 +163,7 @@ cd pai
 Choose a version to install by checkout to a specific tag:
 
 ```bash
-git checkout v1.6.0
+git checkout v1.7.0
 ```
 
 Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib/kubespray/config` folder.
@@ -220,7 +220,7 @@ machine-list:
 ``` yaml
 user: forexample
 password: forexample
-docker_image_tag: v1.6.0
+docker_image_tag: v1.7.0
 
 # Optional
 
