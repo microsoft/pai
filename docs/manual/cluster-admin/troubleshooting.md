@@ -104,6 +104,19 @@ sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-c
 ```
 You can get the supported clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
 
+### nvml error: driver/library version mismatch
+
+If jobs fail with the following error:
+
+ <img src="./imgs/nvidia-driver-version-mismatch.PNG" width="100%" height="100%" /> 
+
+This is caused by the NVIDIA driver/library version mismatch error on the worker node. The driver version may be automatically upgraded.
+If you ssh into the worker node & run `nvidia-smi`, you will see the error `Failed to initialize NVML: Driver/library version mismatch`.
+
+To resolve this issue, you can simply reboot the worker node. Wait until the worker node becomes free if you don't want to affect the running jobs.
+
+Refer to [this thread](https://stackoverflow.com/questions/43022843/nvidia-nvml-driver-library-version-mismatch) for more information about this issue.
+
 ### Cannot See Utilization Information.
 
 If you cannot see utilization information (e.g. GPU, CPU, and network usage) in the cluster, please check if the service `prometheus`, `grafana`, `job-exporter`, and `node-exporter` are working.
