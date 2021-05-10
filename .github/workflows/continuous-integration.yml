@@ -63,10 +63,6 @@ jobs:
       run: |
         cd src/job-exporter/test
         python -m unittest discover .
-    - name: Test yarn exporter
-      run: |
-        cd src/yarn-exporter/test
-        python -m unittest discover .
 
   watchdog:
     name: Test watchdog on go-${{ matrix.go }}-${{ matrix.os }}
