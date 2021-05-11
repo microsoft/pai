@@ -43,6 +43,11 @@
       args:
         executable: /bin/bash
 
+    # - name: restart network for ubuntu 18.04
+    #   shell: systemctl restart systemd-networkd
+    #   args:
+    #     executable: /bin/bash
+
     - name: clean ip table
       shell: |
         iptables -P INPUT ACCEPT
@@ -55,18 +60,23 @@
 
     - name: config-docker
       shell: |
-        sed -i 's/--iptables=False/--iptables=True --ip-masq=True/g' /etc/systemd/system/docker.service.d/docker-options.conf
+        sed -i 's/--iptables=false/--iptables=true --ip-masq=true/g' /etc/systemd/system/docker.service.d/docker-options.conf
         systemctl daemon-reload
       args:
         executable: /bin/bash
 
-    - name: restart kubelet
-      shell: systemctl restart kubelet
+    - name: stop kubelet
+      shell: systemctl stop kubelet
       args:
         executable: /bin/bash
     
     - name: restart docker
       shell: systemctl restart docker
+      args:
+        executable: /bin/bash
+
+    - name: start kubelet
+      shell: systemctl start kubelet
       args:
         executable: /bin/bash
 ```
