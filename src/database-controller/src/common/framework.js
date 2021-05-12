@@ -193,7 +193,7 @@ class Snapshot {
     const jobStatusChangeNotification = _.get(
       loadedConfig,
       'extras.hivedscheduler.jobStatusChangeNotification',
-      null,
+      {},
     );
     const update = {
       name: this._snapshot.metadata.name,
@@ -211,21 +211,25 @@ class Snapshot {
       ),
       totalTaskRoleNumber: this._snapshot.spec.taskRoles.length,
       logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
-      notificationAtRunning: jobStatusChangeNotification.running
-        ? jobStatusChangeNotification.running
-        : false,
+      notificationAtRunning: _.get(
+        jobStatusChangeNotification,
+        'running',
+        false,
+      ),
       notifiedAtRunning: false,
-      notificationAtSucceed: jobStatusChangeNotification.succeed
-        ? jobStatusChangeNotification.succeed
-        : false,
+      notificationAtSucceed: _.get(
+        jobStatusChangeNotification,
+        'succeed',
+        false,
+      ),
       notifiedAtSucceed: false,
-      notificationAtFailed: jobStatusChangeNotification.failed
-        ? jobStatusChangeNotification.failed
-        : false,
+      notificationAtFailed: _.get(jobStatusChangeNotification, 'failed', false),
       notifiedAtFailed: false,
-      notificationAtRetried: jobStatusChangeNotification.retried
-        ? jobStatusChangeNotification.retried
-        : false,
+      notificationAtRetried: _.get(
+        jobStatusChangeNotification,
+        'retried',
+        false,
+      ),
       notifiedAtRetried: 0,
     };
     if (withSnapshot) {
