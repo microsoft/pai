@@ -41,6 +41,10 @@ data:
         match:
           report_type: cluster-usage
 
+      - receiver: pai-job-status-change
+        match:
+          alertname: PAIJobStatusChange
+
       {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
       - receiver: {{ route.receiver}}
@@ -71,6 +75,13 @@ data:
       webhook_configs:
       {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template=cluster-usage'
+        send_resolved: false
+      {% endif %}
+    
+    - name: pai-job-status-change
+      webhook_configs:
+      {% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template=job-status-change'
         send_resolved: false
       {% endif %}
 
