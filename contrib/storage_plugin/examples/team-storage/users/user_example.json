@@ -1,6 +1,0 @@
-{
-    "defaultStorage": "nfs_example.json",
-    "externalStorages": [
-        "nfs_example.json"
-    ]
-}
