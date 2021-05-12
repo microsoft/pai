@@ -192,7 +192,7 @@ class Snapshot {
     // Job status change notification
     const jobStatusChangeNotification = _.get(
       loadedConfig,
-      'extras.hivedscheduler.jobStatusChangeNotification',
+      'extras.jobStatusChangeNotification',
       {},
     );
     const update = {
@@ -217,14 +217,20 @@ class Snapshot {
         false,
       ),
       notifiedAtRunning: false,
-      notificationAtSucceed: _.get(
+      notificationAtSucceeded: _.get(
         jobStatusChangeNotification,
-        'succeed',
+        'succeeded',
         false,
       ),
-      notifiedAtSucceed: false,
+      notifiedAtSucceeded: false,
       notificationAtFailed: _.get(jobStatusChangeNotification, 'failed', false),
       notifiedAtFailed: false,
+      notificationAtStopped: _.get(
+        jobStatusChangeNotification,
+        'stopped',
+        false,
+      ),
+      notifiedAtStopped: false,
       notificationAtRetried: _.get(
         jobStatusChangeNotification,
         'retried',
