@@ -4,7 +4,7 @@ import logging.handlers
 import subprocess
 
 
-class Logger:
+class Logger(object):
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class Logger:
         self._logger.critical(message)
 
 
-class Shell:
+class Shell(object):
 
     def __init__(self, logger: Logger):
         self._logger = logger
@@ -48,7 +48,7 @@ class Shell:
         '''
         If any error happens or the exit code is not zero, will throw it.
         '''
-        self._logger.info('Will execute {}'.format(command))
+        self._logger.critical('Execute: {}'.format(command))
         pipe = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # if pipe.returncode != 0:
         #     raise Exception('Return code is non-zero!')

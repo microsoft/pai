@@ -6,13 +6,13 @@ from utils import Shell
 from nodes import WorkerNodeDict
 
 
-class CloudAgent:
+class CloudAgent(object):
 
     def __init__(self, shell: Shell):
         self._shell = shell
 
     @abstractmethod
-    def get_worker_nodes(self):
+    def get_worker_nodes(self, nodes: WorkerNodeDict = WorkerNodeDict()) -> WorkerNodeDict:
         pass
 
     @abstractmethod
@@ -27,13 +27,35 @@ class CloudAgent:
         return self._shell.execute(command)
 
 
-class K8SAgent(CloudAgent):
+class AzureAgent(CloudAgent):
+
+    def __init__(self, shell: Shell):
+        super().__init__(shell)
+
+    def get_worker_nodes(worker_nodes: WorkerNodeDict = WorkerNodeDict()) -> WorkerNodeDict:
+        pass
+
+    def start_instance_no_wait(self, instance_ids: list):
+        self._execute('az vmss start --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
+            ' '.join(instance_ids)
+        ))
+
+    def deallocate_instance_no_wait(self, instance_ids: list):
+        self._execute('az vmss deallocate --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
+            ' '.join(instance_ids)
+        ))
+
+
+class K8SAgent(object):
     '''a k8s client running locally'''
 
-    def __init__(self, shell):
-        super().__init__(shell)
+    def __init__(self, shell: Shell):
+        self._shell = shell
         config.load_kube_config()
         self.K8SV1 = client.CoreV1Api()
+    
+    def _execute(self, command: str):
+        return self._shell.execute(command)
 
     def get_worker_nodes(self, nodes: WorkerNodeDict = WorkerNodeDict()) -> WorkerNodeDict:
 
@@ -54,17 +76,17 @@ class K8SAgent(CloudAgent):
 
         return nodes
 
-    def start_instance_no_wait(self, instance_ids):
+    def uncordon_nodes_no_wait(self, instance_ids: list):
         self._execute('kubectl uncordon {}'.format(
             ' '.join(instance_ids)
         ))
 
-    def deallocate_instance_no_wait(self, instance_ids):
+    def cordon_nodes_no_wait(self, instance_ids: list):
         self._execute('kubectl cordon {}'.format(
             ' '.join(instance_ids)
         ))
 
-    def get_if_valid_waiting_pod_exists(self, fully_used_vc_set):
+    def get_if_valid_waiting_pod_exists(self, fully_used_vc_set: set) -> bool:
         for pod in self.K8SV1.list_namespaced_pod('default', label_selector='type=kube-launcher-task').items:
             vc = pod.metadata.labels['virtualCluster']
             if pod.status.phase == 'Pending' and pod.status.conditions[0].reason == 'Unschedulable':
@@ -73,33 +95,13 @@ class K8SAgent(CloudAgent):
         return False
 
 
-class AzureAgent(CloudAgent):
-
-    def __init__(self, shell):
-        super().__init__(shell)
-        # TODO: az login
-
-    def get_worker_nodes(worker_nodes: WorkerNodeDict = WorkerNodeDict()) -> WorkerNodeDict:
-        pass
-
-    def start_instance_no_wait(self, instance_ids):
-        self._execute('az vmss start --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
-            ' '.join(instance_ids)
-        ))
-
-    def deallocate_instance_no_wait(self, instance_ids):
-        self._execute('az vmss deallocate --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
-            ' '.join(instance_ids)
-        ))
-
-
-class OpenPaiAgent:
+class OpenPaiAgent(object):
 
     def __init__(self, rest_uri: str, token: str) -> None:
         self._rest_uri = rest_uri
         self._token = token
 
-    def _get_vc(self):
+    def _get_vc(self) -> dict:
         r = requests.get(
             '{}/api/v2/virtual-clusters'.format(self._rest_uri),
             headers={
@@ -110,11 +112,11 @@ class OpenPaiAgent:
         response = r.json()
         return response
     
-    def not_full(self, stats):
+    def not_full(self, stats: dict) -> bool:
         return stats['resourcesGuaranteed']['GPUs'] != stats['resourcesTotal']['GPUs']
 
-    def get_if_resource_not_guaranteed(self):
+    def get_if_resource_not_guaranteed(self) -> bool:
         return any([self.not_full(stats) for stats in self._get_vc().values()])
 
-    def get_fully_used_vc_set(self):
+    def get_fully_used_vc_set(self) -> set:
         return set([stats for stats in self._get_vc().values() if self.not_full(stats)])

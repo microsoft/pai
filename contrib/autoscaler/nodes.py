@@ -1,4 +1,4 @@
-class WorkerNode:
+class WorkerNode(object):
     
     def __init__(self):
         self.k8s_name = None
@@ -22,5 +22,5 @@ class WorkerNodeDict(dict):
     def get_deallocated_nodes(self):
         return [node.k8s_name for node in self.values() if not node.k8s_is_ready]
     
-    def get_should_be_started_nodes(self):
+    def get_has_pod_nodes(self):
         return [node.k8s_name for node in self.values() if nodes.k8s_pod_num > 0]

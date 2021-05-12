@@ -1,4 +1,5 @@
 import time
+import yaml
 import argparse
 
 from utils import Logger, Shell
@@ -6,16 +7,14 @@ from nodes import WorkerNodeDict
 from agents import K8SAgent, AzureAgent, OpenPaiAgent
 
 
-class OpenPaiScaler:
+class OpenPaiScaler(object):
 
-    def __init__(self, config=None, time_interval=300, min_machine_num=5):
+    def __init__(self, config_path='config.yaml', time_interval=300, min_machine_num=5):
         self._logger = Logger()
-        self._pai = OpenPaiAgent(
-            rest_uri='https://int.openpai.org/rest-server',
-            token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imd1c3VpIiwiYXBwbGljYXRpb24iOnRydWUsImlhdCI6MTYxMzc4OTYwNn0.-5pLDNKCbXSdwxXdDmlEkhVTVEmbjUtU_7ny2j4I-no'
-        )
-        self._logger.info(self._pai._get_vc())
         shell = Shell(self._logger)
+        with open(config_path, 'r') as f:
+            config=yaml.load(f, yaml.SafeLoader)
+        self._pai = OpenPaiAgent(rest_uri=config['pai_rest_server_uri'], token=config['pai_bearer_token'])
         self._k8s = K8SAgent(shell)
         self._azure = AzureAgent(shell)
         self._nodes = WorkerNodeDict()
@@ -29,12 +28,10 @@ class OpenPaiScaler:
             result = self._nodes.get_free_nodes()
         elif x == 'deallocated_nodes':
             result = self._nodes.get_deallocated_nodes()
-        elif x == 'should_be_started_nodes':
-            result = self._nodes.get_should_be_started_nodes()
+        elif x == 'has_pod_nodes':
+            result = self._nodes.get_has_pod_nodes()
         elif x == 'if_resource_not_guaranteed':
             result = self._pai.get_if_resource_not_guaranteed()
-        elif x == 'fully_used_vc_set':
-            result = self._pai.get_fully_used_vc_set()
         elif x == 'if_valid_waiting_pod_exists':
             result = self._k8s.get_if_valid_waiting_pod_exists(self._pai.get_fully_used_vc_set())
         else:
@@ -43,9 +40,9 @@ class OpenPaiScaler:
         ts = int(time.time())
         try:
             self._logger.info('polling ts = {}, {} = {}, count = {}'.format(ts, x, result, len(result)))
-        except Exception:
+        except TypeError:
             self._logger.info('polling ts = {}, {} = {}'.format(ts, x, result))
-        
+
         return result
 
     def _before_scaling(self):  # TODO tell openpai / HiveD to keep idle when scaling??
@@ -58,11 +55,12 @@ class OpenPaiScaler:
         self._nodes = self._k8s.get_worker_nodes()
         # self._nodes = self._azure.get_worker_nodes(self._nodes)
         if self._get('if_valid_waiting_pod_exists'):
-            self._k8s.start_instance_no_wait(self._get('should_be_started_nodes'))
+            should_be_started_nodes = self._get('has_pod_nodes')
+            self._k8s.uncordon_nodes_no_wait(should_be_started_nodes)
         else:
             should_be_deallocated_nodes = self._get('free_nodes')[:len(self._get('available_nodes')) - self._min_machine_num]
             if should_be_deallocated_nodes:
-                self._k8s.deallocate_instance_no_wait(should_be_deallocated_nodes)
+                self._k8s.cordon_nodes_no_wait(should_be_deallocated_nodes)
     
     def start(self):
         while True:
@@ -74,13 +72,7 @@ class OpenPaiScaler:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cluster-config", "-c", help="cluster config file", default="config.json")
+    parser.add_argument('--cluster-config', '-c', help='cluster config file', default='config.yaml')
     args = parser.parse_args()
 
-    # logger = LOGGER()
-    # logger.info("load cluster config from {}".format(args.cluster_config))
-    # with open(args.cluster_config) as fn:
-    #     config = json.load(fn)
-    # pai_client = OpenPaiAgent(config["rest-server"], config["token"])
-    # print(pai_agent.get_vc())
-    OpenPaiScaler().start()
+    OpenPaiScaler(config_path=args.cluster_config).start()
