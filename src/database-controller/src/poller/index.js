@@ -107,23 +107,27 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
           `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}. We are sure the error is not recoverable. Will mock a failed framework.`,
           err,
         );
-        queue.add(async () => {
-          // For safety reason, we only consider the job that never starts.
-          // snapshot.setFailed() will raise an error if the framework has been launched before
-          snapshot.setFailed();
-          await postMockedEvent(snapshot, 'MODIFIED');
-          await databaseModel.FrameworkEvent.create(
-            generateClusterEventUpdate(
-              snapshot,
-              'Warning',
-              'CreateFrameworkPermanentFailed',
-              _.get(err, 'response.body.message', 'unknown'),
+        queue
+          .add(async () => {
+            // For safety reason, we only consider the job that never starts.
+            // snapshot.setFailed() will raise an error if the framework has been launched before
+            snapshot.setFailed();
+            await postMockedEvent(snapshot, 'MODIFIED');
+            await databaseModel.FrameworkEvent.create(
+              generateClusterEventUpdate(
+                snapshot,
+                'Warning',
+                'CreateFrameworkPermanentFailed',
+                _.get(err, 'response.body.message', 'unknown'),
+              ),
+            );
+          })
+          .catch(err =>
+            logger.error(
+              `An error happened when mock failed event for framework ${frameworkName} and pollingTs=${pollingTs}:`,
+              err,
             ),
           );
-        }).catch(err => logger.error(
-           `An error happened when mock failed event for framework ${frameworkName} and pollingTs=${pollingTs}:`,
-           err,
-        ));
       } else {
         // if the error is recoverable, or we are not sure, just throw it
         throw err;
