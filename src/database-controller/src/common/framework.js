@@ -26,7 +26,7 @@ const mockFrameworkStatus = () => {
 const mockFailedFrameworkStatus = () => {
   // Mock a failed status for framework.
   // We only use it for frameworks that never start.
-  const dateStr = (new Date()).toISOString();
+  const dateStr = new Date().toISOString();
   return {
     state: 'Completed',
     startTime: dateStr,
@@ -36,11 +36,12 @@ const mockFailedFrameworkStatus = () => {
     attemptStatus: {
       completionStatus: {
         code: -1100,
-        diagnostics: 'Job is submitted to database, but cannot be created in ApiServer due to permanent failures.',
+        diagnostics:
+          'Job is submitted to database, but cannot be created in ApiServer due to permanent failures.',
         phase: 'CreateFrameworkPermanentFailed',
         type: {
-          attributes: ["Permanent"],
-          name: "Failed",
+          attributes: ['Permanent'],
+          name: 'Failed',
         },
         id: 0,
         startTime: dateStr,
@@ -188,6 +189,12 @@ class Snapshot {
       'extras.hivedscheduler.jobPriorityClass',
       null,
     );
+    // Job status change notification
+    const jobStatusChangeNotification = _.get(
+      loadedConfig,
+      'extras.jobStatusChangeNotification',
+      {},
+    );
     const update = {
       name: this._snapshot.metadata.name,
       namespace: this._snapshot.metadata.namespace,
@@ -204,6 +211,32 @@ class Snapshot {
       ),
       totalTaskRoleNumber: this._snapshot.spec.taskRoles.length,
       logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
+      notificationAtRunning: _.get(
+        jobStatusChangeNotification,
+        'running',
+        false,
+      ),
+      notifiedAtRunning: false,
+      notificationAtSucceeded: _.get(
+        jobStatusChangeNotification,
+        'succeeded',
+        false,
+      ),
+      notifiedAtSucceeded: false,
+      notificationAtFailed: _.get(jobStatusChangeNotification, 'failed', false),
+      notifiedAtFailed: false,
+      notificationAtStopped: _.get(
+        jobStatusChangeNotification,
+        'stopped',
+        false,
+      ),
+      notifiedAtStopped: false,
+      notificationAtRetried: _.get(
+        jobStatusChangeNotification,
+        'retried',
+        false,
+      ),
+      notifiedAtRetried: 0,
     };
     if (withSnapshot) {
       this.unzipTaskRoleStatuses();
@@ -228,9 +261,13 @@ class Snapshot {
       creationTime: this._snapshot.metadata.creationTimestamp
         ? new Date(this._snapshot.metadata.creationTimestamp)
         : null,
-      launchTime: (this._snapshot.status.runTime || this._snapshot.status.completionTime)
-        ? new Date(this._snapshot.status.runTime || this._snapshot.status.completionTime)
-        : null,
+      launchTime:
+        this._snapshot.status.runTime || this._snapshot.status.completionTime
+          ? new Date(
+              this._snapshot.status.runTime ||
+                this._snapshot.status.completionTime,
+            )
+          : null,
       completionTime: this._snapshot.status.completionTime
         ? new Date(this._snapshot.status.completionTime)
         : null,
@@ -283,7 +320,11 @@ class Snapshot {
   }
 
   getTotalRetriedCount() {
-    return _.get(this._snapshot, 'status.retryPolicyStatus.totalRetriedCount', 0);
+    return _.get(
+      this._snapshot,
+      'status.retryPolicyStatus.totalRetriedCount',
+      0,
+    );
   }
 
   getSnapshot() {
@@ -341,8 +382,11 @@ class Snapshot {
     // Also, requestSynced == false is guaranteed here.
     // Because only call setFailed() from synchronizeHandler() in poller,
     // and synchronizeHandler() is only called for requestSynced=false frameworks.
-    if (!this.getTotalRetriedCount() === 0 || this.getState() !== 'AttemptCreationPending') {
-      throw new Error('setFailed() only works for framework that never start!')
+    if (
+      !this.getTotalRetriedCount() === 0 ||
+      this.getState() !== 'AttemptCreationPending'
+    ) {
+      throw new Error('setFailed() only works for framework that never start!');
     }
 
     this._snapshot.status = mockFailedFrameworkStatus();
@@ -364,7 +408,10 @@ class AddOns {
     } else {
       this._configSecretDef = configSecretDef;
     }
-    if (userExtensionSecretDef !== null && !(userExtensionSecretDef instanceof Object)) {
+    if (
+      userExtensionSecretDef !== null &&
+      !(userExtensionSecretDef instanceof Object)
+    ) {
       this._userExtensionSecretDef = JSON.parse(userExtensionSecretDef);
     } else {
       this._userExtensionSecretDef = userExtensionSecretDef;
@@ -462,7 +509,10 @@ class AddOns {
         .catch(logError);
     this._userExtensionSecretDef &&
       k8s
-        .patchSecretOwnerToFramework(this._userExtensionSecretDef, frameworkResponse)
+        .patchSecretOwnerToFramework(
+          this._userExtensionSecretDef,
+          frameworkResponse,
+        )
         .catch(logError);
     this._dockerSecretDef &&
       k8s
@@ -479,7 +529,9 @@ class AddOns {
     this._configSecretDef &&
       k8s.deleteSecret(this._configSecretDef.metadata.name).catch(logError);
     this._userExtensionSecretDef &&
-      k8s.deleteSecret(this._userExtensionSecretDef.metadata.name).catch(logError);
+      k8s
+        .deleteSecret(this._userExtensionSecretDef.metadata.name)
+        .catch(logError);
     this._priorityClassDef &&
       k8s
         .deletePriorityClass(this._priorityClassDef.metadata.name)
@@ -496,7 +548,9 @@ class AddOns {
       update.configSecretDef = JSON.stringify(this._configSecretDef);
     }
     if (this._userExtensionSecretDef) {
-      update.userExtensionSecretDef = JSON.stringify(this._userExtensionSecretDef);
+      update.userExtensionSecretDef = JSON.stringify(
+        this._userExtensionSecretDef,
+      );
     }
     if (this._priorityClassDef) {
       update.priorityClassDef = JSON.stringify(this._priorityClassDef);

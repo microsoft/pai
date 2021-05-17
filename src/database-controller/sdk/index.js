@@ -80,6 +80,17 @@ class DatabaseModel {
           allowNull: false,
           defaultValue: false,
         },
+        // Inform the user when jobs status change
+        notificationAtRunning: Sequelize.BOOLEAN,
+        notifiedAtRunning: Sequelize.BOOLEAN,
+        notificationAtSucceeded: Sequelize.BOOLEAN,
+        notifiedAtSucceeded: Sequelize.BOOLEAN,
+        notificationAtFailed: Sequelize.BOOLEAN,
+        notifiedAtFailed: Sequelize.BOOLEAN,
+        notificationAtStopped: Sequelize.BOOLEAN,
+        notifiedAtStopped: Sequelize.BOOLEAN,
+        notificationAtRetried: Sequelize.BOOLEAN,
+        notifiedAtRetried: Sequelize.INTEGER,
       },
       {
         sequelize,
