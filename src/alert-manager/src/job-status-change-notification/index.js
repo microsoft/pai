@@ -2,29 +2,30 @@
 // Licensed under the MIT License.
 
 /**
- * Implementation of framework-state-poller.
+ * Implementation of job-status-change-notification.
  */
 
 require("module-alias/register");
 const interval = require("interval-promise");
-const logger = require("@framework-state-poller/common/logger");
-const config = require("@framework-state-poller/common/config");
+const logger = require("@job-status-change-notification/common/logger");
+const config = require("@job-status-change-notification/common/config");
 const {
   getFrameworks,
   updateFrameworkTable,
-} = require("@framework-state-poller/controllers/framework");
+} = require("@job-status-change-notification/controllers/framework");
 const {
-  sendJobStateChangeAlert,
-} = require("@framework-state-poller/controllers/alert");
+  getJobStatusChangeAlert,
+  sendAlerts,
+} = require("@job-status-change-notification/controllers/alert");
 
-const handleJobStateChange = async (framework) => {
+const handleJobStatusChange = async (framework) => {
   // each framework may have multiple state change alerts
   const infos = [];
   logger.info(`Handling job state change of job ${framework.jobName} ...`);
   if (
     framework.notificationAtRunning &&
     !framework.notifiedAtRunning &&
-    framework.state in ["RUNNING", "SUCCEEDED", "FAILED", "STOPPED"]
+    ["RUNNING", "SUCCEEDED", "FAILED", "STOPPED"].includes(framework.state)
   ) {
     infos.push({
       stateToNotify: "RUNNING",
@@ -39,7 +40,7 @@ const handleJobStateChange = async (framework) => {
   ) {
     infos.push({
       stateToNotify: "SUCCEEDED",
-      fieldToUpdate: "notifiedAtSucceed",
+      fieldToUpdate: "notifiedAtSucceeded",
       valToUpdate: true,
     });
   }
@@ -61,7 +62,7 @@ const handleJobStateChange = async (framework) => {
   ) {
     infos.push({
       stateToNotify: "STOPPED",
-      fieldToUpdate: "notifiedAtStoppd",
+      fieldToUpdate: "notifiedAtStopped",
       valToUpdate: true,
     });
   }
@@ -76,35 +77,32 @@ const handleJobStateChange = async (framework) => {
     });
   }
 
-  infos.forEach((info) => {
-    sendJobStateChangeAlert(framework.jobName, info.fieldToUpdate)
-      .then(async (response) => {
-        logger.info(
-          `Successfully sent alerts for job ${framework.jobName} ...`
-        );
-        updateFrameworkTable(framework, info.fieldToUpdate, info.valToUpdate)
-          .then((response) => {
-            logger.info(
-              `Successfully updated framework table for job ${framework.jobName}.`
-            );
-          })
-          .catch((error) => {
-            logger.error(
-              `Failed to update framework table for job ${framework.jobName} :`,
-              error
-            );
-          });
-      })
-      .catch((error) => {
-        logger.error(
-          `Failed to send alerts for job ${framework.jobName} :`,
-          error
-        );
-      });
-  });
+  try {
+    // generate & send alerts for one job
+    const alerts = infos.map((info) =>
+      getJobStatusChangeAlert(
+        framework.jobName,
+        info.stateToNotify,
+        framework.retries
+      )
+    );
+    await sendAlerts(alerts);
+
+    // update Framework table for one job
+    const updateInfos = {};
+    infos.forEach((info) => {
+      updateInfos[info.fieldToUpdate] = info.valToUpdate;
+    });
+    await updateFrameworkTable(framework, updateInfos);
+  } catch (error) {
+    logger.error(
+      `Failed when handle job status change for job ${framework.jobName}:`,
+      error
+    );
+  }
 };
 
-const pollJobStateChange = async () => {
+const pollJobStatusChange = async () => {
   logger.info("Getting frameworks with state change to be notified...");
   let frameworks;
   try {
@@ -115,12 +113,15 @@ const pollJobStateChange = async () => {
   logger.info(
     `${frameworks.length} framework(s) have(s) state change to be notified.`
   );
-  frameworks.forEach((framework) => {
-    handleJobStateChange(framework);
-  });
+  const promises = frameworks.map((framework) =>
+    handleJobStatusChange(framework)
+  );
+  for (const promise of promises) {
+    await promise;
+  }
 };
 
 // send state change alerts
-interval(pollJobStateChange, config.pollIntervalSecond * 1000, {
+interval(pollJobStatusChange, config.pollIntervalSecond * 1000, {
   stopOnError: false,
 });

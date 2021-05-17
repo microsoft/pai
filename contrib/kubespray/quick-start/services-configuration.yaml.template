@@ -229,6 +229,7 @@ authentication:
 #     schedule: "0 0 * * *" # daily report at UTC 00:00
 #   job-status-change-notification: # optional, send job status change notification to users when enabled
 #     enable: false
+#     log-level: "info" # optional
 #   customized-routes:
 #     routes:
 #     - receiver: pai-email-admin-user-and-stop-job

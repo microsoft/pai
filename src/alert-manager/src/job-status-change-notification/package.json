@@ -1,6 +1,6 @@
 {
-  "name": "framework-state-poller",
-  "version": "0.0.0",
+  "name": "job-status-change-notification",
+  "version": "1.0.0",
   "description": "Frmework State Notification Poller for Microsoft Platform for AI",
   "keywords": [
     "Alert"
@@ -19,7 +19,7 @@
     "node": "^10"
   },
   "_moduleAliases": {
-    "@framework-state-poller": "."
+    "@job-status-change-notification": "."
   },
   "devDependencies": {
     "eslint": "^7.7.0",

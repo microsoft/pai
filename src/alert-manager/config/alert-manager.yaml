@@ -13,7 +13,7 @@ alert-handler:
   configured: False
 cluster-utilization:
   configured: False
-framework-status-poller:
+job-status-change-notification:
   # Max connection number to database in poller.
   configured: False
   log-level: 'info'

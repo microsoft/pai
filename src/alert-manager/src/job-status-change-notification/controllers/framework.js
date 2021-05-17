@@ -4,8 +4,8 @@
 const { Sequelize } = require("sequelize");
 const Op = Sequelize.Op;
 const DatabaseModel = require("openpaidbsdk");
-const logger = require("@framework-state-poller/common/logger");
-const config = require("@framework-state-poller/common/config");
+const logger = require("@job-status-change-notification/common/logger");
+const config = require("@job-status-change-notification/common/config");
 
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
@@ -82,14 +82,16 @@ const getFrameworks = async () => {
   return frameworks;
 };
 
-const updateFrameworkTable = async (framework, field, value) => {
-  logger.info(`Updating framework ${framework.name} ...`);
-  await framework.update({
-    field: value,
-  });
+const updateFrameworkTable = async (framework, infos) => {
   logger.info(
-    `Successfully set ${field}=${value} for framework ${framework.name}.`
+    `Updating framework ${framework.name} for job ${framework.jobName} ...`
   );
+  logger.info("Infos to update:", infos)
+  for (const [key, value] of Object.entries(infos)) {
+    framework[key] = value;
+  }
+  await framework.save();
+  logger.info(`Successfully updated framework ${framework.name} for job ${framework.jobName}.`);
 };
 
 // module exports

@@ -92,9 +92,9 @@ class AlertManager(object):
 
         if result.get("job-status-change-notification") is not None and \
             result["job-status-change-notification"].get("enable"):
-            result["framework-status-poller"]["configured"] = True
+            result["job-status-change-notification"]["configured"] = True
         else:
-            result["framework-status-poller"]["configured"] = False
+            result["job-status-change-notification"]["configured"] = False
 
         result["host"] = self.get_master_ip()
         result["url"] = "http://{0}:{1}".format(self.get_master_ip(), result["port"])
