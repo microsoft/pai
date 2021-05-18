@@ -310,12 +310,11 @@ To make your configuration take effect, restart the `alert-manager` service afte
 ./paictl.py service start -n alert-manager
 ```
 
-
 ## Job Status Change Notification
 We provide the functionality to send job status change notifications to users.
 If enabled, the users will get notified by email of the status changes.
 
-The users can also customize the status change they want to be notified in the job config.
+The users can also customize the status change they want to be notified in the job config, refer to [here](./../cluster-user/how-to-use-advanced-job-settings.md#Job-Status-Change-Notification) for details.
 
 To enable this feature, you should configure the `alert-manager` field in `services-configuration.yml`.
 `pai-bearer-token` & `job-status-change-notification`->`enable` are necessary fields for this feature.
