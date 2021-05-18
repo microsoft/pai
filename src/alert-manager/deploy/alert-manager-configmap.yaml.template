@@ -81,7 +81,7 @@ data:
     - name: pai-job-status-change
       webhook_configs:
       {% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template=job-status-change'
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/?template=job-status-change'
         send_resolved: false
       {% endif %}
 
