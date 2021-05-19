@@ -12,7 +12,7 @@ const URI_ALERT_MANAGER = urljoin(
 );
 
 // generated alerts for state change: running, succeeded, failed, stopped, retried
-const getJobStatusChangeAlert = (jobName, state, retries = 0) => {
+const getJobStatusChangeAlert = (jobName, userName, state, retries = 0) => {
   logger.info(`Generating alerts for job ${jobName} ...`);
   let summary;
   switch (state) {
@@ -40,6 +40,7 @@ const getJobStatusChangeAlert = (jobName, state, retries = 0) => {
       alertname: "PAIJobStatusChange",
       severity: "warn",
       job_name: jobName,
+      username: userName,
       state: state,
       retries: retries.toString(),
     },

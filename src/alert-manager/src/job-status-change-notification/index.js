@@ -82,6 +82,7 @@ const handleJobStatusChange = async (framework) => {
     const alerts = infos.map((info) =>
       getJobStatusChangeAlert(
         framework.jobName,
+        framework.userName,
         info.stateToNotify,
         framework.retries
       )
