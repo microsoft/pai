@@ -43,7 +43,7 @@ prometheus:
     - name: customized-alerts
       rules:
       - alert: PAIJobGpuPercentLowerThan0_3For1h
-        expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+        expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3
         for: 1h
         labels:
           severity: warn
@@ -127,7 +127,7 @@ But before you use them, you have to add proper configuration in the `alert-hand
 | tag-jobs                    | -             | required         |
 | fix-nvidia-gpu-low-perf     | -             | -                |
 
-In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
+In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
 
 |                             | depended on label field |
 | :-------------------------: | :---------------------: |
