@@ -15,7 +15,7 @@ class Logger(object):
 
         if os.path.exists('log') is False:
             os.makedirs('log', exist_ok=True)
-            
+
         handler = logging.handlers.TimedRotatingFileHandler('log/autoscaler.log', when='D', interval=1, backupCount=10)
         formatter = logging.Formatter('%(levelname)s - %(asctime)s - [%(name)s:%(lineno)s] - %(message)s ')
         handler.setFormatter(formatter)
@@ -37,6 +37,13 @@ class Logger(object):
     
     def critical(self, message):
         self._logger.critical(message)
+
+    def info_matrix(self, matrix):
+        row_num = len(matrix)
+        column_num = len(matrix[0])
+        column_width = [max([len(matrix[i][j]) for i in range(row_num)]) for j in range(column_num)]
+        for i in range(row_num):
+            self.info(' | '.join([matrix[i][j].ljust(column_width[j]) for j in range(column_num)]))
 
 
 class Shell(object):
