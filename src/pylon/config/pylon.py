@@ -36,10 +36,9 @@ class Pylon:
         machine_list = self.cluster_configuration['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         port = self.service_configuration['port']
-        sslConfig = {}
+        sslConfig = {'port': 443}
         if 'ssl' in self.service_configuration:
             sslConfig= self.service_configuration['ssl']
-            sslConfig['port'] = sslConfig['port'] if 'port' in sslConfig else 443
         sslPort = sslConfig['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
         uriHttps = 'https://{0}:{1}'.format(master_ip, sslPort)
