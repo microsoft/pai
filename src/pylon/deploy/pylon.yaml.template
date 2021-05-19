@@ -97,9 +97,11 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ cluster_cfg['pylon']['port'] }}
+{% if 'ssl' in cluster_cfg['pylon'] %}
             - name: pylon-https
               containerPort: 443
-              hostPort: 443
+              hostPort: {{ cluster_cfg['pylon']['ssl']['port'] }}
+{% endif %}
 {% if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
             - name: pylon-webhdfs

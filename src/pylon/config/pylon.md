@@ -29,6 +29,7 @@ pylon:
     port: 80
     uri: "http://master_ip:80"
     #ssl:
+    #  port: 443
     #  # self-sign
     #  crt_name: xxxxxx
     #  crt_path: /path/to/xxxxxx
@@ -56,6 +57,12 @@ pylon:
     <td>com["pylon"]["uri"]</td>
     <td>cluster_cfg["pylon"]["uri"]</td>
     <td>URL</td>
+</tr>
+<tr>
+    <td>pylon.ssl.port</td>
+    <td>com["pylon"]["ssl"]["port"]</td>
+    <td>cluster_cfg["pylon"]["ssl"]["port"]</td>
+    <td>https port number</td>
 </tr>
 <tr>
     <td>pylon.ssl.crt_name</td>
