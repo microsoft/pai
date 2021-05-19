@@ -39,53 +39,13 @@ pylon:
 
 ## Table <a name="T_Config"></a>
 
-<table>
-<tr>
-    <td>Data in Configuration File</td>
-    <td>Data in Cluster Object Model</td>
-    <td>Data in Jinja2 Template</td>
-    <td>Data type</td>
-</tr>
-<tr>
-    <td>pylon.port</td>
-    <td>com["pylon"]["port"]</td>
-    <td>cluster_cfg["pylon"]["port"]</td>
-    <td>Int</td>
-</tr>
-<tr>
-    <td>pylon.uri</td>
-    <td>com["pylon"]["uri"]</td>
-    <td>cluster_cfg["pylon"]["uri"]</td>
-    <td>URL</td>
-</tr>
-<tr>
-    <td>pylon.ssl.port</td>
-    <td>com["pylon"]["ssl"]["port"]</td>
-    <td>cluster_cfg["pylon"]["ssl"]["port"]</td>
-    <td>https port number</td>
-</tr>
-<tr>
-    <td>pylon.ssl.crt_name</td>
-    <td>com["pylon"]["ssl"]["crt_name"]</td>
-    <td>cluster_cfg["pylon"]["ssl"]["crt_name"]</td>
-    <td>certificate file name</td>
-</tr>
-<tr>
-    <td>pylon.ssl.crt_path</td>
-    <td>com["pylon"]["ssl"]["crt_path"]</td>
-    <td>cluster_cfg["pylon"]["ssl"]["crt_path"]</td>
-    <td>the path to certificate file</td>
-</tr>
-<tr>
-    <td>pylon.ssl.key_name</td>
-    <td>com["pylon"]["ssl"]["key_name"]</td>
-    <td>cluster_cfg["pylon"]["ssl"]["key_name"]</td>
-    <td>certificate key file name</td>
-</tr>
-<tr>
-    <td>pylon.ssl.key_path</td>
-    <td>com["pylon"]["ssl"]["key_path"]</td>
-    <td>cluster_cfg["pylon"]["ssl"]["key_path"]</td>
-    <td>the path to certificate key file</td>
-</tr>
-</table>
+| Data in Configuration File | Data in Cluster Object Model | ata in Jinja2 Template | Data type|
+| --- | --- | --- | --- |
+| pylon.port | com["pylon"]["port"] | cluster_cfg["pylon"]["port"] | Int |
+| pylon.uri  | com["pylon"]["uri"]  | cluster_cfg["pylon"]["uri"]  | URL |
+| pylon.ssl.port | com["pylon"]["ssl"]["port"] | cluster_cfg["pylon"]["ssl"]["crt_name"] | Int |
+| pylon.ssl.crt_name | com["pylon"]["ssl"]["crt_name"] | cluster_cfg["pylon"]["ssl"]["crt_name"] | certificate file name |
+| pylon.ssl.crt_path | com["pylon"]["ssl"]["crt_path"] | cluster_cfg["pylon"]["ssl"]["crt_path"] | the path to certificate file |
+| pylon.ssl.key_name | com["pylon"]["ssl"]["key_name"] | cluster_cfg["pylon"]["ssl"]["key_name"] | certificate key file name |
+| pylon.ssl.key_path | com["pylon"]["ssl"]["key_path"] | cluster_cfg["pylon"]["ssl"]["key_path"] | the path to certificate key file |
+
