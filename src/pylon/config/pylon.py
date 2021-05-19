@@ -38,7 +38,7 @@ class Pylon:
         port = self.service_configuration['port']
         sslConfig = {'port': 443}
         if 'ssl' in self.service_configuration:
-            sslConfig= self.service_configuration['ssl']
+            sslConfig.update(self.service_configuration['ssl'])
         sslPort = sslConfig['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
         uriHttps = 'https://{0}:{1}'.format(master_ip, sslPort)
