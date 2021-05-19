@@ -239,7 +239,7 @@ const getJobLogEntriesFromAzure = async (
   return logEntries;
 };
 
-// The job log name format is job-{PodUid}.stdout/stderr/all.{index}.log
+// The job log name format is job-{PodUid}.stdout/stderr/all.log.{index}
 // For runtime log, the log name format is runtime-app-{PodUid}.log
 const parseAzureLogEntries = (
   logList,
@@ -251,8 +251,8 @@ const parseAzureLogEntries = (
   const locations = [];
   const pattern =
     logType === 'runtime'
-      ? `\\.(?<index>\\d)\\.log`
-      : `(${logType})\\.(?<index>\\d)\\.log`;
+      ? `\\.log\\.(?<index>\\d)`
+      : `(${logType})\\.log\\.(?<index>\\d)`;
   const re = new RegExp(pattern);
   for (const logName of logList) {
     const matches = logName.match(re);
