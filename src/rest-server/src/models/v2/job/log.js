@@ -240,7 +240,7 @@ const getJobLogEntriesFromAzure = async (
 };
 
 // The job log name format is job-{PodUid}.stdout/stderr/all.log.{index}
-// For runtime log, the log name format is runtime-app-{PodUid}.log
+// For runtime log, the log name format is runtime-app-{PodUid}.log.{index}
 const parseAzureLogEntries = (
   logList,
   logType,
