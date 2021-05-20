@@ -42,6 +42,7 @@ process.env.SQL_MAX_CONNECTION = 10;
 process.env.WRITE_MERGER_URL = 'http://localhost';
 process.env.DEFAULT_COMPUTING_DEVICE_TYPE = 'nvidia.com/gpu';
 process.env.HIVED_COMPUTING_DEVICE_ENVS = 'NVIDIA_VISIBLE_DEVICES,HIVED_VISIBLE_DEVICES';
+process.env.ALERT_MANAGER_URL = 'http://localhost/alert-manager';
 
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
