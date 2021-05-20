@@ -26,7 +26,7 @@ const list = async (isAdmin, userName) => {
     method: 'get',
     url: urljoin(
       launcherConfig.alertManagerUrl,
-      'api/v1/alerts?silenced=false',
+      'api/v1/alerts?silenced=false&inhibited=false',
     ),
     headers: {},
   };
