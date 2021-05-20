@@ -16,16 +16,20 @@ class Operator(object):
     @abstractmethod
     def _turn_off(self, nodes: list):
         raise NotImplementedError
-    
-    def scale_up(self, nodes: list):
+
+    def scale_up(self, nodes: list) -> bool:
         nodes_to_turn_on = [node for node in nodes if node.to_turn_on]
         if nodes_to_turn_on:
             self._turn_on(nodes_to_turn_on)
+            return True
+        return False
 
-    def scale_down(self, nodes: list):
+    def scale_down(self, nodes: list) -> bool:
         nodes_to_turn_off = [node for node in nodes if node.to_turn_off]
         if nodes_to_turn_off:
             self._turn_off(nodes_to_turn_off)
+            return True
+        return False
 
 
 class K8SCordonOperator(Operator):

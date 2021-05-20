@@ -22,7 +22,7 @@ class AppMonitor(object):
 
 class OpenPaiMonitor(AppMonitor):
 
-    def __init__(self, rest_url: str, token: str) -> None:
+    def __init__(self, rest_url: str, token: str):
         super().__init__()
         self._rest_url = rest_url
         self._token = token

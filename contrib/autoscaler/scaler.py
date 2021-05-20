@@ -54,15 +54,18 @@ class ScalerBase(object):
         raise NotImplementedError
 
     def _scale(self):
-        # self._cloud_operator.scale_up(self._nodes)
-        self._infr_operator.scale_up(self._nodes)
-        self._infr_operator.scale_down(self._nodes)
-        # self._cloud_operator.scale_down(self._nodes)
+        changed = False
+        # changed |= self._cloud_operator.scale_up(self._nodes)
+        changed |= self._infr_operator.scale_up(self._nodes)
+        changed |= self._infr_operator.scale_down(self._nodes)
+        # changed |= self._cloud_operator.scale_down(self._nodes)
+        if changed:
+            self._refresh_information()
 
     @abstractmethod
     def _after_scaling(self):
         raise NotImplementedError
-    
+
     def start(self):
         while True:
             self._before_scaling()
