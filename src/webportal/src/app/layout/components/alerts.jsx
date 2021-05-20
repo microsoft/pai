@@ -14,7 +14,7 @@ import {
   IconFontSizes,
 } from 'office-ui-fabric-react';
 import React, { useCallback, useState, useEffect } from 'react';
-
+import { checkToken } from '../../user/user-auth/user-auth.component';
 import webportalConfig from '../../config/webportal.config';
 
 const theme = getTheme();
@@ -43,10 +43,16 @@ export const NotificationButton = () => {
 
   useEffect(() => {
     let canceled = false;
-    const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false&inhibited=false`;
+    const alertsUrl = `${webportalConfig.restServerUri}/api/v2/alerts`;
+    const token = checkToken();
     const work = async () => {
       try {
-        const result = await fetch(alertsUrl);
+        const result = await fetch(alertsUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!result.ok) {
           throw Error('Failed to get alert infos');
         }
@@ -60,8 +66,7 @@ export const NotificationButton = () => {
           setAlertItems(data.data);
         }
       } catch (err) {
-        console.error(`Alerts Error: ${err.message}`);
-        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all available services
+        throw new Error('Failed to get alerts data from REST Server.');
       }
     };
     work();
