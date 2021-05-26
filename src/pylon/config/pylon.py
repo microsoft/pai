@@ -39,12 +39,12 @@ class Pylon:
         sslConfig = {'port': 443}
         if 'ssl' in self.service_configuration:
             sslConfig.update(self.service_configuration['ssl'])
-        sslPort = sslConfig['port']
+
         uri = 'http://{0}:{1}'.format(master_ip, port)
-        uriHttps = 'https://{0}:{1}'.format(master_ip, sslPort)
+        uriHttps = 'https://{0}:{1}'.format(master_ip, sslConfig['port'])
         if 'domain' in self.service_configuration:
             uri = 'http://{0}:{1}'.format(self.service_configuration['domain'], port)
-            uriHttps = 'https://{0}:{1}'.format(self.service_configuration['domain'], sslPort)
+            uriHttps = 'https://{0}:{1}'.format(self.service_configuration['domain'], sslConfig['port'])
 
         webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
         ret = {
@@ -53,7 +53,8 @@ class Pylon:
             'uri-https': uriHttps,
             'webhdfs-legacy-port': webhdfs_legacy_port,
         }
-        ret['ssl'] = sslConfig if sslConfig else None
+        if 'ssl' in self.service_configuration:
+            ret['ssl'] = sslConfig
 
         return ret
 
