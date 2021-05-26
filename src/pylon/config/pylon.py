@@ -53,7 +53,8 @@ class Pylon:
             'uri-https': uriHttps,
             'webhdfs-legacy-port': webhdfs_legacy_port,
         }
-        ret['ssl'] = sslConfig if 'ssl' in self.service_configuration else None
+        if 'ssl' in self.service_configuration:
+            ret['ssl'] = sslConfig
 
         return ret
 
