@@ -154,7 +154,7 @@ const runtimePluginSchema = Joi.object().keys({
         .required(),
     }),
   failurePolicy: Joi.string().allow('fail', 'ignore'),
-  phrase: Joi.string().allow('preTaskStarts', 'postTaskSucceeds'),
+  hook: Joi.string().allow('preTaskStarts', 'postTaskSucceeds'),
 });
 
 export const jobProtocolSchema = Joi.object().keys({
