@@ -24,7 +24,10 @@ until [[ $(kubectl get frameworks | wc -l) -eq 0 ]]; do
     kubectl delete --all frameworks
     sleep 5
 done
-kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com || exit $?
+
+if kubectl get crd | grep -q 'frameworks.frameworkcontroller.microsoft.com'; then
+    kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com || exit $?
+fi
 
 /bin/bash stop.sh || exit $?
 
