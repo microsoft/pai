@@ -1,2 +1,3 @@
 pai_rest_server_uri: <URL to Your OpenPAI Rest Server>
 pai_bearer_token: <Bearer Token to Access Your OpenPAI Service>
+resource_group: <Name of Your Resource Group on Azure>

@@ -85,10 +85,10 @@ class OpenPaiSimpleScaler(ScalerBase):
         shell = Shell(logger)
         super().__init__(
             app_monitor=OpenPaiMonitor(rest_url=config['pai_rest_server_uri'], token=config['pai_bearer_token']),
-            infr_monitor=K8SMonitor(shell),
+            infr_monitor=K8SMonitor(shell=shell),
             cloud_monitor=AzureMonitor(),
-            infr_operator=K8SCordonOperator(shell),
-            cloud_operator=AzureAllocateOperator(shell),
+            infr_operator=K8SCordonOperator(shell=shell),
+            cloud_operator=AzureAllocateOperator(shell=shell, resource_group=config['resource_group']),
             time_interval=time_interval,
             logger=logger
         )

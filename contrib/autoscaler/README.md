@@ -1,8 +1,8 @@
 # 1. Introduction
 
-Autoscaler is an independent tool to monitor the status of your PAI cluster and adjust the cluster size as needed. It will take into account the three levels of application (PAI, ITP, etc.), infrastructure (K8s), and cloud VM (Azure, AWS, Aliyun, etc.) at the same time.
+Autoscaler is an independent tool to monitor the status of your PAI cluster and adjust the cluster size as needed. It will take into account the three levels of application (PAI, ITP, etc.), infrastructure (K8s), and cloud service (Azure, AWS, Aliyun, etc.) at the same time.
 
-We have built a general auto scaler structure, defined abstract classes for each part, and provided a default `OpenPaiSimpleScaler` for common use. If you are running a K8s-based PAI cluster on Azure VMs, just go through [Quick Start](#2-quick-start).
+We have built a general auto-scaler structure, defined abstract classes for each part, and provided a default `OpenPaiSimpleScaler` for common use. If you are running a K8s-based PAI cluster on Azure VMs, just go through [Quick Start](#2-quick-start).
 
 # 2. Quick Start
 
@@ -15,15 +15,22 @@ We have built a general auto scaler structure, defined abstract classes for each
 
 - Fill in necessary information about your PAI cluster:
 
-    ```json
+    ```yaml
     pai_rest_server_uri: <URL to Your OpenPAI Rest Server>
     pai_bearer_token: <Bearer Token to Access Your OpenPAI Service>
+    resource_group: <Name of Your Resource Group on Azure>
+    ```
+
+- Log in Azure
+
+    ```bash
+    az login
     ```
 
 - Start Autoscaler in the background:
 
     ```bash
-    python3 autoscaler.py &!
+    nohup python3 ./scaler.py &!
     ```
 
 # 3. Structure

@@ -47,12 +47,18 @@ class K8SCordonOperator(Operator):
 
 class AzureAllocateOperator(Operator):
 
+    def __init__(self, shell: Shell, resource_group: str):
+        super().__init__(shell)
+        self._resource_group = resource_group
+
     def _turn_on(self, nodes: list):
-        self._shell.execute('az vmss start --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
+        self._shell.execute('az vmss start --no-wait --name pai-worker --resource-group {} --instance-ids {}'.format(
+            self._resource_group,
             ' '.join([node.k8s_name for node in nodes])
         ))
 
     def _turn_off(self, nodes: list):
-        self._shell.execute('az vmss deallocate --no-wait --name pai-worker --resource-group pai-worker_group --instance-ids {}'.format(
+        self._shell.execute('az vmss deallocate --no-wait --name pai-worker --resource-group {} --instance-ids {}'.format(
+            self._resource_group,
             ' '.join([node.k8s_name for node in nodes])
         ))
