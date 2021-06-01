@@ -8,7 +8,7 @@ class AppMonitor(object):
 
     def __init__(self):
         self._virtual_clusters = []
-    
+
     @abstractmethod
     def _update_vc(self):
         raise NotImplementedError
@@ -36,7 +36,7 @@ class OpenPaiMonitor(AppMonitor):
         )
         r.raise_for_status()
         self._virtual_clusters = {name: VirtualCluster(
-            name = name,
-            is_full = status['resourcesUsed']['GPUs'] == status['resourcesTotal']['GPUs'],
-            is_guaranteed = status['resourcesGuaranteed']['GPUs'] == status['resourcesTotal']['GPUs']
+            name=name,
+            is_full=status['resourcesUsed']['GPUs'] == status['resourcesTotal']['GPUs'],
+            is_guaranteed=status['resourcesGuaranteed']['GPUs'] == status['resourcesTotal']['GPUs']
         ) for name, status in r.json().items()}

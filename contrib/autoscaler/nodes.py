@@ -1,5 +1,5 @@
 class WorkerNode(object):
-    
+
     def __init__(self, ip, k8s_name, k8s_is_ready):
         self.ip = ip
         self.k8s_name = k8s_name
@@ -13,7 +13,7 @@ class WorkerNode(object):
 
 
 class Pod(object):
-    
+
     def __init__(self, vc, host_ip, pending):
         self.vc = vc
         self.host_ip = host_ip

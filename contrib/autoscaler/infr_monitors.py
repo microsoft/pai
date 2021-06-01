@@ -19,14 +19,14 @@ class InfrMonitor(object):
     @abstractmethod
     def _update_pods(self):
         raise NotImplementedError
-    
+
     def refresh(self):
         self._update_nodes()
         self._update_pods()
 
     def get_nodes(self) -> list:
         return self._nodes
-    
+
     def get_node_by_ip(self, ip: str) -> WorkerNode:
         return self._nodes[self._node_ip_mapping[ip]]
 

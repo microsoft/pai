@@ -22,19 +22,19 @@ class Logger(object):
         self._logger.addHandler(handler)
         self._logger.setLevel(logging.INFO)
         self.info('Log is ready!')
-    
+
     def info(self, message):
         self._logger.info(message)
-    
+
     def debug(self, message):
         self._logger.debug(message)
-    
+
     def warning(self, message):
         self._logger.warning(message)
-    
+
     def error(self, message):
         self._logger.error(message)
-    
+
     def critical(self, message):
         self._logger.critical(message)
 

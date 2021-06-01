@@ -14,7 +14,7 @@ from operators import Operator, K8SCordonOperator, AzureAllocateOperator
 class ScalerBase(object):
 
     def __init__(self, app_monitor: AppMonitor, infr_monitor: InfrMonitor, cloud_monitor: CloudMonitor,
-            infr_operator: Operator, cloud_operator: Operator, time_interval: int, logger: Logger):
+                 infr_operator: Operator, cloud_operator: Operator, time_interval: int, logger: Logger):
         self._logger = logger
         self._app_monitor = app_monitor
         self._infr_monitor = infr_monitor
@@ -27,7 +27,7 @@ class ScalerBase(object):
         self._vcs = []
         self._time_interval = time_interval
 
-    def _log_node_status(self):        
+    def _log_node_status(self):
         ts = int(time.time())
         self._logger.info('polling ts = {}, node status:'.format(ts))
         self._logger.info_matrix([
@@ -55,10 +55,10 @@ class ScalerBase(object):
 
     def _scale(self):
         changed = False
-        # changed |= self._cloud_operator.scale_up(self._nodes)
+        changed |= self._cloud_operator.scale_up(self._nodes)
         changed |= self._infr_operator.scale_up(self._nodes)
         changed |= self._infr_operator.scale_down(self._nodes)
-        # changed |= self._cloud_operator.scale_down(self._nodes)
+        changed |= self._cloud_operator.scale_down(self._nodes)
         if changed:
             self._refresh_information()
 
@@ -80,17 +80,17 @@ class OpenPaiSimpleScaler(ScalerBase):
 
     def __init__(self, config_path='config.yaml', min_node_num=5, time_interval=300):
         with open(config_path, 'r') as f:
-            config=yaml.load(f, yaml.SafeLoader)
+            config = yaml.load(f, yaml.SafeLoader)
         logger = Logger()
         shell = Shell(logger)
         super().__init__(
-            app_monitor = OpenPaiMonitor(rest_url=config['pai_rest_server_uri'], token=config['pai_bearer_token']),
-            infr_monitor = K8SMonitor(shell),
-            cloud_monitor = AzureMonitor(),
-            infr_operator = K8SCordonOperator(shell),
-            cloud_operator = AzureAllocateOperator(shell),
-            time_interval = time_interval,
-            logger = logger
+            app_monitor=OpenPaiMonitor(rest_url=config['pai_rest_server_uri'], token=config['pai_bearer_token']),
+            infr_monitor=K8SMonitor(shell),
+            cloud_monitor=AzureMonitor(),
+            infr_operator=K8SCordonOperator(shell),
+            cloud_operator=AzureAllocateOperator(shell),
+            time_interval=time_interval,
+            logger=logger
         )
         self._min_node_num = min_node_num
 
