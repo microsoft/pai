@@ -19,6 +19,7 @@ class CloudMonitor(object):
         self._infr_monitor = infr_monitor
 
     def refresh(self):
+        self._nodes = self._infr_monitor.get_nodes()
         self._update_nodes()
 
     def get_nodes(self) -> list:
@@ -31,4 +32,5 @@ class AzureMonitor(CloudMonitor):
         super().__init__()
 
     def _update_nodes(self):
-        self._nodes = self._infr_monitor.get_nodes()  # TODO: + azure information
+        # TODO: + azure information
+        pass

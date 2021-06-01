@@ -38,7 +38,7 @@ class ScalerBase(object):
 
     @abstractmethod
     def _before_scaling(self):
-        raise NotImplementedError
+        pass
 
     def _refresh_information(self):
         self._app_monitor.refresh()
@@ -64,7 +64,7 @@ class ScalerBase(object):
 
     @abstractmethod
     def _after_scaling(self):
-        raise NotImplementedError
+        pass
 
     def start(self):
         while True:
