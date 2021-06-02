@@ -183,10 +183,10 @@ class Snapshot {
     // Get database updates from the snapshot for the request part.
     const loadedConfig = yaml.safeLoad(
       this._snapshot.metadata.annotations.config,
-    );
+    );`~`
     const jobPriority = _.get(
       loadedConfig,
-      'extras.hivedscheduler.jobPriorityClass',
+      'extras.hivedScheduler.jobPriorityClass',
       null,
     );
     // Job status change notification
