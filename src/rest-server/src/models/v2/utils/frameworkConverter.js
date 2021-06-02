@@ -337,6 +337,7 @@ const convertToJobAttempt = async (framework) => {
     0,
   );
   const totalTaskRoleNumber = framework.spec.taskRoles.length;
+  const jobPriority = framework.jobPriority ? framework.jobPriority : 'test';
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const appExitTriggerMessage =
@@ -417,6 +418,7 @@ const convertToJobAttempt = async (framework) => {
     totalGpuNumber,
     totalTaskNumber,
     totalTaskRoleNumber,
+    jobPriority,
     taskRoles,
   };
 };
