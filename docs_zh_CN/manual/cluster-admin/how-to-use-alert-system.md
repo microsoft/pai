@@ -42,7 +42,7 @@ prometheus:
     - name: customized-alerts
       rules:
         - alert: PAIJobGpuPercentLowerThan0_3For1h
-          expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+          expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3
           for: 1h
           labels:
             severity: warn
@@ -120,7 +120,7 @@ alert-manager:
 | stop-jobs    | -             | 需要             |
 | tag-jobs     | -             | 需要             |
 
-另外，一些处理措施还依赖在报警实例（alert instance）的`labels`中包含特定的字段。这些`labels`是根据报警规则中的expression来生成的。例如，上述`PAIJobGpuPercentLowerThan0_3For1h·`报警的expression是`avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`。这个expression会返回一个列表，列表中每个元素都有一个`job_name`字段。 `stop-jobs`这个处理措施就依赖`job_name`字段，它会根据`job_name`字段去结束对应的任务。当报警信息处于触发状态（firing）时，您可以访问`http(s)://<your master IP>/prometheus/alerts`页面，在这个页面上可以看到对应报警有哪些`labels`。各个预定义处理措施和字段的依赖关系请参考下表：
+另外，一些处理措施还依赖在报警实例（alert instance）的`labels`中包含特定的字段。这些`labels`是根据报警规则中的expression来生成的。例如，上述`PAIJobGpuPercentLowerThan0_3For1h·`报警的expression是`avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3`。这个expression会返回一个列表，列表中每个元素都有一个`job_name`字段和一个`username`字段。 `stop-jobs`这个处理措施就依赖`job_name`字段，它会根据`job_name`字段去结束对应的任务。当报警信息处于触发状态（firing）时，您可以访问`http(s)://<your master IP>/prometheus/alerts`页面，在这个页面上可以看到对应报警有哪些`labels`。各个预定义处理措施和字段的依赖关系请参考下表：
 
 |              | 在`labels`中依赖的字段 |
 | :-----------:| :------------------: |
