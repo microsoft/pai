@@ -129,6 +129,7 @@ const list = asyncHandler(async (req, res) => {
     'totalGpuNumber',
     'totalTaskNumber',
     'totalTaskRoleNumber',
+    'jobPriority',
     'retries',
     'retryDelayTime',
     'platformRetries',
