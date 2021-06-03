@@ -184,9 +184,9 @@ For `receivers` definition, you can simply:
 - name the receiver in `name` field;
 - list the actions to use in `actions` and fill corresponding parameters for the actions:
   - `email-admin`:
-    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+    - template: Optional, can be choose from ['general-template', 'cluster-usage', 'kill-low-efficiency-job-alert', 'job-status-change'], by default 'general-template'.
   - `email-user`:
-    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert', 'job-status-change'], by default 'general-template'.
   - `cordon-nodes`: No parameters required
   - `stop-jobs`: No parameters required
   - `tag-jobs`:
@@ -300,6 +300,31 @@ alert-manager:
     schedule: '0 0 * * *' # daily check at UTC 00:00
     alert-residual-days: 30 # send alert if the expiration date is coming soon
     cert-path: '/etc/kubernetes/ssl' # the k8s cert path in master node
+```
+
+To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
+
+## Job Status Change Notification
+We provide the functionality to send job status change notifications to users.
+If enabled, the users will get notified by email of the status changes.
+
+The users can also customize the status change they want to be notified in the job config, refer to [here](./../cluster-user/how-to-use-advanced-job-settings.md#Job-Status-Change-Notification) for details.
+
+To enable this feature, you should configure the `alert-manager` field in `services-configuration.yml`.
+`pai-bearer-token` & `job-status-change-notification`->`enable` are necessary fields for this feature.
+Please make sure that the [`email-user`](#Existing-Actions-and-Matching-Rules) action is enabled.
+
+```yaml
+alert-manager:
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
+  job-status-change-notification: # send job status change notification to users when enabled
+    enable: true
 ```
 
 To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:

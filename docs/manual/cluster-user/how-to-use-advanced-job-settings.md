@@ -189,6 +189,25 @@ taskRoles:
 
 In the future, OpenPAI will provide a convenient way to manage and share different kinds of prerequisites among cluster users. 
 
+
+## Job Status Change Notification
+
+`Job Status Change Notification` is a selectively turned-on functionality. 
+If this feature is enabled in the cluster, the users will be able to get notified of the status changes of their jobs.
+
+The users should specify which status changes of their jobs to be notified in the job config.
+Here's one job config example (only extra field):
+```yaml
+extras:
+  jobStatusChangeNotification:
+    running: true
+    succeeded: true
+    stopped: false
+    failed: true
+    retried: false
+```
+In this example, the user will be notified when this job `starts running` & `has succeeded`. 
+
 ## Distributed Job Examples
 
 ### TensorFlow CIFAR10
