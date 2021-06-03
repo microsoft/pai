@@ -15,10 +15,11 @@ info:
     version 2.2.2: add get task logs api
     version 2.2.3: set .jobStatus.appId nullable in get jobAttempt schema
     version 2.2.4: support sorting by completionTime in get the list of jobs
+    version 2.2.5: add alert related api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.2.0
+  version: 2.2.5
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -41,6 +42,8 @@ tags:
     description: API endpoint for storage
   - name: job history
     description: API endpoint for job history
+  - name: alert
+    description: API endpoint for alert
   - name: kubernetes
     description: API endpoint for kubernetes info
 paths:
@@ -1857,6 +1860,28 @@ paths:
           $ref: "#/components/responses/UnauthorizedUserError"
         "403":
           $ref: "#/components/responses/ForbiddenUserError"
+  /api/v2/alerts:
+    get:
+      tags:
+        - alert
+      summary: Get related alerts.
+      description: Get related alerts. For admin users, return all the firing alerts; Return only the alerts related to the user's jobs for normal users.
+      operationId: getAlerts
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json: 
+              example:
+                - Please refer to Prometheus Alerts API:
+                - >-
+                  https://prometheus.io/docs/prometheus/latest/querying/api/#alerts  
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/kubernetes/pods:
     get:
       tags:

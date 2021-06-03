@@ -7,6 +7,7 @@ const userRouter = require('@pai/routes/v2/user');
 const groupRouter = require('@pai/routes/v2/group');
 const storageRouter = require('@pai/routes/v2/storage');
 const storageDeprecatedRouter = require('@pai/routes/v2/storage-deprecated');
+const alertRouter = require('@pai/routes/v2/alert');
 const controller = require('@pai/controllers/v2');
 const jobRouter = require('@pai/routes/v2/job');
 const clusterRouter = require('@pai/routes/v2/cluster');
@@ -34,6 +35,7 @@ router.use('/groups', groupRouter);
 router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
 router.use('/tokens', tokenRouter);
+router.use('/alerts', alertRouter);
 router.use('/kubernetes', k8sRouter);
 
 // module exports
