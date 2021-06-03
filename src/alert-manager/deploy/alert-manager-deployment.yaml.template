@@ -97,6 +97,26 @@ spec:
           mountPath: /etc/alerthandler/templates
 {% endif %}
 {% endif %}
+{% if cluster_cfg["alert-manager"]["job-status-change-notification"]["configured"] %}
+      - name: job-status-change-notification
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}job-status-change-notification:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        imagePullPolicy: Always
+        env:
+        - name: PAI_URI
+    {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+          value: "{{ cluster_cfg['pylon']['uri-https']}}"
+    {%- else %}
+          value: "{{ cluster_cfg['pylon']['uri']}}"
+    {%- endif %}
+        - name: LOG_LEVEL
+          value: {{ cluster_cfg['alert-manager']['job-status-change-notification']['log-level'] }}
+        - name: POLL_INTERVAL_SECOND
+          value: "{{ cluster_cfg['alert-manager']['job-status-change-notification']['db-poller-interval-second'] }}"
+        - name: MAX_DB_CONNECTION
+          value: "{{ cluster_cfg['alert-manager']['job-status-change-notification']['db-poller-max-db-connection'] }}"
+        - name: DB_CONNECTION_STR
+          value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+{% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
