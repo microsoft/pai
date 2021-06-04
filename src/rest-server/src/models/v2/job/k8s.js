@@ -75,6 +75,7 @@ const convertFrameworkSummary = (framework) => {
     totalGpuNumber: framework.totalGpuNumber,
     totalTaskNumber: framework.totalTaskNumber,
     totalTaskRoleNumber: framework.totalTaskRoleNumber,
+    jobPriority: framework.jobPriority,
   };
 };
 
