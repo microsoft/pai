@@ -16,6 +16,7 @@ info:
     version 2.2.3: set .jobStatus.appId nullable in get jobAttempt schema
     version 2.2.4: support sorting by completionTime in get the list of jobs
     version 2.2.5: add alert related api
+    version 2.2.6: update type of taskUid
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
