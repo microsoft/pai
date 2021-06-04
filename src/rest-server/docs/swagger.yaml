@@ -1245,7 +1245,7 @@ paths:
                       name: task role name
                     taskStatuses:
                       - taskIndex: 0
-                        taskUid: 421
+                        taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
                         taskState: SUCCEEDED
                         attemptId: 0
                         attemptState: SUCCEEDED
@@ -1300,7 +1300,7 @@ paths:
                       name: task role name
                     taskStatuses:
                       - taskIndex: 0
-                        taskUid: 421
+                        taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
                         taskState: SUCCEEDED
                         attemptId: 0
                         attemptState: SUCCEEDED
