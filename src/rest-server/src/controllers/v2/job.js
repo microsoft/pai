@@ -81,6 +81,9 @@ const list = asyncHandler(async (req, res) => {
         { virtualCluster: { [Op.substring]: req.query.keyword } },
       ];
     }
+    if ('jobPriority' in req.query) {
+      filters.jobPriority = req.query.jobPriority.split(',');
+    }
     if ('order' in req.query) {
       const [field, ordering] = req.query.order.split(',');
       if (
@@ -94,6 +97,7 @@ const list = asyncHandler(async (req, res) => {
           'totalGpuNumber',
           'state',
           'completionTime',
+          'jobPriority',
         ].includes(field)
       ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
@@ -106,6 +110,10 @@ const list = asyncHandler(async (req, res) => {
             const orderingWithNulls =
               ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
             order.push(['completionTime', orderingWithNulls]);
+          } else if (field === 'jobPriority') {
+            const orderingWithNulls =
+              ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
+            order.push(['jobPriority', orderingWithNulls]);
           } else {
             order.push([field, ordering]);
           }

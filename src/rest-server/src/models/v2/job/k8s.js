@@ -75,7 +75,7 @@ const convertFrameworkSummary = (framework) => {
     totalGpuNumber: framework.totalGpuNumber,
     totalTaskNumber: framework.totalTaskNumber,
     totalTaskRoleNumber: framework.totalTaskRoleNumber,
-    jobPriority: framework.jobPriority ? framework.jobPriority : 'test',
+    jobPriority: framework.jobPriority,
   };
 };
 
@@ -188,9 +188,7 @@ const convertFrameworkDetail = async (
     debugId: frameworkWithLatestAttempt.metadata.name,
     name: jobName,
     tags: tags.reduce((arr, curr) => [...arr, curr.name], []),
-    jobPriority: frameworkWithLatestAttempt.jobPriority
-      ? frameworkWithLatestAttempt.jobPriority
-      : 'test',
+    jobPriority: frameworkWithLatestAttempt.jobPriority,
     jobStatus: {
       username: userName,
       state: convertState(
