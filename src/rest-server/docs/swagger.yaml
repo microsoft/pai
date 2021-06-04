@@ -1873,11 +1873,11 @@ paths:
         "200":
           description: Succeeded
           content:
-            application/json: 
+            application/json:
               example:
                 - Please refer to Prometheus Alerts API:
                 - >-
-                  https://prometheus.io/docs/prometheus/latest/querying/api/#alerts  
+                  https://prometheus.io/docs/prometheus/latest/querying/api/#alerts
         "401":
           $ref: "#/components/responses/UnauthorizedUserError"
         "500":
@@ -2460,7 +2460,7 @@ components:
                       type: integer
                       description: task index
                     taskUid:
-                      type: integer
+                      type: string
                     taskState:
                       type: string
                       description: task state
