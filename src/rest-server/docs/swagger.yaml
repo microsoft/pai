@@ -20,7 +20,7 @@ info:
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.2.5
+  version: 2.2.6
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
