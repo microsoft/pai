@@ -28,8 +28,8 @@
     </br>
     <% alerts.filter( element => element.status =="firing").forEach(function(alert){ %>
     <a
-        href=<%= webportalURL %>/job-detail.html?username=<%= alert.labels.username %>&jobName=<%= alert.labels.job_name.split("~")[-1] %>>
-        <%= alert.labels.job_name.split("~")[-1] %>
+        href=<%= webportalURL %>/job-detail.html?username=<%= alert.labels.username %>&jobName=<%= alert.labels.job_name.split("~").slice(-1)[0] %>>
+        <%= alert.labels.job_name.split("~").slice(-1)[0] %>
     </a>: <%= alert.annotations.summary %>
     <br />
     <% }); %>
