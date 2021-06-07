@@ -18,6 +18,7 @@ const getFrameworks = async () => {
     attributes: [
       "name",
       "jobName",
+      "userName",
       "state",
       "retries",
       "notificationAtRunning",
