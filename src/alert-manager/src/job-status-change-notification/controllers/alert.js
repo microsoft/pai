@@ -48,7 +48,7 @@ const getJobStatusChangeAlert = (jobName, userName, state, retries = 0) => {
       summary: summary,
     },
   };
-  logger.info(`Successfully generated alerts for job ${jobName} ...`);
+  logger.info(`Successfully generated alerts for user ${userName}, job ${jobName} ...`);
 
   return alert;
 };
