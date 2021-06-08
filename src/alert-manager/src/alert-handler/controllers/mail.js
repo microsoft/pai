@@ -119,7 +119,7 @@ const sendEmailToUser = async (req, res) => {
   // group alerts by username
   const alertsGrouped = {};
   alerts.map((alert, index) => {
-    const userName = alert.labels.job_name.split('~')[0];
+    const userName = alert.labels.username;
     if (userName in alertsGrouped) {
       alertsGrouped[userName].push(alerts[index]);
     } else {

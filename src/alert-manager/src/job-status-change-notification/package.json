@@ -1,0 +1,49 @@
+{
+  "name": "job-status-change-notification",
+  "version": "1.0.0",
+  "description": "Frmework State Notification Poller for Microsoft Platform for AI",
+  "keywords": [
+    "Alert"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "homepage": "https://github.com/Microsoft/pai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
+  "engines": {
+    "node": "^10"
+  },
+  "_moduleAliases": {
+    "@job-status-change-notification": "."
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "~6.11.0",
+    "eslint-config-standard": "~14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "~3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "prettier": "~2.0.5"
+  },
+  "dependencies": {
+    "openpaidbsdk": "file:./openpaidbsdk",
+    "axios": "^0.21.0",
+    "interval-promise": "^1.4.0",
+    "joi": "^14.3.1",
+    "module-alias": "^2.2.2",
+    "sequelize": "^6.6.2",
+    "url-join": "^4.0.1",
+    "winston": "2"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node index.js"
+  }
+}

@@ -43,7 +43,7 @@ prometheus:
     - name: customized-alerts
       rules:
       - alert: PAIJobGpuPercentLowerThan0_3For1h
-        expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+        expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3
         for: 1h
         labels:
           severity: warn
@@ -127,7 +127,7 @@ But before you use them, you have to add proper configuration in the `alert-hand
 | tag-jobs                    | -             | required         |
 | fix-nvidia-gpu-low-perf     | -             | -                |
 
-In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
+In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field and a `username` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
 
 |                             | depended on label field |
 | :-------------------------: | :---------------------: |
@@ -184,9 +184,9 @@ For `receivers` definition, you can simply:
 - name the receiver in `name` field;
 - list the actions to use in `actions` and fill corresponding parameters for the actions:
   - `email-admin`:
-    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+    - template: Optional, can be choose from ['general-template', 'cluster-usage', 'kill-low-efficiency-job-alert', 'job-status-change'], by default 'general-template'.
   - `email-user`:
-    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert', 'job-status-change'], by default 'general-template'.
   - `cordon-nodes`: No parameters required
   - `stop-jobs`: No parameters required
   - `tag-jobs`:
@@ -300,6 +300,31 @@ alert-manager:
     schedule: '0 0 * * *' # daily check at UTC 00:00
     alert-residual-days: 30 # send alert if the expiration date is coming soon
     cert-path: '/etc/kubernetes/ssl' # the k8s cert path in master node
+```
+
+To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
+
+## Job Status Change Notification
+We provide the functionality to send job status change notifications to users.
+If enabled, the users will get notified by email of the status changes.
+
+The users can also customize the status change they want to be notified in the job config, refer to [here](./../cluster-user/how-to-use-advanced-job-settings.md#Job-Status-Change-Notification) for details.
+
+To enable this feature, you should configure the `alert-manager` field in `services-configuration.yml`.
+`pai-bearer-token` & `job-status-change-notification`->`enable` are necessary fields for this feature.
+Please make sure that the [`email-user`](#Existing-Actions-and-Matching-Rules) action is enabled.
+
+```yaml
+alert-manager:
+  pai-bearer-token: 'your-application-token-for-pai-rest-server'
+  job-status-change-notification: # send job status change notification to users when enabled
+    enable: true
 ```
 
 To make your configuration take effect, restart the `alert-manager` service after your modification with the following commands in the dev-box container:

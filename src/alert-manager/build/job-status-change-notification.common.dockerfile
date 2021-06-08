@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
 
-COPY ./src/alert-handler .
+COPY ./src/job-status-change-notification .
 
 RUN yarn install
 

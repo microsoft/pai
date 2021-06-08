@@ -123,7 +123,7 @@ rest-server:
 #     - name: customized-alerts
 #       rules:
 #       - alert: PAIJobGpuPercentLowerThan0_3For1h
-#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3
 #         for: 1h
 #         labels:
 #           severity: warn

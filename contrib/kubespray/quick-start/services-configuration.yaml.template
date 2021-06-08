@@ -227,6 +227,9 @@ authentication:
 #   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
 #     # for schedule syntax, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
 #     schedule: "0 0 * * *" # daily report at UTC 00:00
+#   job-status-change-notification: # optional, send job status change notification to users when enabled
+#     enable: false
+#     log-level: "info" # optional
 #   customized-routes:
 #     routes:
 #     - receiver: pai-email-admin-user-and-stop-job
@@ -263,7 +266,7 @@ authentication:
 #     - name: customized-alerts
 #       rules:
 #       - alert: PAIJobGpuPercentLowerThan0_3For1h
-#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name, username) < 0.3
 #         for: 1h
 #         labels:
 #           severity: warn
