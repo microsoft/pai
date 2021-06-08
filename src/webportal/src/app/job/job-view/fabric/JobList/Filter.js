@@ -1,3 +1,5 @@
+import { TestSpan } from "@azure/core-tracing";
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -11,11 +13,13 @@ class Filter {
    */
   constructor(
     keyword = '',
+    priorities = new Set(),
     users = new Set(),
     virtualClusters = new Set(),
     statuses = new Set(),
   ) {
     this.keyword = keyword;
+    this.priorities = priorities;
     this.users = users;
     this.virtualClusters = virtualClusters;
     this.statuses = statuses;
@@ -26,6 +30,7 @@ class Filter {
   save() {
     const content = JSON.stringify({
       users: Array.from(this.users),
+      priorities: Array.from(this.priorities),
       virtualClusters: Array.from(this.virtualClusters),
       statuses: Array.from(this.statuses),
       keyword: this.keyword,
@@ -40,6 +45,9 @@ class Filter {
       if (Array.isArray(users)) {
         this.users = new Set(users);
       }
+      if (Array.isArray(priorities)) {
+        this.priorities = new Set(priorities);
+      }
       if (Array.isArray(virtualClusters)) {
         this.virtualClusters = new Set(virtualClusters);
       }
@@ -53,7 +61,7 @@ class Filter {
   }
 
   apply() {
-    const { keyword, users, virtualClusters, statuses } = this;
+    const { keyword, priorities, users, virtualClusters, statuses } = this;
 
     const query = {};
     if (keyword && keyword !== '') {
@@ -61,6 +69,16 @@ class Filter {
     }
     if (users && users.size > 0) {
       query.username = Array.from(users).join(',');
+    }
+    if (priorities && priorities.size > 0) {
+      query.jobPriority = Array.from(priorities).map(priority => {
+        switch (priority) {
+          case 'Opportunistic': return 'oppo';
+          case 'Product': return 'prod';
+          case 'Test': return 'test';
+          default: return 'default';
+        }
+      }).join(',');
     }
     if (virtualClusters && virtualClusters.size > 0) {
       query.vc = Array.from(virtualClusters).join(',');
