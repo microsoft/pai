@@ -82,7 +82,18 @@ const list = asyncHandler(async (req, res) => {
       ];
     }
     if ('jobPriority' in req.query) {
-      filters.jobPriority = req.query.jobPriority.split(',');
+      const jobPriorityFilter = req.query.jobPriority.split(',');
+      const index = jobPriorityFilter.indexOf('default');
+      if (index !== -1) {
+        jobPriorityFilter.splice(index, 1);
+        if (filters[Op.or] === undefined) {
+          filters[Op.or] = [];
+        }
+        filters[Op.or].push({
+          jobPriority: { [Op.is]: null },
+        });
+      }
+      filters.jobPriority = jobPriorityFilter;
     }
     if ('order' in req.query) {
       const [field, ordering] = req.query.order.split(',');
