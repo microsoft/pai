@@ -1,5 +1,3 @@
-import { TestSpan } from "@azure/core-tracing";
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -71,14 +69,20 @@ class Filter {
       query.username = Array.from(users).join(',');
     }
     if (priorities && priorities.size > 0) {
-      query.jobPriority = Array.from(priorities).map(priority => {
-        switch (priority) {
-          case 'Opportunistic': return 'oppo';
-          case 'Product': return 'prod';
-          case 'Test': return 'test';
-          default: return 'default';
-        }
-      }).join(',');
+      query.jobPriority = Array.from(priorities)
+        .map(priority => {
+          switch (priority) {
+            case 'Opportunistic':
+              return 'oppo';
+            case 'Product':
+              return 'prod';
+            case 'Test':
+              return 'test';
+            default:
+              return 'default';
+          }
+        })
+        .join(',');
     }
     if (virtualClusters && virtualClusters.size > 0) {
       query.vc = Array.from(virtualClusters).join(',');
