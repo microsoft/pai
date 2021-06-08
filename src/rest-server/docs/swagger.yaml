@@ -16,10 +16,11 @@ info:
     version 2.2.3: set .jobStatus.appId nullable in get jobAttempt schema
     version 2.2.4: support sorting by completionTime in get the list of jobs
     version 2.2.5: add alert related api
+    version 2.2.6: update type of taskUid
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.2.5
+  version: 2.2.6
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -1244,7 +1245,7 @@ paths:
                       name: task role name
                     taskStatuses:
                       - taskIndex: 0
-                        taskUid: 421
+                        taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
                         taskState: SUCCEEDED
                         attemptId: 0
                         attemptState: SUCCEEDED
@@ -1299,7 +1300,7 @@ paths:
                       name: task role name
                     taskStatuses:
                       - taskIndex: 0
-                        taskUid: 421
+                        taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
                         taskState: SUCCEEDED
                         attemptId: 0
                         attemptState: SUCCEEDED
@@ -1873,11 +1874,11 @@ paths:
         "200":
           description: Succeeded
           content:
-            application/json: 
+            application/json:
               example:
                 - Please refer to Prometheus Alerts API:
                 - >-
-                  https://prometheus.io/docs/prometheus/latest/querying/api/#alerts  
+                  https://prometheus.io/docs/prometheus/latest/querying/api/#alerts
         "401":
           $ref: "#/components/responses/UnauthorizedUserError"
         "500":
@@ -2460,7 +2461,7 @@ components:
                       type: integer
                       description: task index
                     taskUid:
-                      type: integer
+                      type: string
                     taskState:
                       type: string
                       description: task state
