@@ -89,10 +89,10 @@ const list = asyncHandler(async (req, res) => {
         if (filters[Op.or] === undefined) {
           filters[Op.or] = [];
         }
-        filters[Op.or].push([
-          { jobPriority: { [Op.is]: null } },
-          { jobPriority: jobPriorityFilter },
-        ]);
+        filters[Op.or].push({ jobPriority: { [Op.is]: null } });
+        if (jobPriorityFilter.length > 0) {
+          filters[Op.or].push({ jobPriority: jobPriorityFilter });
+        }
       } else {
         filters.jobPriority = jobPriorityFilter;
       }
