@@ -39,7 +39,13 @@ class Filter {
   load() {
     try {
       const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      const { users, virtualClusters, statuses, keyword } = JSON.parse(content);
+      const {
+        priorities,
+        users,
+        virtualClusters,
+        statuses,
+        keyword,
+      } = JSON.parse(content);
       if (Array.isArray(users)) {
         this.users = new Set(users);
       }
