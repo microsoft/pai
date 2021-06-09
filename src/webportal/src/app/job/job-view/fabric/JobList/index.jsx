@@ -44,7 +44,11 @@ export default function JobList() {
 
   const initialFilter = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (['vcName', 'status', 'user', 'jobPriority', 'keyword'].some(x => !isEmpty(query[x]))) {
+    if (
+      ['vcName', 'status', 'user', 'jobPriority', 'keyword'].some(
+        x => !isEmpty(query[x]),
+      )
+    ) {
       const queryFilter = new Filter();
       if (query.vcName) {
         queryFilter.virtualClusters = new Set([query.vcName]);

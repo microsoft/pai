@@ -42,7 +42,13 @@ function KeywordSearchBox() {
 
   function onKeywordChange(keyword) {
     const { priorities, users, virtualClusters, statuses } = filter;
-    const newFilter = new Filter(keyword, priorities, users, virtualClusters, statuses);
+    const newFilter = new Filter(
+      keyword,
+      priorities,
+      users,
+      virtualClusters,
+      statuses,
+    );
     setFilter(newFilter);
   }
 
@@ -134,7 +140,13 @@ function TopBar() {
           }
           setVirtualClusters(vcs);
           const allValidVC = Object.keys(data);
-          const { keyword, priorities, users, virtualClusters, statuses } = filter;
+          const {
+            keyword,
+            priorities,
+            users,
+            virtualClusters,
+            statuses,
+          } = filter;
           const filterVC = new Set(
             allValidVC.filter(vc => virtualClusters.has(vc)),
           );
@@ -303,10 +315,21 @@ function TopBar() {
               items={Object.keys(priorityItems)}
               selectedItems={Array.from(filter.priorities)}
               onSelect={priorities => {
-                const { keyword, userFilter, virtualClusters, statuses } = filter;
+                const {
+                  keyword,
+                  userFilter,
+                  virtualClusters,
+                  statuses,
+                } = filter;
                 const priorityFilter = new Set(priorities);
                 setFilter(
-                  new Filter(keyword, priorityFilter, userFilter, virtualClusters, statuses),
+                  new Filter(
+                    keyword,
+                    priorityFilter,
+                    userFilter,
+                    virtualClusters,
+                    statuses,
+                  ),
                 );
               }}
               searchBox
@@ -319,14 +342,25 @@ function TopBar() {
               items={userItems}
               selectedItems={selectedItems}
               onSelect={users => {
-                const { keyword, priorities, virtualClusters, statuses } = filter;
+                const {
+                  keyword,
+                  priorities,
+                  virtualClusters,
+                  statuses,
+                } = filter;
                 const userFilter = new Set(users);
                 if (userFilter.has(CURRENT_USER_KEY)) {
                   userFilter.delete(CURRENT_USER_KEY);
                   userFilter.add(currentUser);
                 }
                 setFilter(
-                  new Filter(keyword, priorities, userFilter, virtualClusters, statuses),
+                  new Filter(
+                    keyword,
+                    priorities,
+                    userFilter,
+                    virtualClusters,
+                    statuses,
+                  ),
                 );
               }}
               searchBox

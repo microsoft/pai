@@ -196,10 +196,14 @@ export default function Table() {
     isResizable: true,
     onRender(job) {
       switch (job.jobPriority) {
-        case 'oppo': return 'Opportunistic';
-        case 'test': return 'Test';
-        case 'prod': return 'Product';
-        default: return 'Default';
+        case 'oppo':
+          return 'Opportunistic';
+        case 'test':
+          return 'Test';
+        case 'prod':
+          return 'Product';
+        default:
+          return 'Default';
       }
     },
   });
