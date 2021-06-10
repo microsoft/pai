@@ -25,7 +25,7 @@ const handleJobStatusChange = async (framework) => {
   if (
     framework.notificationAtRunning &&
     !framework.notifiedAtRunning &&
-    ["RUNNING", "SUCCEEDED", "FAILED", "STOPPED"].includes(framework.state)
+    ["RUNNING", "SUCCEEDED"].includes(framework.state)
   ) {
     infos.push({
       stateToNotify: "RUNNING",
@@ -56,8 +56,8 @@ const handleJobStatusChange = async (framework) => {
     });
   }
   if (
-    framework.notificationAtFailed &&
-    !framework.notifiedAtFailed &&
+    framework.notificationAtStopped &&
+    !framework.notifiedAtStopped &&
     framework.state === "STOPPED"
   ) {
     infos.push({
