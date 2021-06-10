@@ -187,6 +187,26 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
   });
+  const priorityColumn = applySortProps({
+    key: 'jobPriority',
+    minWidth: 95,
+    name: 'Priority',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(job) {
+      switch (job.jobPriority) {
+        case 'oppo':
+          return 'Opportunistic';
+        case 'test':
+          return 'Test';
+        case 'prod':
+          return 'Product';
+        default:
+          return 'Default';
+      }
+    },
+  });
   const statusColumn = applySortProps({
     key: 'status',
     minWidth: 100,
@@ -272,6 +292,7 @@ export default function Table() {
     retriesColumn,
     taskCountColumn,
     gpuCountColumn,
+    priorityColumn,
     statusColumn,
     actionsColumn,
   ];

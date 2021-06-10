@@ -17,10 +17,11 @@ info:
     version 2.2.4: support sorting by completionTime in get the list of jobs
     version 2.2.5: add alert related api
     version 2.2.6: update type of taskUid
+    version 2.2.7: add jobPriority list jobs parameter
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.2.6
+  version: 2.2.7
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -1150,6 +1151,11 @@ paths:
           description: filter jobs with tags. When multiple tags are specified, every job selected should have none of these tags
           schema:
             type: string
+        - name: jobPriority
+          in: query
+          description: filter jobs with jobPriority, fields include oppo, test, prod, and default (default means jobPriorityClass in job config is null)
+          schema:
+            type: string
         - name: offset
           in: query
           description: list job offset
@@ -1164,7 +1170,7 @@ paths:
           in: query
           description: 'order of job list.
           It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC".
-          Available fields include: jobName, submissionTime, username, vc, retries, totalTaskNumber, totalGpuNumber, state, completionTime.
+          Available fields include: jobName, submissionTime, username, vc, retries, totalTaskNumber, totalGpuNumber, state, completionTime, jobPriority.
           CompletionTime maybe null for some jobs, these jobs will be returned at the end of the list when sorting by ASC order & at the beginning when sorting by DESC order.'
           schema:
             type: string
@@ -1197,6 +1203,7 @@ paths:
                   completedTime: 0
                   appExitCode: 0
                   virtualCluster: unknown
+                  jobPriority: prod
         "500":
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}":
@@ -2223,6 +2230,10 @@ components:
           debugId:
             type: string
             description: md5 hash name for the job in framework controller, used for debug purpose
+          jobPriority:
+            type: string
+            nullable: true
+            description: job priority
         required:
           - name
           - username

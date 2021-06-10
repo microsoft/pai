@@ -41,8 +41,14 @@ function KeywordSearchBox() {
   const { filter, setFilter } = useContext(Context);
 
   function onKeywordChange(keyword) {
-    const { users, virtualClusters, statuses } = filter;
-    const newFilter = new Filter(keyword, users, virtualClusters, statuses);
+    const { priorities, users, virtualClusters, statuses } = filter;
+    const newFilter = new Filter(
+      keyword,
+      priorities,
+      users,
+      virtualClusters,
+      statuses,
+    );
     setFilter(newFilter);
   }
 
@@ -74,6 +80,13 @@ function TopBar() {
     Running: true,
     Stopped: true,
     Failed: true,
+  };
+
+  const priorityItems = {
+    Product: true,
+    Test: true,
+    Opportunistic: true,
+    Default: true,
   };
 
   const { refreshJobs, selectedJobs, stopJob, filter, setFilter } = useContext(
@@ -127,11 +140,17 @@ function TopBar() {
           }
           setVirtualClusters(vcs);
           const allValidVC = Object.keys(data);
-          const { keyword, users, virtualClusters, statuses } = filter;
+          const {
+            keyword,
+            priorities,
+            users,
+            virtualClusters,
+            statuses,
+          } = filter;
           const filterVC = new Set(
             allValidVC.filter(vc => virtualClusters.has(vc)),
           );
-          setFilter(new Filter(keyword, users, filterVC, statuses));
+          setFilter(new Filter(keyword, priorities, users, filterVC, statuses));
         } else {
           const data = await response.json().catch(() => {
             throw new Error(
@@ -291,19 +310,57 @@ function TopBar() {
           <Stack horizontal>
             <FilterButton
               styles={{ root: { backgroundColor: 'transparent' } }}
+              text='Priority'
+              iconProps={{ iconName: 'Sort' }}
+              items={Object.keys(priorityItems)}
+              selectedItems={Array.from(filter.priorities)}
+              onSelect={priorities => {
+                const {
+                  keyword,
+                  userFilter,
+                  virtualClusters,
+                  statuses,
+                } = filter;
+                const priorityFilter = new Set(priorities);
+                setFilter(
+                  new Filter(
+                    keyword,
+                    priorityFilter,
+                    userFilter,
+                    virtualClusters,
+                    statuses,
+                  ),
+                );
+              }}
+              searchBox
+              clearButton
+            />
+            <FilterButton
+              styles={{ root: { backgroundColor: 'transparent' } }}
               text='User'
               iconProps={{ iconName: 'Contact' }}
               items={userItems}
               selectedItems={selectedItems}
               onSelect={users => {
-                const { keyword, virtualClusters, statuses } = filter;
+                const {
+                  keyword,
+                  priorities,
+                  virtualClusters,
+                  statuses,
+                } = filter;
                 const userFilter = new Set(users);
                 if (userFilter.has(CURRENT_USER_KEY)) {
                   userFilter.delete(CURRENT_USER_KEY);
                   userFilter.add(currentUser);
                 }
                 setFilter(
-                  new Filter(keyword, userFilter, virtualClusters, statuses),
+                  new Filter(
+                    keyword,
+                    priorities,
+                    userFilter,
+                    virtualClusters,
+                    statuses,
+                  ),
                 );
               }}
               searchBox
@@ -316,10 +373,11 @@ function TopBar() {
               items={Object.keys(virtualClusters)}
               selectedItems={Array.from(filter.virtualClusters)}
               onSelect={virtualClusters => {
-                const { keyword, users, statuses } = filter;
+                const { keyword, priorities, users, statuses } = filter;
                 setFilter(
                   new Filter(
                     keyword,
+                    priorities,
                     users,
                     new Set(virtualClusters),
                     statuses,
@@ -335,10 +393,11 @@ function TopBar() {
               items={Object.keys(statuses)}
               selectedItems={Array.from(filter.statuses)}
               onSelect={statuses => {
-                const { keyword, users, virtualClusters } = filter;
+                const { keyword, priorities, users, virtualClusters } = filter;
                 setFilter(
                   new Filter(
                     keyword,
+                    priorities,
                     users,
                     virtualClusters,
                     new Set(statuses),

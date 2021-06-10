@@ -81,6 +81,22 @@ const list = asyncHandler(async (req, res) => {
         { virtualCluster: { [Op.substring]: req.query.keyword } },
       ];
     }
+    if ('jobPriority' in req.query) {
+      const jobPriorityFilter = req.query.jobPriority.split(',');
+      const index = jobPriorityFilter.indexOf('default');
+      if (index !== -1) {
+        jobPriorityFilter.splice(index, 1);
+        if (filters[Op.or] === undefined) {
+          filters[Op.or] = [];
+        }
+        filters[Op.or].push({ jobPriority: { [Op.is]: null } });
+        if (jobPriorityFilter.length > 0) {
+          filters[Op.or].push({ jobPriority: jobPriorityFilter });
+        }
+      } else {
+        filters.jobPriority = jobPriorityFilter;
+      }
+    }
     if ('order' in req.query) {
       const [field, ordering] = req.query.order.split(',');
       if (
@@ -94,6 +110,7 @@ const list = asyncHandler(async (req, res) => {
           'totalGpuNumber',
           'state',
           'completionTime',
+          'jobPriority',
         ].includes(field)
       ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
@@ -106,6 +123,10 @@ const list = asyncHandler(async (req, res) => {
             const orderingWithNulls =
               ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
             order.push(['completionTime', orderingWithNulls]);
+          } else if (field === 'jobPriority') {
+            const orderingWithNulls =
+              ordering === 'ASC' ? 'ASC NULLS LAST' : 'DESC NULLS FIRST';
+            order.push(['jobPriority', orderingWithNulls]);
           } else {
             order.push([field, ordering]);
           }
@@ -129,6 +150,7 @@ const list = asyncHandler(async (req, res) => {
     'totalGpuNumber',
     'totalTaskNumber',
     'totalTaskRoleNumber',
+    'jobPriority',
     'retries',
     'retryDelayTime',
     'platformRetries',

@@ -186,7 +186,7 @@ class Snapshot {
     );
     const jobPriority = _.get(
       loadedConfig,
-      'extras.hivedscheduler.jobPriorityClass',
+      'extras.hivedScheduler.jobPriorityClass',
       null,
     );
     // Job status change notification

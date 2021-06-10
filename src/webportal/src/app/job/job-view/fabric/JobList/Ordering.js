@@ -40,6 +40,7 @@ export default class Ordering {
           'status',
           'taskCount',
           'gpuCount',
+          'jobPriority',
         ].includes(field)
       ) {
         this.field = field;
@@ -78,6 +79,8 @@ export default class Ordering {
       query = 'totalTaskNumber';
     } else if (field === 'gpuCount') {
       query = 'totalGpuNumber';
+    } else if (field === 'jobPriority') {
+      query = 'jobPriority';
     }
 
     return { order: `${query},${descending ? 'DESC' : 'ASC'}` };
