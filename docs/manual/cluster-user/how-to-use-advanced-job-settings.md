@@ -206,7 +206,10 @@ extras:
     failed: true
     retried: false
 ```
-In this example, the user will be notified when this job `starts running` & `has succeeded`. 
+In this example, the user will be notified when this job `starts running` & `has succeeded`.
+
+Please notice that the notification is guaranteed for `succeeded`, `stopped`, `failed`, `retried` status change.
+But OpenPAI may fail to catch the `running` status change if the job fails very soon after starting running.
 
 ## Distributed Job Examples
 
