@@ -47,6 +47,7 @@ spec:
           - '--storage.path=/alertmanager'
           - '--web.external-url={{ external_url }}/alert-manager/'
           - '--web.route-prefix=alert-manager'
+          - '--cluster.advertise-address=127.0.0.1:{{ cluster_cfg["alert-manager"]["port"] }}'
         ports:
         - name: alertmanager
           containerPort: {{ cluster_cfg["alert-manager"]["port"] }}
