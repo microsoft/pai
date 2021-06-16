@@ -75,7 +75,6 @@ class AlertManager(object):
             token_configured = False
 
         result["alert-handler"]["configured"] = True
-        result["actions-available"] = ["fix-nvidia-gpu-low-perf"]
         if email_configured and token_configured:
             result["actions-available"].extend(["email-admin", "email-user", "stop-jobs", "tag-jobs"])
         elif email_configured:
