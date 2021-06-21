@@ -24,6 +24,7 @@ nav:
       - 如何设置 Docker 镜像缓存: manual/cluster-admin/how-to-set-up-docker-image-cache.md
       - 如何使用插件定制集群: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
       - 如何使用报警系统: manual/cluster-admin/how-to-use-alert-system.md
+      - 如何自动调整集群大小: manual/cluster-admin/how-to-autoscale-the-cluster.md
       - 故障排查: manual/cluster-admin/troubleshooting.md
       - 推荐实践: manual/cluster-admin/recommended-practice.md
       - 如何卸载OpenPAI: manual/cluster-admin/how-to-uninstall-openpai.md
