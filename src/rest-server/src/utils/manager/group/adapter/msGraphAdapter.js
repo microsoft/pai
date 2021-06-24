@@ -17,6 +17,7 @@
 
 // module dependencies
 const axios = require('axios');
+const logger = require('@pai/config/logger');
 
 function initConfig(msGraphUrl, accessToken) {
   return {
