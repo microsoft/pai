@@ -103,8 +103,7 @@ class OpenPaiSimpleScaler(ScalerBase):
         has_resource_not_guaranteed = any([not vc.is_guaranteed for vc in self._vcs.values()])
         if has_pending_pods or has_resource_not_guaranteed:
             for node in self._nodes:
-                if node.k8s_pod_num > 0:
-                    node.to_turn_on = True
+                node.to_turn_on = True
         else:
             available_node_num = sum([node.k8s_is_ready for node in self._nodes])
             free_nodes = [node for node in self._nodes if node.k8s_is_ready and node.k8s_pod_num == 0]
