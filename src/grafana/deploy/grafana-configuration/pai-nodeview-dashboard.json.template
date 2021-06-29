@@ -89,7 +89,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
+              "expr": "(avg by (instance)(irate(node_cpu_seconds_total{mode=\"busy\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -189,7 +189,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_bytes{mode=\"total\",instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"physical_total\",instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -200,37 +200,37 @@
               "target": ""
             },
             {
-              "expr": "node_memory_bytes{mode=\"available\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"physical_available\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "phisical available",
-              "refId": "E",
+              "refId": "B",
               "step": 600
             },
             {
-              "expr": "node_memory_bytes{mode=\"committed\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"committed\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "committed",
-              "refId": "E",
+              "refId": "C",
               "step": 600
             },
             {
-              "expr": "node_memory_bytes{mode=\"commit_limit\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"commit_limit\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "commit limit",
-              "refId": "E",
+              "refId": "D",
               "step": 600
             },
             {
-              "expr": "node_memory_bytes{mode=\"system_cache\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"system_cache\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -240,23 +240,23 @@
               "step": 600
             },
             {
-              "expr": "node_memory_bytes{mode=\"kernel_paged\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"kernel_paged\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "kernel paged",
-              "refId": "E",
+              "refId": "F",
               "step": 600
             },
             {
-              "expr": "node_memory_bytes{mode=\"kernel_non_paged\", instance=~'$node(:[0-9]*)?$'}",
+              "expr": "node_memory_bytes{type=\"kernel_non_paged\", instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "kernel non paged",
-              "refId": "E",
+              "refId": "G",
               "step": 600
             }
           ],
@@ -382,7 +382,7 @@
               "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": 0,
               "show": true
             },
             {
@@ -468,7 +468,7 @@
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "other",
-              "refId": "B"
+              "refId": "C"
             }
           ],
           "thresholds": [],
