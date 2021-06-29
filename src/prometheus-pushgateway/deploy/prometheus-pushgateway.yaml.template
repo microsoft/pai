@@ -50,8 +50,6 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "10Gi"
-          requests:
             memory: "256Mi"
         {%- endif %}
         args:
