@@ -29,6 +29,7 @@ data:
       - "/etc/prometheus-record/*.rules"
     scrape_configs:
     - job_name: 'pai_service_exporter'
+      honor_labels: true
       scrape_interval: {{ prom_info["scrape_interval"] }}s
       kubernetes_sd_configs:
       - role: pod
