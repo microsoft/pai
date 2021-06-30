@@ -7,4 +7,4 @@ COPY ./src/metrics-cleaner .
 
 RUN python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 
-ENTRYPOINT ["python3", "clean_metrics.py"]
+ENTRYPOINT ["python3", "main.py"]
