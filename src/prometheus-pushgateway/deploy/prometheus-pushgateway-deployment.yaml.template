@@ -40,9 +40,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/prometheus-pushgateway/metrics"
-        prometheus.io/port: "{{ prometheus_pushgateway_port }}"
+        prometheus.io/port: "8080"
     spec:
-      hostNetwork: true
       containers:
       - name: prometheus-pushgateway
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}prometheus-pushgateway:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -50,19 +49,18 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "10Gi"
-          requests:
             memory: "256Mi"
         {%- endif %}
         args:
-          - '--web.listen-address=0.0.0.0:{{prometheus_pushgateway_port}}'
+          - '--web.listen-address=0.0.0.0:8080'
           - '--web.external-url={{ external_url }}/prometheus-pushgateway/'
           - '--web.route-prefix=prometheus-pushgateway'
           - '--web.enable-admin-api'
           - '--web.enable-lifecycle'
         ports:
         - name: web
-          containerPort: {{ prometheus_pushgateway_port }}
+          containerPort: 8080
+          hostPort: {{ prometheus_pushgateway_port }}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       tolerations:
