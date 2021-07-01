@@ -59,7 +59,8 @@ def get_jobs_completed_within_period(pai_uri, token, days=7):
         if not jobs or jobs[0]["completedTime"] is None or not check_timestamp_within_period(jobs[0]["completedTime"], days):
             break
 
-        jobs = list(filter(lambda job: job["completedTime"] is not None and check_timestamp_within_period(job["completedTime"], days), jobs))
+        jobs = list(filter(lambda job: job["completedTime"] is not None
+            and check_timestamp_within_period(job["completedTime"], days), jobs))
         jobs_related += [job["name"] for job in jobs]
 
         if len(jobs) < limit:
