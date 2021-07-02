@@ -142,14 +142,14 @@ def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
         user_infos[username]["resources_occupied"] += job_infos[job_name]["resources_occupied"]
 
     # format
-    for job_name, job_info in job_infos.items():
-        job_infos[job_name]["usage"] = job_info["usage"][:6] + "%"
-        job_infos[job_name]["gpu_number"] = str(job_info["gpu_number"])
-        job_infos[job_name]["duration"] = str(job_info["duration"])
-        job_infos[job_name]["start_time"] = job_info["start_time"].strftime("%y-%m-%d %H:%M:%S")
-        job_infos[job_name]["resources_occupied"] = "{:.2f}".format(job_info["resources_occupied"])
-    for username, user_info in user_infos.items():
-        user_infos[username]["resources_occupied"] = "{:.2f}".format(user_info["resources_occupied"])
+    for job_info in job_infos.values():
+        job_info["usage"] = job_info["usage"][:6] + "%"
+        job_info["gpu_number"] = str(job_info["gpu_number"])
+        job_info["duration"] = str(job_info["duration"])
+        job_info["start_time"] = job_info["start_time"].strftime("%y-%m-%d %H:%M:%S")
+        job_info["resources_occupied"] = "{:.2f}".format(job_info["resources_occupied"])
+    for user_info in user_infos.values():
+        user_info["resources_occupied"] = "{:.2f}".format(user_info["resources_occupied"])
 
     # sort usage info by resources occupied
     job_usage = sorted(job_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
