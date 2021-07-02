@@ -80,7 +80,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_cpu_percent{instance=~\"$node(:[0-9]*)?$\"}",
+              "expr": "(irate(task_cpu_seconds_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -156,7 +156,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_mem_usage_byte{instance=~\"$node(:[0-9]*)?$\"}",
+              "expr": "task_memory_usage_byte{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -187,7 +187,7 @@
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": 0,
               "show": true
             },
             {
@@ -195,7 +195,7 @@
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": 0,
               "show": true
             }
           ]
@@ -232,7 +232,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "task_net_in_byte{instance=~\"$node(:[0-9]*)?$\"}",
+              "expr": "task_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -240,7 +240,7 @@
               "refId": "A"
             },
             {
-              "expr": "task_net_out_byte{instance=~\"$node(:[0-9]*)?$\"}",
+              "expr": "task_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Net Out {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
@@ -315,7 +315,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(task_block_in_byte{instance=~\"$node(:[0-9]*)?$\"}[300s])",
+              "expr": "irate(task_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[300s])",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -323,11 +323,18 @@
               "refId": "A"
             },
             {
-              "expr": "irate(task_block_out_byte{instance=~\"$node(:[0-9]*)?$\"}[300s])",
+              "expr": "irate(task_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[300s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Write {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "B"
+            },
+            {
+              "expr": "irate(task_disk_other_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[300s])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Write {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
+              "refId": "C"
             }
           ],
           "thresholds": [],
