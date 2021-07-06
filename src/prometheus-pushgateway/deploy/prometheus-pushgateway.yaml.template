@@ -47,6 +47,16 @@ spec:
         - name: web
           containerPort: 8080
           hostPort: {{ prometheus_pushgateway_port }}
+      - name: metrics-cleaner
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}metrics-cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+          - name: PROMETHEUS_PUSHGATEWAY_URI
+            value: {{ cluster_cfg['prometheus-pushgateway']['url'] }}
+          - name: JOB_TIME_TO_LIVE
+            value: "{{ cluster_cfg['prometheus-pushgateway']['metrics-cleaner']['job-time-to-live'] }}"
+          - name: CLEAN_INTERVAL
+            value: "{{ cluster_cfg['prometheus-pushgateway']['metrics-cleaner']['clean-interval'] }}"
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       tolerations:

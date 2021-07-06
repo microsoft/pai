@@ -5,8 +5,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f prometheus-pushgateway-deployment.yaml || exit $?
-kubectl apply --overwrite=true -f prometheus-pushgateway-cronjob.yaml || exit $?
+kubectl apply --overwrite=true -f prometheus-pushgateway.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.

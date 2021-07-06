@@ -1,8 +1,9 @@
 from datetime import timezone, datetime, timedelta
 import os
 import logging
-import urllib.parse
+import time
 import requests
+import pytz
 
 
 def enable_request_debug_log(func):
@@ -21,65 +22,49 @@ def enable_request_debug_log(func):
     return wrapper
 
 
-def check_timestamp_within_period(timestamp, days):
+def getPushgatewayJobsToDelete(pushgateway_uri, seconds):
     """
-    check if a timestamp is within a period
-
-    Parameters:
-    -----------
-    timestamp:
-        the timestamp to check
-    days: int
-        we use days to specify the period as : from xx days ago to now
-    """
-    return datetime.fromtimestamp(int(timestamp/1000), timezone.utc) > datetime.now(timezone.utc) - timedelta(days=days)
-
-
-def get_jobs_completed_within_period(pai_uri, token, days=7):
-    """
-    Returns the names of all jobs finished within the period
+    Jobs have not been updated within the given seconds should be deleted
 
     Returns:
     --------
-    list
-        The names of all the jobs completed within the period.
+    list of job names
     """
-    jobs_related = []
+    resp = requests.get("{}/prometheus-pushgateway/api/v1/metrics".format(pushgateway_uri))
+    resp.raise_for_status()
 
-    offset = 0
-    limit = 500
-    headers = {'Authorization': "Bearer {}".format(token)}
-    rest_url = urllib.parse.urljoin(pai_uri, "/rest-server/api/v2/jobs?order=completionTime,DESC")
-    while True:
-        resp = requests.get(rest_url+"&limit={}&offset={}".format(limit, offset), headers=headers)
-        resp.raise_for_status()
-        jobs = resp.json()
+    job_names = []
+    for job in resp.json()["data"]:
+        # get job name
+        if "labels" not in job or "job" not in job["labels"]:
+            continue
+        job_name = job["labels"]["job"]
 
-        # no more jobs or the first job in the list completed before the period
-        if not jobs or jobs[0]["completedTime"] is None or not check_timestamp_within_period(jobs[0]["completedTime"], days):
-            break
+        # get last pushed time
+        for val in job.values():
+            if isinstance(val, dict) and "time_stamp" in val:
+                last_pushed_time = val["time_stamp"]
+                break
+        if "last_pushed_time" not in locals():
+            continue
+        # if the job has been updated within the interval, ignore it
+        last_pushed_time = datetime.strptime(last_pushed_time.split(".")[0], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.UTC)
+        if last_pushed_time > datetime.now(timezone.utc) - timedelta(seconds=seconds):
+            continue
 
-        jobs = list(filter(lambda job: job["completedTime"] is not None
-            and check_timestamp_within_period(job["completedTime"], days), jobs))
-        jobs_related += [job["name"] for job in jobs]
+        job_names.append(job_name)
 
-        if len(jobs) < limit:
-            break
-        offset += limit
-
-    return jobs_related
+    return job_names
 
 
 @enable_request_debug_log
-def main():
-    PAI_URI = os.environ.get("PAI_URI")
-    TOKEN = os.environ.get('PAI_BEARER_TOKEN')
+def cleanPushgatewayJobs():
     PROMETHEUS_PUSHGATEWAY_URI = os.environ.get('PROMETHEUS_PUSHGATEWAY_URI')
-    CLEAN_PERIOD = os.environ.get('CLEAN_PERIOD')
+    JOB_TIME_TO_LIVE = int(os.environ.get('JOB_TIME_TO_LIVE'))
 
-    # get jobs that finished within the period
-    # the period should be >= the cleaning interval
-    job_names = get_jobs_completed_within_period(PAI_URI, TOKEN, CLEAN_PERIOD)
+    logging.info("Getting Pushgateway jobs to delete...")
+    job_names = getPushgatewayJobsToDelete(PROMETHEUS_PUSHGATEWAY_URI, JOB_TIME_TO_LIVE)
+    logging.info("Pushgateway jobs to delete: %s", job_names)
 
     # delete related metrics from Prometheus Pushgateway by job
     for job_name in job_names:
@@ -93,4 +78,8 @@ if __name__ == "__main__":
         "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
         level=logging.INFO,
     )
-    main()
+
+    CLEAN_INTERVAL = int(os.environ.get('CLEAN_INTERVAL'))
+    while True:
+        cleanPushgatewayJobs()
+        time.sleep(CLEAN_INTERVAL)

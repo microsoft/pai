@@ -5,6 +5,3 @@ max-line-length=140
 disable =
     missing-docstring,
     invalid-name,
-    cell-var-from-loop,
-    undefined-loop-variable,
-    too-many-locals,

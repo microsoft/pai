@@ -11,8 +11,7 @@ prerequisite:
   - prometheus
 
 template-list:
-  - prometheus-pushgateway-deployment.yaml
-  - prometheus-pushgateway-cronjob.yaml
+  - prometheus-pushgateway.yaml
 
 start-script: start.sh
 stop-script: stop.sh
