@@ -94,13 +94,6 @@
               "hide": false,
               "intervalFactor": 2,
               "refId": "A"
-            },
-            {
-              "expr": "(avg by (instance)(irate(node_cpu_seconds_total{mode=\"busy\",system=\"title\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
-              "format": "time_series",
-              "hide": false,
-              "intervalFactor": 2,
-              "refId": "B"
             }
           ],
           "thresholds": [
