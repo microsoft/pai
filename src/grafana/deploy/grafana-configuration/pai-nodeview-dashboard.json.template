@@ -96,7 +96,7 @@
               "refId": "A"
             },
             {
-              "expr": "(avg by (instance)(irate(node_cpu_seconds_total{mode=\"busy\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
+              "expr": "(avg by (instance)(irate(node_cpu_seconds_total{mode=\"busy\",system=\"title\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -386,7 +386,6 @@
             {
               "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
-              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
