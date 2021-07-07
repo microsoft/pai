@@ -108,12 +108,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (job_name, role_name)(irate(task_cpu_seconds_total{job_name=~\"$job\"}[{{interval}}s])) * 100",
+              "expr": "avg by (job_name, role_name) (task_cpu_percent{job_name=~\"$job\"})",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
               "legendFormat": "{{'{{role_name}}'}}",
               "refId": "A"
+            },
+            {
+              "expr": "avg by (job_name)(irate(task_cpu_seconds_total{job_name=~\"$job\"}[{{interval}}s])) * 100",
+              "format": "time_series",
+              "instant": false,
+              "intervalFactor": 2,
+              "refId": "B"
             }
           ],
           "thresholds": [
@@ -208,7 +215,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (job_name, role_name) (task_memory_usage_byte{job_name=~\"$job\"})",
+              "expr": "avg by (job_name, role_name) (task_mem_usage_byte{job_name=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -246,14 +253,14 @@
               "label": "GB",
               "logBase": 1,
               "max": null,
-              "min": 0,
+              "min": null,
               "show": true
             },
             {
               "format": "short",
               "logBase": 1,
               "max": null,
-              "min": 0,
+              "min": null,
               "show": true
             }
           ]
@@ -300,7 +307,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (job_name, role_name) (task_network_receive_bytes_total{job_name=~\"$job\"})",
+              "expr": "avg by (job_name, role_name) (task_net_in_byte{job_name=~\"$job\"})",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "Net In {{'{{role_name}}'}}",
@@ -310,7 +317,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (job_name, role_name) (task_network_transmit_bytes_total{job_name=~\"$job\"})",
+              "expr": "avg by (job_name, role_name) (task_net_out_byte{job_name=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -406,7 +413,7 @@
           "steppedLine": false,
           "targets": [
               {
-              "expr": "avg by (job_name, role_name) (irate(task_disk_read_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (job_name, role_name) (irate(task_block_in_byte{job_name=~\"$job\"}[{{interval}}s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "Read {{'{{role_name}}'}}",
@@ -416,15 +423,16 @@
               "target": ""
             },
             {
-              "expr": "avg by (job_name, role_name) (irate(task_disk_written_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (job_name, role_name) (irate(task_block_out_byte{job_name=~\"$job\"}[{{interval}}s]))",
               "intervalFactor": 2,
               "legendFormat": "Write {{'{{role_name}}'}}",
               "refId": "B"
             },
             {
-              "expr": "avg by (job_name, role_name) (irate(task_disk_other_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (job_name) (irate(task_block_other_byte{ job_name=~\"$job\"}[{{interval}}s]))",
+              "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Other {{'{{role_name}}'}}",
+              "legendFormat": "Disk Other",
               "refId": "C"
             }
           ],

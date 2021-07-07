@@ -89,6 +89,13 @@
           "steppedLine": false,
           "targets": [
             {
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "refId": "A"
+            },
+            {
               "expr": "(avg by (instance)(irate(node_cpu_seconds_total{mode=\"busy\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
@@ -189,13 +196,41 @@
           "steppedLine": false,
           "targets": [
             {
+              "expr": "node_memory_MemTotal_bytes{instance=~'$node(:[0-9]*)?$'} - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "usage",
+              "metric": "",
+              "refId": "A",
+              "step": 600,
+              "target": ""
+            },
+            {
+              "expr": "node_memory_MemFree_bytes{instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "hide": false,
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "free",
+              "refId": "B",
+              "step": 600
+            },
+            {
+              "expr": "node_memory_Buffers_bytes{instance=~'$node(:[0-9]*)?$'} + node_memory_Cached_bytes",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "buff/cache",
+              "refId": "C"
+            },
+            {
               "expr": "node_memory_bytes{type=\"physical_total\",instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "phisical total",
               "metric": "",
-              "refId": "A",
+              "refId": "D",
               "step": 600,
               "target": ""
             },
@@ -206,7 +241,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "phisical available",
-              "refId": "B",
+              "refId": "E",
               "step": 600
             },
             {
@@ -216,7 +251,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "committed",
-              "refId": "C",
+              "refId": "F",
               "step": 600
             },
             {
@@ -226,7 +261,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "commit limit",
-              "refId": "D",
+              "refId": "G",
               "step": 600
             },
             {
@@ -236,7 +271,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "system cache",
-              "refId": "E",
+              "refId": "H",
               "step": 600
             },
             {
@@ -246,7 +281,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "kernel paged",
-              "refId": "F",
+              "refId": "I",
               "step": 600
             },
             {
@@ -256,7 +291,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "kernel non paged",
-              "refId": "G",
+              "refId": "J",
               "step": 600
             }
           ],
@@ -281,7 +316,7 @@
           "yaxes": [
             {
               "format": "bytes",
-              "label": "MB",
+              "label": "GB",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -351,6 +386,7 @@
             {
               "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
+              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -382,7 +418,7 @@
               "label": "",
               "logBase": 1,
               "max": null,
-              "min": 0,
+              "min": null,
               "show": true
             },
             {
