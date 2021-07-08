@@ -3,6 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+{%- if cluster_cfg['cluster']['common']['prometheus-pushgateway'] == 'true' %}
 INSTANCES="
 deployment/prometheus-pushgateway
 "
@@ -11,3 +12,4 @@ for instance in ${INSTANCES}; do
   kubectl delete --ignore-not-found --now ${instance} || exit $?
 done
 
+{%- endif %}

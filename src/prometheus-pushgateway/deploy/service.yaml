@@ -12,6 +12,8 @@ prerequisite:
 
 template-list:
   - prometheus-pushgateway.yaml
+  - start.sh
+  - stop.sh
 
 start-script: start.sh
 stop-script: stop.sh
