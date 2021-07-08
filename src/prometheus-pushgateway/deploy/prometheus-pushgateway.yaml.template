@@ -40,7 +40,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/prometheus-pushgateway/metrics"
-        prometheus.io/port: "{{ prometheus_pushgateway_port }}"
+        prometheus.io/port: "8080"
     spec:
       containers:
       - name: prometheus-pushgateway
