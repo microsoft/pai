@@ -553,14 +553,63 @@
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "free",
-              "refId": "D"
+              "refId": "B"
             },
             {
               "expr": "sum(node_memory_Buffers_bytes) + sum(node_memory_Cached_bytes)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
-              "refId": "B"
+              "refId": "C"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"physical_total\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical total",
+              "refId": "D"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"physical_available\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical available",
+              "refId": "E"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"committed\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "committed",
+              "refId": "F"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"commit_limit\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "commit limit",
+              "refId": "G"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"system_cache\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "system cache",
+              "refId": "H"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"kernel_paged\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel paged",
+              "refId": "I"
+            },
+            {
+              "expr": "(node_memory_bytes{type=\"kernel_non_paged\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel non paged",
+              "refId": "J"
             }
           ],
           "thresholds": [],
@@ -737,6 +786,13 @@
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
+            },
+            {
+              "expr": "sum(rate(node_disk_other_bytes_total[{{interval}}s]))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "other",
+              "refId": "C"
             }
           ],
           "thresholds": [],
