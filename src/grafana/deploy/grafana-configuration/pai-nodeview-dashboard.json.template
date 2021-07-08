@@ -887,7 +887,7 @@
         "multiFormat": "regex values",
         "name": "node",
         "options": [],
-        "query": "label_values(node_uname_info, instance)",
+        "query": "label_values(node_cpu_seconds_total, instance)",
         "refresh": 1,
         "regex": "/([^:]*)/",
         "sort": 1,

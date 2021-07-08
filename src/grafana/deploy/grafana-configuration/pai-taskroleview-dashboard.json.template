@@ -679,7 +679,7 @@
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
-        "query": "label_values(task_cpu_percent, job_name)",
+        "query": "label_values(task_mem_usage_byte, job_name)",
         "refresh": 1,
         "regex": "^(?!\\s*$).+",
         "sort": 1,
