@@ -88,10 +88,11 @@
               "refId": "A"
             },
             {
-              "expr": "avg by (job_name)(irate(task_cpu_seconds_total{job_name=~\"$job\"}[{{interval}}s])) * 100",
+              "expr": "irate(task_cpu_seconds_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]) * 100",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
+              "legendFormat": "{{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "B"
             }
           ],
