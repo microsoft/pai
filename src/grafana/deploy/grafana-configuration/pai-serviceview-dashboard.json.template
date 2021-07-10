@@ -414,6 +414,11 @@
           },
           {
             "selected": false,
+            "text": "prometheus-pushgateway",
+            "value": "prometheus-pushgateway"
+          },
+          {
+            "selected": false,
             "text": "pylon",
             "value": "pylon"
           },

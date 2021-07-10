@@ -114,6 +114,13 @@
               "intervalFactor": 2,
               "legendFormat": "{{'{{role_name}}'}}",
               "refId": "A"
+            },
+            {
+              "expr": "avg by (job_name)(irate(task_cpu_seconds_total{job_name=~\"$job\"}[{{interval}}s])) * 100",
+              "format": "time_series",
+              "instant": false,
+              "intervalFactor": 2,
+              "refId": "B"
             }
           ],
           "thresholds": [
@@ -420,6 +427,13 @@
               "intervalFactor": 2,
               "legendFormat": "Write {{'{{role_name}}'}}",
               "refId": "B"
+            },
+            {
+              "expr": "avg by (job_name) (irate(task_block_other_byte{ job_name=~\"$job\"}[{{interval}}s]))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Disk Other",
+              "refId": "C"
             }
           ],
           "thresholds": [],
@@ -665,7 +679,7 @@
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
-        "query": "label_values(task_cpu_percent, job_name)",
+        "query": "label_values(task_mem_usage_byte, job_name)",
         "refresh": 1,
         "regex": "^(?!\\s*$).+",
         "sort": 1,

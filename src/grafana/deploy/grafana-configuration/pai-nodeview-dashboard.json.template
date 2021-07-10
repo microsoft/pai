@@ -93,7 +93,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "refId": "B"
+              "refId": "A"
             }
           ],
           "thresholds": [
@@ -206,7 +206,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "free",
-              "refId": "E",
+              "refId": "B",
               "step": 600
             },
             {
@@ -214,7 +214,56 @@
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
-              "refId": "B"
+              "refId": "C"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"physical_total\",instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical total",
+              "refId": "D"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"physical_available\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical available",
+              "refId": "E"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"committed\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "committed",
+              "refId": "F"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"commit_limit\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "commit limit",
+              "refId": "G"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"system_cache\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "system cache",
+              "refId": "H"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"kernel_paged\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel paged",
+              "refId": "I"
+            },
+            {
+              "expr": "node_memory_bytes{type=\"kernel_non_paged\", instance=~'$node(:[0-9]*)?$'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel non paged",
+              "refId": "J"
             }
           ],
           "thresholds": [],
@@ -308,7 +357,6 @@
             {
               "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
-              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -419,6 +467,14 @@
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
+            },
+            {
+              "expr": "sum(rate(node_disk_other_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "legendFormat": "other",
+              "refId": "C"
             }
           ],
           "thresholds": [],
@@ -809,7 +865,7 @@
         "multiFormat": "regex values",
         "name": "node",
         "options": [],
-        "query": "label_values(node_uname_info, instance)",
+        "query": "label_values(node_cpu_seconds_total, instance)",
         "refresh": 1,
         "regex": "/([^:]*)/",
         "sort": 1,
