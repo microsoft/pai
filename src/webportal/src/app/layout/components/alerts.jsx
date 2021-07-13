@@ -59,11 +59,8 @@ export const NotificationButton = () => {
         const data = await result.json().catch(() => {
           throw new Error('Get alerts json failed');
         });
-        if (data.status !== 'success') {
-          throw new Error('Failed to get alerts data');
-        }
         if (!canceled) {
-          setAlertItems(data.data);
+          setAlertItems(data);
         }
       } catch (err) {
         throw new Error('Failed to get alerts data from REST Server.');
