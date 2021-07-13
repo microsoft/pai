@@ -6,7 +6,7 @@
   - Please see [Marketplace](https://github.com/microsoft/openpaimarketplace/releases/tag/v1.8.0) for more details
 
 - Alert manager
-  - Send alert to user when job failed #5337
+  - Send alert to users when job status changed #5337
 
 - Webportal
   - Support UX of Job Priority #5417
