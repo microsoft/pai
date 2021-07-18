@@ -79,6 +79,9 @@ Generally speaking, PAI services are daemon sets, deployments, or stateful sets 
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/cluster-cfg:<config-folder>  \
+        -v ${HOME}/pai-deploy/kube:/root/.kube \
+        -v ${HOME}/pai:/mnt/pai \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -86,7 +89,7 @@ sudo docker run -itd \
         openpai/dev-box:<openpai version tag>
 ```
 
-You should replace the `<openpai version tag>` with your current OpenPAI version, e.g. `v1.0.0`.
+You should： 1. Replace the `<openpai version tag>` with your current OpenPAI version, e.g. `v1.0.0`; 2. Ensure that the version checked out in `${HOME}/pai` is consistent with the `<openpai version tag>` you used; 3. Modify `<config-folder>` to a certain path, e.g. `/cluster-cfg`.
 
 To use `paictl`, go into the container by:
 
@@ -94,19 +97,10 @@ To use `paictl`, go into the container by:
 sudo docker exec -it dev-box bash
 ```
 
-Then, you should manually configure `kubeconfig` in the dev box container. During installation, we have put the correct `kubeconfig` file in `~/pai-deploy/kube/config` on the dev box machine. Please copy its content to `~/.kube/config` in the dev box container:
+Go to folder `/mnt/pai`, try to retrieve your cluster-id:
 
 ```bash
-# in the dev box container
-mkdir -p ~/.kube
-# please copy the content in `~/pai-deploy/kube/config` on the dev box machine to `~/.kube/config` here
-vim ~/.kube/config
-```
-
-Go to folder `/pai`, try to retrieve your cluster-id:
-
-```bash
-cd /pai
+cd /mnt/pai
 ./paictl.py config get-id
 ```
 
