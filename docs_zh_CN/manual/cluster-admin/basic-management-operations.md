@@ -89,7 +89,7 @@ sudo docker run -itd \
         openpai/dev-box:<openpai version tag>
 ```
 
-您应该做一下修改： 1. `<openpai version tag>`替换为和您当前的OpenPAI相符的版本，例如`v1.0.0`；2. 确保`${HOME}/pai`中的版本与`<openpai version tag>`一致；3. 修改`<config-folder>`为一个确定的路径，例如`/cluster-cfg`。
+您应该做以下修改： 1. `<openpai version tag>`替换为和您当前的OpenPAI相符的版本，例如`v1.0.0`；2. 确保`${HOME}/pai`中的版本与`<openpai version tag>`一致；3. 修改`<config-folder>`为一个确定的路径，例如`/cluster-cfg`。
 
 要使用`paictl`，请通过以下方式进入容器：
 
