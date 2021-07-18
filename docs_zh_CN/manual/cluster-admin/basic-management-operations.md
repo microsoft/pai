@@ -79,6 +79,9 @@ subjects:
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/cluster-cfg:<config-folder>  \
+        -v ${HOME}/pai-deploy/kube:/root/.kube \
+        -v ${HOME}/pai:/mnt/pai \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -86,7 +89,7 @@ sudo docker run -itd \
         openpai/dev-box:<openpai version tag>
 ```
 
-您应将`<openpai version tag>`替换为和您当前的OpenPAI相符的版本，例如`v1.0.0`。
+您应该做一下修改： 1. `<openpai version tag>`替换为和您当前的OpenPAI相符的版本，例如`v1.0.0`；2. 确保`${HOME}/pai`中的版本与`<openpai version tag>`一致；3. 修改`<config-folder>`为一个确定的路径，例如`/cluster-cfg`。
 
 要使用`paictl`，请通过以下方式进入容器：
 
@@ -94,19 +97,10 @@ sudo docker run -itd \
 sudo docker exec -it dev-box bash
 ```
 
-然后，您需要手动将`kubeconfig`设置到dev box容器中。在安装时，`kubeconfig`已经被放在了dev box机器上的`~/pai-deploy/kube/config`路径，您需要将这个文件的内容拷贝到容器中的`~/.kube/config`里面：
+转到文件夹`/mnt/pai`，尝试检查您的集群ID：
 
 ```bash
-# 在 dev box 容器中
-mkdir -p ~/.kube
-# 请把 dev box 机器上的`~/pai-deploy/kube/config`中的内容拷贝到这里的 `~/.kube/config`
-vim ~/.kube/config
-```
-
-转到文件夹`/pai`，尝试检查您的集群ID：
-
-```bash
-cd /pai
+cd /mnt/pai
 ./paictl.py config get-id
 ```
 
