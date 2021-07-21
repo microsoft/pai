@@ -45,9 +45,14 @@ openpai_kubespray_extra_var:
 
 此文件中，请把`user`和`password`替换为您master和worker机器的SSH用户及密码；`docker_image_tag`请替换为想要安装的OpenPAI版本，例如如果想要安装`v1.5.0`版本，请将`docker_image_tag`替换为`v1.5.0`。
 
-如果使用此`config`文件，请在运行`/bin/bash quick-start-kubespray.sh`前，下载相关离线文件文件。
+如果使用此`config`文件，请在运行`/bin/bash quick-start-kubespray.sh`前，下载相关离线文件。
 
 [下载地址](https://rgfmxa.bn.files.1drv.com/y4mqw1jGMrxkqlopAKLRwcxG52YJjPfixnxVqP9VBTBmX7eMNbrVRfXEOWU5YNBesdrlvOFoPlONsJ6Vd2cz0sPP4uA8Ct2D0FH5B4f4_54RkHRm9yPAy8iadCkCOkPRToajqn692j3Y-d36b00JFnISa2WkJF7l2N1aoXYKFTFIWaiDIbautMZrQJjqE1lfrPD2fDxI4YWhP-jnC2lPXMwKw)
+
+Windows直接使用浏览器下载，Linux可使用下述命令下载：
+```bash
+curl https://rgfmxa.bn.files.1drv.com/y4mqw1jGMrxkqlopAKLRwcxG52YJjPfixnxVqP9VBTBmX7eMNbrVRfXEOWU5YNBesdrlvOFoPlONsJ6Vd2cz0sPP4uA8Ct2D0FH5B4f4_54RkHRm9yPAy8iadCkCOkPRToajqn692j3Y-d36b00JFnISa2WkJF7l2N1aoXYKFTFIWaiDIbautMZrQJjqE1lfrPD2fDxI4YWhP-jnC2lPXMwKw -o pai-offine-deploy.zip
+```
 
 将下载好的文件分发到集群中所有节点，并运行下述命令：
 
