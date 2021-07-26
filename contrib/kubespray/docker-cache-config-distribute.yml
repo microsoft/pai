@@ -6,8 +6,3 @@
     - role: '../roles/docker-cache/install'
       vars:
         docker_cache_host: "{{ hostvars[groups['kube-master'][0]]['ip'] }}:30500"
-  tasks:
-    - name: Restart service docker config from /etc/docker/daemon.json after update
-      ansible.builtin.systemd:
-        name: docker
-        state: restarted
