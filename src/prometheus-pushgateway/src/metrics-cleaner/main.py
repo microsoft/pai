@@ -41,12 +41,10 @@ def getPushgatewayJobsToDelete(pushgateway_uri, seconds):
         job_name = job["labels"]["job"]
 
         # get last pushed time
-        for val in job.values():
-            if isinstance(val, dict) and "time_stamp" in val:
-                last_pushed_time = val["time_stamp"]
-                break
-        if "last_pushed_time" not in locals():
+        if "push_time_seconds" not in job or "time_stamp" not in job["push_time_seconds"]:
             continue
+        last_pushed_time = job["push_time_seconds"]["time_stamp"]
+        
         # if the job has been updated within the interval, ignore it
         last_pushed_time = datetime.strptime(last_pushed_time.split(".")[0], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.UTC)
         if last_pushed_time > datetime.now(timezone.utc) - timedelta(seconds=seconds):
