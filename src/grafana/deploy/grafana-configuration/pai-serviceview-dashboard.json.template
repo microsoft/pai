@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 
 {"dashboard": {
   "annotations": {

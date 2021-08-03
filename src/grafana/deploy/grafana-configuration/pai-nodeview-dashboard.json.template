@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 {% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
@@ -344,7 +344,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -355,7 +355,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -450,7 +450,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -461,7 +461,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -469,7 +469,7 @@
               "refId": "B"
             },
             {
-              "expr": "sum(rate(node_disk_other_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_other_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,

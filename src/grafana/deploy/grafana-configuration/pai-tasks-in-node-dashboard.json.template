@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 {% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
@@ -255,14 +255,14 @@
               "refId": "B"
             },
             {
-              "expr": "rate(task_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])",
+              "expr": "irate(task_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Net In {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",
               "refId": "C"
             },
             {
-              "expr": "rate(task_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])",
+              "expr": "irate(task_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Net Out {{'{{'}}job_name{{'}}'}}-{{'{{'}}role_name{{'}}'}}-{{'{{'}}task_index{{'}}'}}",

@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 {% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
@@ -309,7 +309,7 @@
               "step": 600
             },
             {
-              "expr": "avg by (job_name) (rate(task_network_receive_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (job_name) (irate(task_network_receive_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -319,7 +319,7 @@
               "step": 600
             },
             {
-              "expr": "avg by (job_name) (rate(task_network_transmit_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (job_name) (irate(task_network_transmit_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "interval": "",

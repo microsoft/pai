@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 
 {"dashboard": {
   "annotations": {
@@ -680,14 +680,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_receive_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_transmit_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -774,21 +774,21 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_read_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_written_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
             },
             {
-              "expr": "sum(rate(node_disk_other_bytes_total[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_other_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "other",
