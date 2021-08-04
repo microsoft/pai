@@ -16,7 +16,7 @@
     ]
   },
   "description": "Dashboard to view jobs in node",
-  "editable": false,
+  "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
