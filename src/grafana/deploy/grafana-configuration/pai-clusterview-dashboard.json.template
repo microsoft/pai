@@ -14,7 +14,7 @@
       }
     ]
   },
-  "editable": false,
+  "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
@@ -466,7 +466,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{interval}}s])) * 100",
+              "expr": "avg ((sum by (instance) (idelta(node_cpu_seconds_total{}[{{interval}}s])) > bool 0) * (100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\"}[{{interval}}s])) * 100)))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",

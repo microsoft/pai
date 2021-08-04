@@ -16,7 +16,7 @@
     ]
   },
   "description": "Dashboard to view multiple servers",
-  "editable": false,
+  "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
@@ -89,7 +89,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
+              "expr": "(sum by (instance) (idelta(node_cpu_seconds_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) > bool 0) * (100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
