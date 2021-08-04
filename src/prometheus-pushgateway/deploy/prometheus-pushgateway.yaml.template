@@ -38,7 +38,7 @@ spec:
             memory: "2Gi"
             cpu: "3000m"
           requests:
-            memory: "512Gi"
+            memory: "512Mi"
             cpu: "2000m"
         {%- endif %}
         args:
