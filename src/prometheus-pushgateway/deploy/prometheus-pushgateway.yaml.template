@@ -35,7 +35,11 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "256Mi"
+            memory: "2Gi"
+            cpu: "3000m"
+          requests:
+            memory: "512Mi"
+            cpu: "2000m"
         {%- endif %}
         args:
           - '--web.listen-address=0.0.0.0:8080'
