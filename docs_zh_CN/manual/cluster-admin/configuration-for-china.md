@@ -47,18 +47,18 @@ openpai_kubespray_extra_var:
 
 如果使用此`config`文件，请在运行`/bin/bash quick-start-kubespray.sh`前，下载相关离线文件。
 
-[下载地址](https://rgfmxa.bn.files.1drv.com/y4mqw1jGMrxkqlopAKLRwcxG52YJjPfixnxVqP9VBTBmX7eMNbrVRfXEOWU5YNBesdrlvOFoPlONsJ6Vd2cz0sPP4uA8Ct2D0FH5B4f4_54RkHRm9yPAy8iadCkCOkPRToajqn692j3Y-d36b00JFnISa2WkJF7l2N1aoXYKFTFIWaiDIbautMZrQJjqE1lfrPD2fDxI4YWhP-jnC2lPXMwKw)
+[下载地址](https://ua4wpg.bn.files.1drv.com/y4mk4pfpsqOR9yt5UEy6YTMZ8IcU47gjB01XX__astFlbqcoXpoWDT2Rwum8q3JI-CjBl3F-TANSmgfRBAvakZ4v9ks8sbgGTZeOJfuuq8XG6M2Dsu-kACYt_AvvTDbVRWEQocb0vYCv68bTtkYEX_B_2vC6AMVytwvcqXgT6QKawTtyAqRjJdYq8fd5yzCr3yItyK_w0GEgEsAu5ZhT-KCDw)
 
 Windows直接使用浏览器下载，Linux可使用下述命令下载：
 ```bash
-curl https://rgfmxa.bn.files.1drv.com/y4mqw1jGMrxkqlopAKLRwcxG52YJjPfixnxVqP9VBTBmX7eMNbrVRfXEOWU5YNBesdrlvOFoPlONsJ6Vd2cz0sPP4uA8Ct2D0FH5B4f4_54RkHRm9yPAy8iadCkCOkPRToajqn692j3Y-d36b00JFnISa2WkJF7l2N1aoXYKFTFIWaiDIbautMZrQJjqE1lfrPD2fDxI4YWhP-jnC2lPXMwKw -o pai-offine-deploy.zip
+curl https://ua4wpg.bn.files.1drv.com/y4mk4pfpsqOR9yt5UEy6YTMZ8IcU47gjB01XX__astFlbqcoXpoWDT2Rwum8q3JI-CjBl3F-TANSmgfRBAvakZ4v9ks8sbgGTZeOJfuuq8XG6M2Dsu-kACYt_AvvTDbVRWEQocb0vYCv68bTtkYEX_B_2vC6AMVytwvcqXgT6QKawTtyAqRjJdYq8fd5yzCr3yItyK_w0GEgEsAu5ZhT-KCDw -o pai-offline-deploy.zip
 ```
 
 将下载好的文件分发到集群中所有节点，并运行下述命令：
 
 ```bash
-unzip pai-offine-deploy.zip
-cd pai-offine-deploy
+unzip pai-offline-deploy.zip
+cd pai-offline-deploy
 chmod +x setup.sh
 sudo ./setup.sh
 ```
