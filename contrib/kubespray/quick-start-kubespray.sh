@@ -59,5 +59,8 @@ ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml pre-installation.ym
 echo "Performing docker-cache config distribution..."
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-cache-config-distribute.yml -e "@${CLUSTER_CONFIG}" || exit $?
 
+echo "Performing offline deploy file distribution..."
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml offline-deploy-files-distribute.yml -e "@${CLUSTER_CONFIG}" || exit $?
+
 echo "Starting kubernetes..."
 /bin/bash script/kubernetes-boot.sh || exit $?

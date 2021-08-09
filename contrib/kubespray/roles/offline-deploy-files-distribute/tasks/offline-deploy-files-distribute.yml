@@ -1,0 +1,10 @@
+---
+- name: Extract /tmp/pai-offline-deploy.zip into /tmp/releases
+  ansible.builtin.unarchive:
+    src: /tmp/pai-offline-deploy.zip
+    dest: /tmp
+
+- name: Execute the script /tmp/pai-offine-deploy/setup.sh
+  shell: /bin/bash setup.sh
+  args:
+    chdir: /tmp/pai-offline-deploy

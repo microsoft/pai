@@ -1,0 +1,5 @@
+---
+- name: "Offline deploy files distribute"
+  include_tasks: offline-deploy-files-distribute.yml
+  when:
+    - offline_deploy
