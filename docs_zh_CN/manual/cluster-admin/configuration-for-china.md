@@ -1,6 +1,6 @@
-如果您是中国用户，在[创建设置文件这一步](./installation-guide.md#create-configurations)，请使用下面的`config`文件：
+###### Azure中国用户`config` 示例
 
-###### `config` 示例
+如果您是Azure中国用户，在[创建设置文件这一步](./installation-guide.md#create-configurations)，请使用下面的`config`文件：
 
 ```yaml
 user: <ssh用户>
@@ -20,10 +20,48 @@ openpai_kubespray_extra_var:
   metrics_server_image_repo: "gcr.azk8s.cn/google_containers/metrics-server-amd64"
   addon_resizer_image_repo: "gcr.azk8s.cn/google_containers/addon-resizer"
   dashboard_image_repo: "gcr.azk8s.cn/google_containers/kubernetes-dashboard-{{ image_arch }}"
+openpai_kube_network_plugin: weave
 ```
 
-此文件中，请把`user`和`password`替换为您master和worker机器的SSH用户及密码；`docker_image_tag`请替换为想要安装的OpenPAI版本，例如如果想要安装`v1.5.0`版本，请将`docker_image_tag`替换为`v1.5.0`。另外，如果您在Azure China中搭建，请加入一行`openpai_kube_network_plugin: weave`，因为Azure暂时不支持默认的calico插件。
+此文件中，请把`user`和`password`替换为您master和worker机器的SSH用户及密码；`docker_image_tag`请替换为想要安装的OpenPAI版本，例如如果想要安装`v1.5.0`版本，请将`docker_image_tag`替换为`v1.5.0`。
 
-如果使用此`config`文件，会从我们合作伙伴[上海仪电创新院](https://www.shaiic.com/)提供的地址下载必要的`kubeadm`和`hyperkube`文件；此外会使用`gcr.azk8s.cn`作为`gcr.io`的镜像服务器。如果您的网络无法访问`gcr.azk8s.cn`，可以寻找别的`gcr.io`替代镜像，并对`config`文件作对应修改。
+如果使用此`config`文件，会从我们合作伙伴[上海仪电创新院](https://www.shaiic.com/)提供的地址下载必要的`kubeadm`和`hyperkube`文件；此外会使用`gcr.azk8s.cn`作为`gcr.io`的镜像服务器。
 
 除了该`config`文件外，其他的步骤都和[Installation Guide](./installation-guide.md)一致。
+
+###### 中国用户`config` 示例
+
+如果您是中国用户，在[创建设置文件这一步](./installation-guide.md#create-configurations)，请使用下面的`config`文件：
+
+```yaml
+user: <ssh用户>
+password: <ssh密码>
+docker_image_tag: v1.5.0
+
+offline_deploy: true
+openpai_kubespray_extra_var:
+  download_container: false
+  skip_downloads: true
+```
+
+此文件中，请把`user`和`password`替换为您master和worker机器的SSH用户及密码；`docker_image_tag`请替换为想要安装的OpenPAI版本，例如如果想要安装`v1.5.0`版本，请将`docker_image_tag`替换为`v1.5.0`。
+
+如果使用此`config`文件，请在运行`/bin/bash quick-start-kubespray.sh`前，下载相关离线文件。
+
+[下载地址](https://ua4wpg.bn.files.1drv.com/y4mk4pfpsqOR9yt5UEy6YTMZ8IcU47gjB01XX__astFlbqcoXpoWDT2Rwum8q3JI-CjBl3F-TANSmgfRBAvakZ4v9ks8sbgGTZeOJfuuq8XG6M2Dsu-kACYt_AvvTDbVRWEQocb0vYCv68bTtkYEX_B_2vC6AMVytwvcqXgT6QKawTtyAqRjJdYq8fd5yzCr3yItyK_w0GEgEsAu5ZhT-KCDw)
+
+Windows直接使用浏览器下载，Linux可使用下述命令下载：
+```bash
+curl https://ua4wpg.bn.files.1drv.com/y4mk4pfpsqOR9yt5UEy6YTMZ8IcU47gjB01XX__astFlbqcoXpoWDT2Rwum8q3JI-CjBl3F-TANSmgfRBAvakZ4v9ks8sbgGTZeOJfuuq8XG6M2Dsu-kACYt_AvvTDbVRWEQocb0vYCv68bTtkYEX_B_2vC6AMVytwvcqXgT6QKawTtyAqRjJdYq8fd5yzCr3yItyK_w0GEgEsAu5ZhT-KCDw -o pai-offline-deploy.zip
+```
+
+将下载好的文件存储到dev-box的`/tmp`中，结果如下：
+```bash
+username@dev-box:~$ ls /tmp/pai-offline-deploy.zip -al
+-rw-rw-r-- 1 username username 263804668 Aug  9 14:55 /tmp/pai-offline-deploy.zip
+username@dev-box:~$
+```
+
+注意，上述文件适用于x86_64架构，其他架构的相关文件链接可在 [kubespray/blob/master/roles/download/defaults/main.yml](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/download/defaults/main.yml)找到。
+
+除此以外，其他的步骤都和[Installation Guide](./installation-guide.md)一致。
