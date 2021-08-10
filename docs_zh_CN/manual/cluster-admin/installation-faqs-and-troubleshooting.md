@@ -163,7 +163,7 @@ sudo chmod 644 /etc/hosts
 
 #### 网络相关的问题
 
-如果您是中国用户，请先参考[这个文档](./configuration-for-china.md).
+如果您是中国用户，请先参考[这个issue](https://github.com/microsoft/pai/issues/5592).
 
 **无法下载kubeadm或hyperkube二进制文件**
 
