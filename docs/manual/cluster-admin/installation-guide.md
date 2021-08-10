@@ -170,7 +170,7 @@ Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib
 These two files specify the cluster layout and the customized configuration, respectively.
 The following is the format and example of these 2 files.
 
-**Tips for Chinese Users**: If you are in Mainland China, please refer to [here](./configuration-for-china.md) first before you edit these files.
+**Tips for Chinese Users**: If you are in Mainland China, please read [this issue](https://github.com/microsoft/pai/issues/5592) first before you edit these files.
 
 #### `layout.yaml` format
 
