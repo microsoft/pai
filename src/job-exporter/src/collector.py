@@ -542,6 +542,7 @@ class ContainerCollector(Collector):
         "pylon",
         "webportal",
         "grafana",
+        "prometheus-pushgateway",
         "prometheus",
         "alertmanager",
         "watchdog",
