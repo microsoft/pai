@@ -171,7 +171,7 @@ git checkout v1.8.0
 
 #### 关于中国用户的提示
 
-如果您是中国用户，在编辑这两个文件前，请先阅读[这个文档](./configuration-for-china.md)。
+在中国安装会有一些网络问题，在开始前，请先阅读[这个issue](https://github.com/microsoft/pai/issues/5592)。
 
 #### <div id="layoutyaml-format">`layout.yaml` 格式示例</div>
 
