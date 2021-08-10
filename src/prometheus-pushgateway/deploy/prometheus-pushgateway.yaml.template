@@ -36,10 +36,10 @@ spec:
         resources:
           limits:
             memory: "2Gi"
-            cpu: "3000m"
+            cpu: "1000m"
           requests:
             memory: "512Mi"
-            cpu: "2000m"
+            cpu: "500m"
         {%- endif %}
         args:
           - '--web.listen-address=0.0.0.0:8080'
