@@ -1,0 +1,25 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+cluster-type:
+  - yarn
+  - k8s
+
+prerequisite:
+  - cluster-configuration
+  - docker-cache
+  - prometheus
+
+template-list:
+  - prometheus-pushgateway.yaml
+  - start.sh
+  - stop.sh
+
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refresh-script: refresh.sh
+upgraded-script: upgraded.sh
+
+deploy-rules:
+  - in: pai-master
