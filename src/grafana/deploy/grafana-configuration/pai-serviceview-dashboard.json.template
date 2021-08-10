@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
 
 {"dashboard": {
   "annotations": {
@@ -411,11 +411,6 @@
             "selected": false,
             "text": "prometheus",
             "value": "prometheus"
-          },
-          {
-            "selected": false,
-            "text": "prometheus-pushgateway",
-            "value": "prometheus-pushgateway"
           },
           {
             "selected": false,

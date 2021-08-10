@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
 {% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
@@ -16,7 +16,7 @@
     ]
   },
   "description": "Dashboard to view multiple servers",
-  "editable": true,
+  "editable": false,
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
@@ -89,11 +89,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "(sum by (instance) (idelta(node_cpu_seconds_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) > bool 0) * (100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100))",
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "refId": "A"
+              "refId": "B"
             }
           ],
           "thresholds": [
@@ -206,7 +206,7 @@
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "free",
-              "refId": "B",
+              "refId": "E",
               "step": 600
             },
             {
@@ -214,56 +214,7 @@
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
-              "refId": "C"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"physical_total\",instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "phisical total",
-              "refId": "D"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"physical_available\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "phisical available",
-              "refId": "E"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"committed\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "committed",
-              "refId": "F"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"commit_limit\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "commit limit",
-              "refId": "G"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"system_cache\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "system cache",
-              "refId": "H"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"kernel_paged\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "kernel paged",
-              "refId": "I"
-            },
-            {
-              "expr": "node_memory_bytes{type=\"kernel_non_paged\", instance=~'$node(:[0-9]*)?$'}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "kernel non paged",
-              "refId": "J"
+              "refId": "B"
             }
           ],
           "thresholds": [],
@@ -344,7 +295,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(irate(node_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -355,8 +306,9 @@
               "target": ""
             },
             {
-              "expr": "sum(irate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
+              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -450,7 +402,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(irate(node_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -461,20 +413,12 @@
               "target": ""
             },
             {
-              "expr": "sum(irate(node_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
-            },
-            {
-              "expr": "sum(irate(node_disk_other_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
-              "format": "time_series",
-              "hide": false,
-              "intervalFactor": 2,
-              "legendFormat": "other",
-              "refId": "C"
             }
           ],
           "thresholds": [],
@@ -865,7 +809,7 @@
         "multiFormat": "regex values",
         "name": "node",
         "options": [],
-        "query": "label_values(node_cpu_seconds_total, instance)",
+        "query": "label_values(node_uname_info, instance)",
         "refresh": 1,
         "regex": "/([^:]*)/",
         "sort": 1,
