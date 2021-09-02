@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 {% set url = cluster_cfg["grafana"]["url"] %}
 
 {"dashboard": {
@@ -102,6 +102,14 @@
               "intervalFactor": 2,
               "legendFormat": "{{'{{role_name}}'}}-{{'{{task_index}}'}}",
               "refId": "A"
+            },
+            {
+              "expr": "avg by (job_name, role_name, task_index)(irate(task_cpu_seconds_total{job_name=~\"$job\"}[{{interval}}s])) * 100",
+              "format": "time_series",
+              "instant": false,
+              "intervalFactor": 2,
+              "legendFormat": "{{'{{role_name}}'}}-{{'{{task_index}}'}}",
+              "refId": "B"
             }
           ],
           "thresholds": [
@@ -307,6 +315,26 @@
               "legendFormat": "Net Out {{'{{role_name}}'}}-{{'{{task_index}}'}}",
               "refId": "B",
               "step": 600
+            },
+            {
+              "expr": "avg by (job_name, role_name, task_index) (irate(task_network_receive_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "format": "time_series",
+              "hide": false,
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "Net In {{'{{role_name}}'}}-{{'{{task_index}}'}}",
+              "refId": "C",
+              "step": 600
+            },
+            {
+              "expr": "avg by (job_name, role_name, task_index) (irate(task_network_transmit_bytes_total{job_name=~\"$job\"}[{{interval}}s]))",
+              "format": "time_series",
+              "hide": false,
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "Net Out {{'{{role_name}}'}}-{{'{{task_index}}'}}",
+              "refId": "D",
+              "step": 600
             }
           ],
           "thresholds": [],
@@ -411,6 +439,13 @@
               "intervalFactor": 2,
               "legendFormat": "Write {{'{{role_name}}'}}-{{'{{task_index}}'}}",
               "refId": "B"
+            },
+            {
+              "expr": "avg by (job_name) (irate(task_block_other_byte{ job_name=~\"$job\"}[{{interval}}s]))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Disk Other",
+              "refId": "C"
             }
           ],
           "thresholds": [],
@@ -850,7 +885,7 @@
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
-        "query": "label_values(task_cpu_percent, job_name)",
+        "query": "label_values(task_mem_usage_byte, job_name)",
         "refresh": 1,
         "regex": "^(?!\\s*$).+",
         "sort": 1,

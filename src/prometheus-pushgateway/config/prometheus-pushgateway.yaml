@@ -1,0 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+service_type: "common"
+
+port: 9097
+metrics-cleaner:
+  job-time-to-live: 30 # seconds
+  clean-interval: 15 # seconds

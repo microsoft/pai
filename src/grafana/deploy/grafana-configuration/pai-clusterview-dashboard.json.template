@@ -1,4 +1,4 @@
-{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 2 %}
 
 {"dashboard": {
   "annotations": {
@@ -14,7 +14,7 @@
       }
     ]
   },
-  "editable": false,
+  "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
@@ -466,7 +466,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{interval}}s])) * 100",
+              "expr": "avg ((sum by (instance) (idelta(node_cpu_seconds_total{}[{{interval}}s])) > bool 0) * (100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\"}[{{interval}}s])) * 100)))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",
@@ -553,14 +553,63 @@
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "free",
-              "refId": "D"
+              "refId": "B"
             },
             {
               "expr": "sum(node_memory_Buffers_bytes) + sum(node_memory_Cached_bytes)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
-              "refId": "B"
+              "refId": "C"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"physical_total\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical total",
+              "refId": "D"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"physical_available\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "phisical available",
+              "refId": "E"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"committed\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "committed",
+              "refId": "F"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"commit_limit\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "commit limit",
+              "refId": "G"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"system_cache\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "system cache",
+              "refId": "H"
+            },
+            {
+              "expr": "sum(node_memory_bytes{type=\"kernel_paged\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel paged",
+              "refId": "I"
+            },
+            {
+              "expr": "(node_memory_bytes{type=\"kernel_non_paged\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "kernel non paged",
+              "refId": "J"
             }
           ],
           "thresholds": [],
@@ -631,14 +680,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_receive_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{interval}}s]))",
+              "expr": "sum(irate(node_network_transmit_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -725,18 +774,25 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_read_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[{{interval}}s]))",
+              "expr": "sum(irate(node_disk_written_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
+            },
+            {
+              "expr": "sum(irate(node_disk_other_bytes_total[{{interval}}s]))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "other",
+              "refId": "C"
             }
           ],
           "thresholds": [],

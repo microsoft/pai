@@ -40,12 +40,11 @@ sudo python3 -m pip install -r script/requirements.txt
 echo "Install sshpass"
 sudo apt-get -y install sshpass
 
-echo "Install kubespray's requirements and ansible is included"
-sudo python3 -m pip install -r ${HOME}/pai-deploy/kubespray/requirements.txt
-
 # ansible 2.7 doesn't support distribution info collection on Ubuntu 20.04
 # Use ansible 2.9.7 as a workaround
 # Reference: https://stackoverflow.com/questions/61460151/ansible-not-reporting-distribution-info-on-ubuntu-20-04
 # We can upgrade kubespray version to avoid this issue in the future.
-sudo python3 -m pip install ansible==2.9.7
+sed -i 's/ansible==.*/ansible==2.9.7/' ${HOME}/pai-deploy/kubespray/requirements.txt
 
+echo "Install kubespray's requirements and ansible is included"
+sudo python3 -m pip install -r ${HOME}/pai-deploy/kubespray/requirements.txt

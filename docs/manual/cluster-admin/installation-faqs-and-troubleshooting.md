@@ -167,7 +167,7 @@ Sometimes it is not fixable even you have the `python3-apt` package installed. I
 
 #### Network-related Issues
 
-If you are a China user, please refer to [here](./configuration-for-china.md).
+If you are a China user, please refer to [this issue](https://github.com/microsoft/pai/issues/5592).
 
 **Cannot download kubeadm or hyperkube**
 

@@ -112,7 +112,7 @@ OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
 ### For cluster administrators
 
-The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
+The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/index.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
 
 - **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation.
 
@@ -140,7 +140,7 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 ### For cluster users
 
-The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/index.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
 
 - **Job submission and monitoring**. The [quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html). OpenPAI also provides supports for [good debuggability](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html) and [advanced job functionalities](https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html).
 

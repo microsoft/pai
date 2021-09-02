@@ -26,7 +26,7 @@ const logger = require('@pai/config/logger');
 const createError = require('@pai/utils/error');
 
 const getTailLog = asyncHandler(async (req, res) => {
-  const tailLogSize = 16 * 1024 * 1024; // 16 KB
+  const tailLogSize = 16 * 1024; // 16 KB
   const logName = req.params.logName;
   const queryString = req.url.substring(req.url.indexOf('?') + 1);
   const account = launcherConfig.logAzureStorageAccount;
