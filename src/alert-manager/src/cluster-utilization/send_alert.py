@@ -71,9 +71,9 @@ def get_related_jobs(rest_url):
 
     offset = 0
     limit = 5000
-    headers = {'Authorization': "Bearer {}".format(TOKEN)}
+    headers = {'Authorization': f"Bearer {TOKEN}"}
     while True:
-        resp = requests.get(rest_url+"limit={}&offset={}".format(limit, offset), headers=headers)
+        resp = requests.get(rest_url+f"limit={limit}&offset={offset}", headers=headers)
         resp.raise_for_status()
         jobs = resp.json()
         jobs_related += jobs
@@ -99,7 +99,7 @@ def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
     for v in job_gpu_percent["data"]["result"]:
         job_name = v["metric"]["job_name"]
         matched_job = list(
-            filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
+            filter(lambda job: f"{job['username']}~{job['name']}" == job_name,
             jobs_related))
         # ingore unfounded jobs
         if not matched_job:
@@ -147,9 +147,9 @@ def get_usage_info(job_gpu_percent, job_gpu_hours, user_usage_result, rest_url):
         job_info["gpu_number"] = str(job_info["gpu_number"])
         job_info["duration"] = str(job_info["duration"])
         job_info["start_time"] = job_info["start_time"].strftime("%y-%m-%d %H:%M:%S")
-        job_info["resources_occupied"] = "{:.2f}".format(job_info["resources_occupied"])
+        job_info["resources_occupied"] = f"{job_info['resources_occupied']:.2f}"
     for user_info in user_infos.values():
-        user_info["resources_occupied"] = "{:.2f}".format(user_info["resources_occupied"])
+        user_info["resources_occupied"] = f"{user_info['resources_occupied']:.2f}"
 
     # sort usage info by resources occupied
     job_usage = sorted(job_infos.values(), key=lambda x: float(x["resources_occupied"]), reverse=True)
