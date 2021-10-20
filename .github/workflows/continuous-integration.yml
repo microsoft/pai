@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         python: [2.7]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         python: [3.7]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
@@ -70,7 +70,7 @@ jobs:
     strategy:
       matrix:
         go: [1.13.8]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
@@ -95,7 +95,7 @@ jobs:
     strategy:
       matrix:
         node: [10]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
@@ -146,7 +146,7 @@ jobs:
     strategy:
       matrix:
         node: [8, 10]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
@@ -169,7 +169,7 @@ jobs:
     strategy:
       matrix:
         node: [10]
-        os: [ubuntu-16.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
 
     steps:
     - name: Checkout
