@@ -17,9 +17,9 @@ export async function login(username, password, expires = 7) {
       password,
       expires * 24 * 60 * 60,
     );
-    cookies.set('user', loginInfo.user, { expires });
-    cookies.set('token', loginInfo.token, { expires });
-    cookies.set('admin', loginInfo.admin, { expires });
+    cookies.set('user', loginInfo.user, { expires, path: '' });
+    cookies.set('token', loginInfo.token, { expires, path: '' });
+    cookies.set('admin', loginInfo.admin, { expires, path: '' });
   } catch (err) {
     throw new Error(err.data.message);
   }

@@ -22,10 +22,10 @@ const userLogout = async (origin = window.location.href) => {
     console.error(err);
   }
   // clear cookies
-  cookies.remove('user');
-  cookies.remove('token');
-  cookies.remove('admin');
-  cookies.remove('my-jobs');
+  cookies.remove('user', { path: '' });
+  cookies.remove('token', { path: '' });
+  cookies.remove('admin', { path: '' });
+  cookies.remove('my-jobs', { path: '' });
   // redirect
   if (webportalConfig.authnMethod === 'basic') {
     if (!origin) {
@@ -46,10 +46,10 @@ const userLogout = async (origin = window.location.href) => {
  * @param {string} origin - redirect target after login
  */
 const clearToken = (origin = window.location.href) => {
-  cookies.remove('user');
-  cookies.remove('token');
-  cookies.remove('admin');
-  cookies.remove('my-jobs');
+  cookies.remove('user', { path: '' });
+  cookies.remove('token', { path: '' });
+  cookies.remove('admin', { path: '' });
+  cookies.remove('my-jobs', { path: '' });
   if (!origin) {
     window.location.replace('/index.html');
   } else {

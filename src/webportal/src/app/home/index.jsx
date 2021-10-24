@@ -54,11 +54,12 @@ if (!isEmpty(from)) {
 if (config.authnMethod === 'OIDC') {
   const expiration = 7;
   if (query.has('token')) {
-    cookies.set('user', query.get('user'), { expires: expiration });
-    cookies.set('token', query.get('token'), { expires: expiration });
-    cookies.set('admin', query.get('admin'), { expires: expiration });
+    cookies.set('user', query.get('user'), { expires: expiration, path: '' });
+    cookies.set('token', query.get('token'), { expires: expiration, path: '' });
+    cookies.set('admin', query.get('admin'), { expires: expiration, path: '' });
     cookies.set('hasGitHubPAT', query.get('hasGitHubPAT'), {
       expires: expiration,
+      path: '',
     });
   }
 }
