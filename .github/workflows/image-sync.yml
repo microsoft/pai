@@ -1,0 +1,28 @@
+name: image-sync
+
+on:
+  release:
+    types: [published]
+
+env:
+  IMAGE_SYNCER_VERSION: v1.3.1
+
+jobs:
+  image-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: install image-sync tool
+      run: |
+        wget https://github.com/AliyunContainerService/image-syncer/releases/download/${IMAGE_SYNCER_VERSION}/image-syncer-${IMAGE_SYNCER_VERSION}-linux-amd64.tar.gz
+        tar -zxf image-syncer-${IMAGE_SYNCER_VERSION}-linux-amd64.tar.gz
+    - name: init config.yaml with env
+      run: |
+        sed -i "s/DOCKERHUB_USERNAME/${{ secrets.DOCKERHUB_USERNAME }}/g" contrib/kubespray/sync-images.yml
+        sed -i "s/DOCKERHUB_PASSWORD/${{ secrets.DOCKERHUB_PASSWORD }}/g" contrib/kubespray/sync-images.yml
+    - name: sync images
+      run: |
+        ./image-syncer --proc=20 --config=contrib/kubespray/sync-images.yml --retries=1

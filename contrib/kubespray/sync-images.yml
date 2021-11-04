@@ -1,0 +1,12 @@
+auth:
+  registry.hub.docker.com:
+    username: DOCKERHUB_USERNAME
+    password: DOCKERHUB_PASSWORD
+images:
+  "gcr.io/google-containers/kube-apiserver:v1.15.11": DOCKERHUB_USERNAME/kube-apiserver
+  "gcr.io/google-containers/kube-controller-manager:v1.15.11": DOCKERHUB_USERNAME/kube-controller-manager
+  "gcr.io/google-containers/kube-scheduler:v1.15.11": DOCKERHUB_USERNAME/kube-scheduler
+  "gcr.io/google-containers/kube-proxy:v1.15.11": DOCKERHUB_USERNAME/kube-proxy
+  "gcr.io/google_containers/cluster-proportional-autoscaler-amd64:1.6.0": DOCKERHUB_USERNAME/cluster-proportional-autoscaler-amd64
+  "gcr.io/google_containers/pause-amd64:3.1": DOCKERHUB_USERNAME/pause-amd64
+  "gcr.io/google_containers/pause:3.1": DOCKERHUB_USERNAME/pause
