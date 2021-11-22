@@ -25,7 +25,7 @@ const path = require('path');
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_CONFIGS_SMTP_HOST,
   port: parseInt(process.env.EMAIL_CONFIGS_SMTP_PORT),
-  secure: false,
+  secure: true,
   auth: {
     user: process.env.EMAIL_CONFIGS_SMTP_AUTH_USERNAME,
     pass: process.env.EMAIL_CONFIGS_SMTP_AUTH_PASSWORD,
