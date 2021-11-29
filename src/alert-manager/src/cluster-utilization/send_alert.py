@@ -207,7 +207,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "trigger_time": trigger_time,
         },
         "annotations": {
-            "summary": "The weekly cluster usage has been reported, please check your email for details."
+            "summary": "The cluster usage has been reported, please check your email-box for details."
         },
         "generatorURL": "alert/script"
     }
@@ -230,7 +230,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "trigger_time": trigger_time,
             },
             "annotations": {
-                "summary": "The weekly cluster usage has been reported, please check your email for details."
+                "summary": "The cluster usage has been reported, please check your email-box for details."
             },
             "generatorURL": "alert/script"
         }
@@ -249,7 +249,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
                 "trigger_time": trigger_time,
             },
             "annotations": {
-                "summary": "The weekly cluster usage has been reported, please check your email for details."
+                "summary": "The cluster usage has been reported, please check your email-box for details."
             },
             "generatorURL": "alert/script"
         }
