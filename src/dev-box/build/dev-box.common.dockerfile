@@ -14,7 +14,7 @@ RUN apt-get -y update && \
       gawk \
       psmisc \
       python \
-      python3 \
+      python3.6 \
       python-yaml \
       python-jinja2 \
       python-urllib3 \
@@ -39,12 +39,18 @@ RUN apt-get -y update && \
       rsync \
       realpath \
       nfs-common \
-      net-tools && \
+      net-tools \
+      sshpass && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
     pip install bcrypt==3.1.7 dnspython==1.16.0 python-etcd docker kubernetes==12.0.0 paramiko==2.6.0 cryptography==3.2 cachetools==3.1.1 GitPython==2.1.15 jsonschema attrs dicttoxml beautifulsoup4 future setuptools==44.1.0 &&\
     python -m easy_install --upgrade pyOpenSSL && \
-    pip3 install kubernetes==12.0.0 jinja2
+    pip3 install kubernetes==12.0.0 jinja2 && \
+    python3 -m pip install pip==20.3.4 && \
+    python3 -m pip install ansible==2.9.7 && \
+    python3 -m pip install netaddr==0.7.19 && \
+    python3 -m pip install passlib 
+    
 
 WORKDIR /tmp
 
