@@ -1,5 +1,12 @@
 # OpenPAI Release Note
 
+## Dec 2021 (version 1.8.1)
+
+- Docker cache issues #5539 #5574
+- Openpai-runtime update to v0.1.12 #5600
+- Fix doc related to china deployment #5593
+- Fix other bugs
+
 ## July 2021 (version 1.8.0)
 
 - Marketplace related update
