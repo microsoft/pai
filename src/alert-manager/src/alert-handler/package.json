@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.12.2",
-    "axios": "^0.21.0",
+    "axios": "^0.21.2",
     "ejs": "^3.1.5",
     "email-templates": "^7.1.0",
     "express": "^4.16.2",
