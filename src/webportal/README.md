@@ -51,7 +51,7 @@ WEBPORTAL_PLUGINS=[]
 
 All these values in .env file will be imported as global object [`window.ENV`](./src/app/env.js.template) when running webportal.
 
-### Devlopment Mode
+### Development Mode
 
 - Run ```yarn install``` to install all the dependencies
 - Run ```yarn dev``` to start a webpack dev server
@@ -66,7 +66,7 @@ All these values in .env file will be imported as global object [`window.ENV`](.
 
 Webportal use [eslint](https://eslint.org/docs/user-guide/getting-started) with [standard config](https://github.com/standard/eslint-config-standard) as linter and [prettier](https://prettier.io/docs/en/index.html) as code formatter.
 
-Pleae refer to [eslint config file](./.eslintrc.js) and [prettier config file](./prettier.config.js) for details. Make sure to run ```yarn lint``` command every time before you push your code, and resolve all the errors and warnings. Otherwise it will break the CI check when you submit your pull request.
+Please refer to [eslint config file](./.eslintrc.js) and [prettier config file](./prettier.config.js) for details. Make sure to run ```yarn lint``` command every time before you push your code, and resolve all the errors and warnings. Otherwise it will break the CI check when you submit your pull request.
 
 If you use modern editors like VS Code. It is highly recommends to install [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extensions.
 
