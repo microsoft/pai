@@ -381,8 +381,11 @@ class GpuCollector(Collector):
                         return True, parts[1]
                 elif "/kubepods/" in line:
                     parts = line.split("/kubepods/")
-                    if len(parts) == 2 and re.match(u"pod[0-9a-f-]+", parts[1]):
-                        return True, parts[1]
+                    if len(parts) == 2:
+                        if parts[1].startswith("besteffort/") or parts[1].startswith("burstable/"):
+                            parts[1] = parts[1][11:]
+                        if re.match(u"pod[0-9a-f-]+", parts[1]):
+                            return True, parts[1]
                 else:
                     logger.info("unknown format in pid cgroup %s", line)
 
