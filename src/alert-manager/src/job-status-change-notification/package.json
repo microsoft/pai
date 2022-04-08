@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "openpaidbsdk": "file:./openpaidbsdk",
-    "axios": "^0.21.0",
+    "axios": "^0.21.2",
     "interval-promise": "^1.4.0",
     "joi": "^14.3.1",
     "module-alias": "^2.2.2",
