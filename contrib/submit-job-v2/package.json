@@ -19,7 +19,7 @@
   "homepage": "https://github.com/Microsoft/pai#readme",
   "license": "MIT",
   "dependencies": {
-    "@microsoft/openpai-js-sdk": "^0.1.5",
+    "@microsoft/openpai-js-sdk": "^0.1.6",
     "classnames": "^2.2.6",
     "core-js": "^3.0.1",
     "immutability-helper": "^3.0.0",
