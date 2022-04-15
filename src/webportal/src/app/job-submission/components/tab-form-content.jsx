@@ -39,6 +39,8 @@ import { getDefaultContainerSize } from '../models/container-size';
 import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 import config from '../../config/webportal.config';
 
+const TASK_ROLE_NAME_REGX = /^[a-z][a-z0-9]*$/;
+
 export const TabFormContent = ({
   jobTaskRole,
   onContentChange,
@@ -70,6 +72,7 @@ export const TabFormContent = ({
           value={jobTaskRole.name}
           onChange={value => _onValueChange('name', value)}
           placeholder='Enter task role name...'
+          regx={TASK_ROLE_NAME_REGX}
         />
       )}
       <CommandSection
