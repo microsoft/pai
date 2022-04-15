@@ -88,6 +88,7 @@ FormTextField.propTypes = {
   ]),
   onChange: PropTypes.func,
   value: PropTypes.string,
+  regx: PropTypes.instanceOf(RegExp),
   sectionOptional: PropTypes.bool,
   shortStyle: PropTypes.bool,
 };
