@@ -24,20 +24,6 @@ const logger = require('@pai/config/logger');
 const groupModel = require('@pai/models/v2/group');
 const vcModel = require('@pai/models/v2/virtual-cluster');
 const tokenModel = require('@pai/models/token');
-const keygen = require('ssh-keygen');
-const deasync = require("deasync");
-
-function getSSHKey(){
-  let ret = null;
-  const location = 'id_rsa';
-  keygen({location: location}, function (err, result){
-    ret = result
-  });
-  while ((ret == null)){
-    deasync.runLoopOnce();
-  }
-  return ret
-}
 
 const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
@@ -209,7 +195,6 @@ const createUser = async (req, res, next) => {
     }
   }
   const username = req.body.username;
-  req.body.extension['jobSSH'] = getSSHKey();
   const userValue = {
     username: req.body.username,
     email: req.body.email,

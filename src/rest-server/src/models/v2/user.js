@@ -22,6 +22,20 @@ const groupModel = require('@pai/models/v2/group');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
+const keygen = require('ssh-keygen');
+const deasync = require("deasync");
+
+function getSSHKey(){
+  let ret = null;
+  const location = 'id_rsa';
+  keygen({location: location}, function (err, result){
+    ret = result
+  });
+  while ((ret == null)){
+    deasync.runLoopOnce();
+  }
+  return ret
+}
 
 // crud user wrappers
 const getUser = async (username) => {
@@ -33,10 +47,16 @@ const getAllUser = async () => {
 };
 
 const createUser = async (username, value) => {
+  if (!('jobSSH' in value['extension'])){
+    value['extension']['jobSSH'] = getSSHKey()
+  }
   return await crudUser.create(username, value);
 };
 
 const updateUser = async (username, value, updatePassword = false) => {
+  if (!('jobSSH' in value['extension'])){
+    value['extension']['jobSSH'] = getSSHKey()
+  }
   return await crudUser.update(username, value, updatePassword);
 };
 
