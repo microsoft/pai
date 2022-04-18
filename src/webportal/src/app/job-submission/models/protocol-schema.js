@@ -67,7 +67,7 @@ export const taskRoleSchema = Joi.object().keys({
 });
 
 export const taskRolesSchema = Joi.object().pattern(
-  /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+  /^[a-z0-9]{1,63}$/,
   taskRoleSchema.required(),
 );
 

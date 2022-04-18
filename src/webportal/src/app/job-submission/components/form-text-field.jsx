@@ -30,8 +30,6 @@ import { BasicSection } from './basic-section';
 import { FormShortSection } from './form-page';
 import { DebouncedTextField } from './controls/debounced-text-field';
 
-const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
-
 export const FormTextField = React.memo(props => {
   const {
     sectionLabel,
@@ -40,9 +38,10 @@ export const FormTextField = React.memo(props => {
     sectionTooltip,
     shortStyle,
     value,
+    regx,
   } = props;
   const _onGetErrorMessage = value => {
-    const match = TEXT_FILED_REGX.exec(value);
+    const match = regx.exec(value);
     if (isEmpty(match)) {
       return 'Input is invalid';
     }
@@ -89,6 +88,7 @@ FormTextField.propTypes = {
   ]),
   onChange: PropTypes.func,
   value: PropTypes.string,
+  regx: PropTypes.instanceOf(RegExp),
   sectionOptional: PropTypes.bool,
   shortStyle: PropTypes.bool,
 };
