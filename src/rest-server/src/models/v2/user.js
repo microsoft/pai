@@ -22,23 +22,18 @@ const groupModel = require('@pai/models/v2/group');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
-const keygen = require('ssh-keygen');
-const deasync = require('deasync');
+const NodeRSA = require('node-rsa');
+const SSHPk = require('sshpk');
 
-function getSSHKey() {
-  let ret;
-  const location = 'id_rsa';
-  keygen({ location: location }, function (err, result) {
-    if (err) {
-      console.log(err);
-    }
-    ret = result;
-  });
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (ret === undefined) {
-    deasync.runLoopOnce();
-  }
-  return ret;
+function generateSSHKeyPair(bits) {
+  const key = new NodeRSA({ b: bits });
+  const pemPub = key.exportKey('pkcs1-public-pem');
+  const pemPri = key.exportKey('pkcs1-private-pem');
+
+  const sshKey = SSHPk.parseKey(pemPub, 'pem');
+  sshKey.comment = 'pai-job-ssh';
+  const sshPub = sshKey.toString('ssh');
+  return { key: pemPri, pubKey: sshPub };
 }
 
 // crud user wrappers
@@ -52,14 +47,14 @@ const getAllUser = async () => {
 
 const createUser = async (username, value) => {
   if (!('jobSSH' in value.extension)) {
-    value.extension.jobSSH = getSSHKey();
+    value.extension.jobSSH = generateSSHKeyPair();
   }
   return await crudUser.create(username, value);
 };
 
 const updateUser = async (username, value, updatePassword = false) => {
   if (!('jobSSH' in value.extension)) {
-    value.extension.jobSSH = getSSHKey();
+    value.extension.jobSSH = generateSSHKeyPair();
   }
   return await crudUser.update(username, value, updatePassword);
 };
