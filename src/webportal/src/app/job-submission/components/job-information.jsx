@@ -33,7 +33,7 @@ import Card from '../../components/card';
 import { JobBasicInfo } from '../models/job-basic-info';
 import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
-const JOB_NAME_REGX = /^[A-Za-z0-9\-_]+$/;
+const JOB_NAME_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const JobInformation = React.memo(
   ({ jobInformation, onChange, advanceFlag }) => {

@@ -39,7 +39,7 @@ import { getDefaultContainerSize } from '../models/container-size';
 import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 import config from '../../config/webportal.config';
 
-const TASK_ROLE_NAME_REGX = /^[a-z][a-z0-9]*$/;
+const TASK_ROLE_NAME_REGX = /^[a-z0-9]{1,63}$/;
 
 export const TabFormContent = ({
   jobTaskRole,
