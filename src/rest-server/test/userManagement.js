@@ -159,7 +159,7 @@ describe('Add new user: post /api/v2/user', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
       })
       .reply(200, {
@@ -178,7 +178,7 @@ describe('Add new user: post /api/v2/user', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -192,7 +192,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
       })
       .reply(200, {
@@ -211,7 +211,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -226,7 +226,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'NGY3YzdlMDBlNzU3YzUzZjYwOTI1YTE5OWVlOTZjODMxMjlmMzgwYjRjMmQ2NzA5OWM3OThhNDg2ZjQ2ZGY4NjlmZjMxYWVkODZiOTg2NGIyMTI2OWZkYmM2YTkzMjNiZDY5MWZhNGZkN2JjZTAyNWE0M2ZlZGM5N2I2NWU0ZjQ=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
       })
       .reply(409, {
@@ -271,6 +271,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': '123456',
           'email': 'test@pai.com',
           'virtualCluster': ['default', 'vc1', 'vc2'],
+          'extension': {"jobSSH": ""},
           'admin': true,
         })
       .end((err, res) => {
@@ -291,6 +292,7 @@ describe('Add new user: post /api/v2/user', () => {
         'password': '123456',
         'email': 'test@pai.com',
         'virtualCluster': ['default', 'vc1', 'vc2'],
+        'extension': {"jobSSH": ""},
         'admin': false,
       })
       .end((err, res) => {
@@ -315,6 +317,7 @@ describe('Add new user: post /api/v2/user', () => {
         'password': '123456',
         'email': 'test@pai.com',
         'virtualCluster': ['default', 'vc1', 'vc2'],
+        'extension': {"jobSSH": ""},
         'admin': false,
       })
       .end((err, res) => {
@@ -335,6 +338,7 @@ describe('Add new user: post /api/v2/user', () => {
         'password': '123456',
         'email': 'test@pai.com',
         'virtualCluster': ['default', 'vc1', 'vc2'],
+        'extension': {"jobSSH": ""},
         'admin': false,
       })
       .end((err, res) => {
@@ -370,7 +374,7 @@ describe('update user: put /api/v2/user', () => {
             'username': 'dXBkYXRlX3VzZXI=',
             'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
             'email': 'dGVzdEBwYWkuY29t',
-            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl0sImpvYlNTSCI6IiJ9',
         },
         'type': 'Opaque',
     });
@@ -383,7 +387,7 @@ describe('update user: put /api/v2/user', () => {
         'username': 'dXBkYXRlX3VzZXI=',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl0sImpvYlNTSCI6IiJ9',
        },
      })
     .reply(200, {
@@ -402,7 +406,7 @@ describe('update user: put /api/v2/user', () => {
         'username': 'dXBkYXRlX3VzZXI=',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl0sImpvYlNTSCI6IiJ9',
       },
       'type': 'Opaque',
     });
@@ -416,7 +420,7 @@ describe('update user: put /api/v2/user', () => {
          'username': 'dXBkYXRlX3VzZXI=',
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
          'email': 'dGVzdEBwYWkuY29t',
-         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl0sImpvYlNTSCI6IiJ9',
        },
      })
     .reply(200, {
@@ -435,7 +439,7 @@ describe('update user: put /api/v2/user', () => {
         'username': 'dXBkYXRlX3VzZXI=',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl0sImpvYlNTSCI6IiJ9',
       },
       'type': 'Opaque',
     });
@@ -736,7 +740,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
             'username': 'dGVzdA==',
             'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
             'email': 'dGVzdEBwYWkuY29t',
-            'extension': 'e30=',
+            'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
     });
@@ -749,7 +753,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
          'username': 'dGVzdA==',
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
          'email': 'dGVzdEBwYWkuY29t',
-         'extension': 'e30=',
+         'extension': 'eyJqb2JTU0giOiIifQ==',
        },
      })
     .reply(200, {
@@ -768,7 +772,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'username': 'dGVzdA==',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'e30=',
+        'extension': 'eyJqb2JTU0giOiIifQ==',
       },
       'type': 'Opaque',
     });
@@ -788,7 +792,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDM=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -801,7 +805,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDM=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
        })
       .reply(200, {
@@ -820,7 +824,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDM=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -839,7 +843,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -858,7 +862,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdGludmFsaWQ=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -894,7 +898,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDY=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -914,7 +918,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'username': 'dGVzdDc=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });

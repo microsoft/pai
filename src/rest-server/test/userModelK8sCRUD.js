@@ -48,7 +48,7 @@ describe('User model k8s secret get function test', () => {
               'username': 'Y2FudGVzdDAwMQ==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30=',
+              'extension': 'eyJqb2JTU0giOiIifQ==',
             },
             'type': 'Opaque',
           },
@@ -61,7 +61,7 @@ describe('User model k8s secret get function test', () => {
               'username': 'cGFpdGVzdA==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30=',
+              'extension': 'eyJqb2JTU0giOiIifQ==',
             },
             'type': 'Opaque',
           },
@@ -82,7 +82,7 @@ describe('User model k8s secret get function test', () => {
           'username': 'cGFpdGVzdA==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -127,7 +127,7 @@ describe('User model k8s secret get function test', () => {
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
         grouplist: ['test'],
         email: 'test@pai.com',
-        extension: {},
+        extension: {"jobSSH": ""},
     });
   });
 });
@@ -151,7 +151,7 @@ describe('User model k8s secret set function test', () => {
           'password': 'ODBiMWFkYmFmM2FhZDI4MjJiMDRjYzJhODRkNWNlNGU1MDBlMWY3MTBmNThhZWEwYzc1OTkzYTQ1NmI5N2U2MGI2MjJjMjM3YTUzNGVjMDVkZmE0MmQ0NjIzNTAxMDE1Y2JlZWM0OWZjMzNjMzI0ZGNiMmY5M2MwMDZjMmVmOWM=',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
       })
       .reply(200, {
@@ -170,7 +170,7 @@ describe('User model k8s secret set function test', () => {
           'username': 'ZXhpc3R1c2Vy',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -184,7 +184,7 @@ describe('User model k8s secret set function test', () => {
           'password': 'YTFiYzYyYzExNTk4ZDdkMDE3MGQwZDIyYjdjNDNjN2FlNWJkODFjNmEzOGJlOTk1YzkyNzQzNDEwODg2YzJiY2NjOWUxYjQwYmIyNGY3NTM1MTRiZGNkOWQ1Njk5N2I4ZjdiNmE5OTM2OGNiOTNmMjYwYzRiNDhhNjg1NTlmOTk=',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
       })
       .reply(200, {
@@ -203,7 +203,7 @@ describe('User model k8s secret set function test', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30=',
+          'extension': 'eyJqb2JTU0giOiIifQ==',
         },
         'type': 'Opaque',
       });
@@ -216,7 +216,7 @@ describe('User model k8s secret set function test', () => {
       'password': 'pai666',
       'email': 'test@pai.com',
       'grouplist': ['test'],
-      'extension': {},
+      'extension': {"jobSSH": ""},
     };
     const res = await userK8sCRUD.create('newuser', updateUser);
     return expect(res, 'status').to.have.status(200);
@@ -229,7 +229,7 @@ describe('User model k8s secret set function test', () => {
       'password': 'pai666',
       'email': 'test@pai.com',
       'grouplist': ['test'],
-      'extension': {},
+      'extension': {"jobSSH": ""},
     };
     const res = await userK8sCRUD.update('existuser', updateUser, true);
     return expect(res, 'status').to.have.status(200);
