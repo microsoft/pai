@@ -473,6 +473,10 @@ const generateTaskRole = (
                   name: 'job-exit-spec',
                   mountPath: '/usr/local/pai-config',
                 },
+                {
+                  name: 'docker-sock',
+                  mountPath: '/var/run/docker.sock',
+                },
               ],
             },
           ],
@@ -556,6 +560,12 @@ const generateTaskRole = (
               name: 'job-exit-spec',
               configMap: {
                 name: 'runtime-exit-spec-configuration',
+              },
+            },
+            {
+              name: 'docker-sock',
+              hostPath: {
+                path: '/var/run/docker.sock',
               },
             },
           ],
