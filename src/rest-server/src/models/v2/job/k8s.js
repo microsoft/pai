@@ -477,6 +477,10 @@ const generateTaskRole = (
                   name: 'docker-sock',
                   mountPath: '/var/run/docker.sock',
                 },
+                {
+                  name: 'etc-docker',
+                  mountPath: 'etc/docker',
+                },
               ],
             },
           ],
@@ -568,6 +572,12 @@ const generateTaskRole = (
                 path: '/var/run/docker.sock',
               },
             },
+            {
+              name: 'etc-docker',
+              hostPath: {
+                path: '/etc/docker/',
+              },
+            }
           ],
           affinity: {
             nodeAffinity: {
