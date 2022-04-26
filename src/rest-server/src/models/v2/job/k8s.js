@@ -577,7 +577,7 @@ const generateTaskRole = (
               hostPath: {
                 path: '/etc/docker/',
               },
-            }
+            },
           ],
           affinity: {
             nodeAffinity: {
