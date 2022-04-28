@@ -411,3 +411,10 @@ kube_network_plugin: {{ env["cfg"]['openpai_kube_network_plugin'] | default('cal
 {{ key }}: "{{ env['cfg']['openpai_kubespray_extra_var'][key] }}"
 {% endfor %}
 {%- endif %}
+
+{%- if 'kubelet_custom_flags' in env['cfg'] %}
+kubelet_custom_flags:
+{%- for key in env['cfg']['kubelet_custom_flags'] %}
+  - "--{{ key }}={{ env['cfg']['kubelet_custom_flags'][key] }}"
+{%- endfor %}
+{%- endif %}

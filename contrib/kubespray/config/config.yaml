@@ -84,6 +84,10 @@ docker_image_tag: v1.8.1
 #   key: value
 #   key: value
 
+# Ref: https://github.com/microsoft/pai/issues/5150
+# kubelet_custom_flags:
+#   serialize-image-pulls: "false"
+
 #######################################################################
 #                     host daemon port setting                        #
 #######################################################################
