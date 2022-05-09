@@ -21,7 +21,7 @@
     "url": "https://github.com/Microsoft/pai/issues"
   },
   "engines": {
-    "node": "^10"
+    "node": "^12"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.5.0",
