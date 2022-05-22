@@ -23,6 +23,7 @@ const logger = require('@pai/config/logger');
 const hivedSchema = require('@pai/config/v2/hived');
 const { resourceUnits } = require('@pai/config/vc');
 const { hivedWebserviceUri } = require('@pai/config/launcher');
+const user = require('@pai/models/v2/user');
 
 const convertPriority = (priorityClass = 'test') => {
   // TODO: make it a cluster-wise config
@@ -93,12 +94,15 @@ const hivedValidate = async (protocolObj, username) => {
   const affinityGroups = {};
   const { cellQuota, cellUnits } = await getCellStatus(virtualCluster);
 
+  const quota = await user.getUserQuota(username);
+
   // generate podSpec for every taskRole
   for (const taskRole of Object.keys(protocolObj.taskRoles)) {
     const podSpec = pickBy(
       {
         virtualCluster,
         priority: convertPriority(get(hivedConfig, 'jobPriorityClass')),
+        quota: { tag: username, count: quota },
         pinnedCellId: get(
           hivedConfig,
           `taskRoles.${taskRole}.pinnedCellId`,

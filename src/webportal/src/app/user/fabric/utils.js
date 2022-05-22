@@ -52,3 +52,16 @@ export const checkEmail = value => {
     return error;
   }
 };
+
+const quotaSchema = Joi.number()
+  .integer()
+  .min(-1)
+  .empty(0);
+export const checkQuota = value => {
+  const { error } = Joi.validate(value, quotaSchema);
+  if (error) {
+    return error.message.replace('"value"', 'Quota');
+  } else {
+    return error;
+  }
+};

@@ -124,6 +124,18 @@ export default function Table() {
     isResizable: true,
   });
 
+  const quotaColumn = {
+    key: 'quota',
+    minWidth: 60,
+    name: 'Quota',
+    className: FontClassNames.mediumPlus,
+    headerClassName: FontClassNames.medium,
+    isResizable: true,
+    onRender(user) {
+      return user.extension.quota;
+    },
+  };
+
   const virtualClusterColumn = applySortProps({
     key: 'virtualCluster',
     minWidth: 250,
@@ -191,6 +203,7 @@ export default function Table() {
     usernameColumn,
     adminColumn,
     emailColumn,
+    quotaColumn,
     virtualClusterColumn,
     actionsColumn,
   ];

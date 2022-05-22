@@ -40,14 +40,21 @@ import {
   updateUserAdminRequest,
   updateUserEmailRequest,
   updateUserVcRequest,
+  updateUserQuotaRequest,
 } from '../conn';
-import { checkUsername, checkPassword, checkEmail } from '../utils';
+import { checkUsername, checkPassword, checkEmail, checkQuota } from '../utils';
 import CustomPassword from '../components/CustomPassword';
 
 import Context from './Context';
 
 export default function UserEditor({
-  user: { username = '', admin = false, email = '', virtualCluster = [] },
+  user: {
+    username = '',
+    admin = false,
+    email = '',
+    virtualCluster = [],
+    extension = {},
+  },
   isOpen = false,
   isCreate = true,
   hide,
@@ -57,6 +64,7 @@ export default function UserEditor({
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
   const emailRef = useRef(null);
+  const quotaRef = useRef(null);
   const adminRef = useRef(null);
 
   const oldAdmin = admin;
@@ -68,6 +76,11 @@ export default function UserEditor({
   const handleAdminChanged = (_event, checked) => {
     setIsAdmin(checked);
   };
+
+  const [quota, setQuota] = useState([]);
+  useEffect(() => {
+    setQuota(extension.quota);
+  }, []);
 
   const [vcs, setVcs] = useState([]);
   useEffect(() => {
@@ -93,6 +106,7 @@ export default function UserEditor({
     const newUsername = usernameRef.current.value;
     const newPassword = passwordRef.current.value;
     const newEmail = emailRef.current.value;
+    let newQuota = quotaRef.current.value;
     const newAdmin = adminRef.current.checked;
 
     if (isCreate) {
@@ -122,6 +136,16 @@ export default function UserEditor({
       }
     }
 
+    {
+      const errorMessage = checkQuota(newQuota);
+      if (errorMessage) {
+        await showMessageBox(errorMessage);
+        setLock(false);
+        return;
+      }
+      newQuota = Math.ceil(newQuota);
+    }
+
     if (isCreate) {
       const result = await createUserRequest(
         newUsername,
@@ -129,6 +153,7 @@ export default function UserEditor({
         newPassword,
         newAdmin,
         vcs,
+        { quota: newQuota },
       )
         .then(() => {
           setNeedRefreshAllUsers(true);
@@ -145,6 +170,22 @@ export default function UserEditor({
     } else {
       if (newEmail !== email) {
         const result = await updateUserEmailRequest(newUsername, newEmail)
+          .then(() => {
+            setNeedRefreshAllUsers(true);
+            return { success: true };
+          })
+          .catch(err => {
+            return { success: false, message: String(err) };
+          });
+        if (!result.success) {
+          await showMessageBox(result.message);
+          setLock(false);
+          return;
+        }
+      }
+
+      if (newQuota !== quota) {
+        const result = await updateUserQuotaRequest(newUsername, newQuota)
           .then(() => {
             setNeedRefreshAllUsers(true);
             return { success: true };
@@ -292,6 +333,16 @@ export default function UserEditor({
                   </td>
                 </tr>
                 <tr>
+                  <td className={tdLabelStyle}>Quota</td>
+                  <td className={tdPaddingStyle}>
+                    <TextField
+                      componentRef={quotaRef}
+                      defaultValue={quota}
+                      placeholder='Number of sku quota'
+                    />
+                  </td>
+                </tr>
+                <tr>
                   <td className={tdLabelStyle}>Virtual clusters</td>
                   <td className={tdPaddingStyle}>
                     <Dropdown
@@ -358,6 +409,7 @@ UserEditor.propTypes = {
     admin: PropTypes.bool,
     email: PropTypes.string,
     virtualCluster: PropTypes.array,
+    extension: PropTypes.object,
   }),
   isOpen: PropTypes.bool,
   isCreate: PropTypes.bool,

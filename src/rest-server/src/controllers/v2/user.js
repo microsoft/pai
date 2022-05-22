@@ -221,9 +221,28 @@ const createUser = async (req, res, next) => {
   });
 };
 
-const updateExtensionInternal = async (oldExtension, newExtension) => {
+const updateExtensionInternal = async (oldExtension, newExtension, admin) => {
   const retExtension = JSON.parse(JSON.stringify(oldExtension));
+  const adminKeyArray = ['quota']; // This allows for expansion.
+  if (!admin) {
+    adminKeyArray.forEach((item) => {
+      if (item in newExtension) {
+        throw createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to update ${item}.`,
+        );
+      }
+    });
+  }
   for (const [key, value] of Object.entries(newExtension)) {
+    if (key === 'quota' && (!Number.isInteger(value) || value < -1)) {
+      throw createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Quota must be Integer and greater than or equal to -1.`,
+      );
+    }
     retExtension[key] = value;
   }
   return retExtension;
@@ -238,6 +257,7 @@ const updateUserExtension = async (req, res, next) => {
       userInfo.extension = await updateExtensionInternal(
         userInfo.extension,
         extensionData,
+        req.user.admin,
       );
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
@@ -636,6 +656,7 @@ const basicAdminUserUpdate = async (req, res, next) => {
       userInfo.extension = await updateExtensionInternal(
         userInfo.extension,
         req.body.data.extension,
+        req.user.admin,
       );
     }
     await userModel.updateUser(username, userInfo, updatePassword);
@@ -696,6 +717,7 @@ const basicUserUpdate = async (req, res, next) => {
       userInfo.extension = await updateExtensionInternal(
         userInfo.extension,
         req.body.data.extension,
+        req.user.admin,
       );
     }
     await userModel.updateUser(username, userInfo, updatePassword);
@@ -739,6 +761,7 @@ const oidcUserUpdate = async (req, res, next) => {
       userInfo.extension = await updateExtensionInternal(
         userInfo.extension,
         req.body.data.extension,
+        req.user.admin,
       );
     }
     await userModel.updateUser(username, userInfo);

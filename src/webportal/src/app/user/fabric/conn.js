@@ -80,6 +80,7 @@ export const createUserRequest = async (
   password,
   admin,
   virtualCluster,
+  extension,
 ) => {
   const url = `${config.restServerUri}/api/v2/user/`;
   const token = checkToken();
@@ -88,7 +89,14 @@ export const createUserRequest = async (
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ username, email, password, admin, virtualCluster }),
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      admin,
+      virtualCluster,
+      extension,
+    }),
   });
 };
 
@@ -176,6 +184,26 @@ export const getUserRequest = async username => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+};
+
+export const updateUserQuotaRequest = async (username, quota) => {
+  const url = `${config.restServerUri}/api/v2/users/`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      data: {
+        username: username,
+        extension: {
+          quota: quota,
+        },
+      },
+      patch: true,
+    }),
   });
 };
 

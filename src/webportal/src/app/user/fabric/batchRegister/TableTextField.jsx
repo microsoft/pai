@@ -48,13 +48,23 @@ export default function TableTextField(props) {
 
   let textFiedlStyle = styles;
   if (showError) {
-    textFiedlStyle = Object.assign(textFiedlStyle, {
-      fieldGroup: [
-        {
-          borderColor: theme.semanticColors.errorText,
-        },
-      ],
-    });
+    if (textFiedlStyle) {
+      textFiedlStyle = Object.assign(textFiedlStyle, {
+        fieldGroup: [
+          {
+            borderColor: theme.semanticColors.errorText,
+          },
+        ],
+      });
+    } else {
+      textFiedlStyle = {
+        fieldGroup: [
+          {
+            borderColor: theme.semanticColors.errorText,
+          },
+        ],
+      };
+    }
   }
 
   const _getErrorMessage = value => {

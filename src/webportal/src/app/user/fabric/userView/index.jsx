@@ -34,6 +34,7 @@ import Pagination from './Pagination';
 import Paginator from './Paginator';
 import UserEditor from './UserEditor';
 import BatchPasswordEditor from './BatchPasswordEditor';
+import BatchQuotaEditor from './BatchQuotaEditor';
 import BatchVirtualClustersEditor from './BatchVirtualClustersEditor';
 import {
   getAllUsersRequest,
@@ -212,6 +213,16 @@ export default function UserView() {
     setBatchPasswordEditor({ isOpen: false });
   };
 
+  const [batchQuotaEditor, setBatchQuotaEditor] = useState({
+    isOpen: false,
+  });
+  const showBatchQuotaEditor = () => {
+    setBatchQuotaEditor({ isOpen: true });
+  };
+  const hideBatchQuotaEditor = () => {
+    setBatchQuotaEditor({ isOpen: false });
+  };
+
   const [batchVirtualClustersEditor, setBatchVirtualClustersEditor] = useState({
     isOpen: false,
     user: {},
@@ -242,6 +253,7 @@ export default function UserView() {
     removeUsers,
     editUser,
     showBatchPasswordEditor,
+    showBatchQuotaEditor,
     showBatchVirtualClustersEditor,
     showMessageBox,
   };
@@ -297,6 +309,12 @@ export default function UserView() {
         <BatchPasswordEditor
           isOpen={batchPasswordEditor.isOpen}
           hide={hideBatchPasswordEditor}
+        />
+      )}
+      {batchQuotaEditor.isOpen && (
+        <BatchQuotaEditor
+          isOpen={batchQuotaEditor.isOpen}
+          hide={hideBatchQuotaEditor}
         />
       )}
       {batchVirtualClustersEditor.isOpen && (
