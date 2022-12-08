@@ -134,9 +134,9 @@
     "sass-loader": "~6.0.6",
     "style-loader": "~0.19.0",
     "terser-webpack-plugin": "^1.2.3",
-    "webpack": "~4.29.6",
+    "webpack": "^4.29.6",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.2.1"
+    "webpack-dev-server": "^4.9.0"
   }
 }
