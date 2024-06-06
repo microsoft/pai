@@ -18,13 +18,11 @@
 // module dependencies
 const fs = require('fs');
 const cors = require('cors');
-const yaml = require('js-yaml');
 const morgan = require('morgan');
 const express = require('express');
 const compress = require('compression');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const swaggerUi = require('swagger-ui-express');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
 const authnConfig = require('@pai/config/authn');
@@ -62,10 +60,6 @@ app.use('/api/v2', routers.v2);
 
 // mount all internal APIs to /api/internal
 app.use('/api/internal', routers.internal);
-
-// create OpenAPI docs
-const swaggerSpec = yaml.safeLoad(fs.readFileSync('./docs/swagger.yaml'));
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
