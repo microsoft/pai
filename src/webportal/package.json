@@ -52,7 +52,7 @@
     "datatables.net-responsive-bs": "^2.2.3",
     "datatables.net-select-bs": "^1.2.7",
     "dotenv": "~4.0.0",
-    "express": "~4.16.2",
+    "express": "~4.19.2",
     "font-awesome": "~4.7.0",
     "fs-extra": "~5.0.0",
     "handlebars": "^4.7.7",
