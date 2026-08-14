@@ -24,6 +24,20 @@ const logger = require('@pai/config/logger');
 const groupModel = require('@pai/models/v2/group');
 const vcModel = require('@pai/models/v2/virtual-cluster');
 const tokenModel = require('@pai/models/token');
+const { sanitizeUser, sanitizeUserList } = require('@pai/utils/userResponse');
+
+const checkSelfOrAdmin = async (req, _, next) => {
+  if (req.user.admin || req.user.username === req.params.username) {
+    return next();
+  }
+  return next(
+    createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `Non-admin is not allow to do this operation.`,
+    ),
+  );
+};
 
 const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
@@ -45,8 +59,7 @@ const getUser = async (req, res, next) => {
     userInfo.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(
       groupItems,
     );
-    delete userInfo.password;
-    return res.status(200).json(userInfo);
+    return res.status(200).json(sanitizeUser(userInfo));
   } catch (error) {
     if (error.status === 404) {
       return next(
@@ -85,11 +98,10 @@ const getAllUser = async (req, res, next) => {
         userItem.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(
           groupItems,
         );
-        delete userItem.password;
         return userItem;
       }),
     );
-    return res.status(200).json(retUserList);
+    return res.status(200).json(sanitizeUserList(retUserList));
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -783,6 +795,7 @@ const deleteUser = async (req, res, next) => {
 // module exports
 module.exports = {
   checkSelf,
+  checkSelfOrAdmin,
   getUser,
   getAllUser,
   createUserIfUserNotExist,
