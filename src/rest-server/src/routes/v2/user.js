@@ -28,12 +28,12 @@ const router = new express.Router();
 router
   .route('/:username/')
   /** Get /api/v2/users/:username */
-  .get(token.check, userController.getUser);
+  .get(token.check, userController.checkSelfOrAdmin, userController.getUser);
 
 router
   .route('/')
   /** Get /api/v2/users */
-  .get(token.check, userController.getAllUser);
+  .get(token.check, token.checkAdmin, userController.getAllUser);
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
 router
@@ -133,6 +133,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.userPasswordUpdateInputSchema),
+      userController.checkSelfOrAdmin,
       userController.updateUserPassword,
     );
 

@@ -117,6 +117,8 @@ function TopBar() {
             if (data.code === 'UnauthorizedUserError') {
               alert(data.message);
               clearToken();
+            } else if (data.code === 'ForbiddenUserError') {
+              setUser({ [cookies.get('user')]: true });
             } else {
               throw new Error(`Failed to fetch user info: ${data.message}`);
             }
