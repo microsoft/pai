@@ -20,7 +20,7 @@
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
-    "test": "npm run lint",
+    "test": "npm run lint && node test/browserslist-security.js",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --progress --profile --mode production",
@@ -143,5 +143,8 @@
     "node": ">=24.20.0 <25",
     "yarn": "1.22.22"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "resolutions": {
+    "browserslist": "4.28.9"
+  }
 }
