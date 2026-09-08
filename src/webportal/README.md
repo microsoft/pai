@@ -26,6 +26,30 @@ Webportal is the front end of Open PAI cluster. It has several functions, such a
 
 ### Prerequisites
 
+Use **Node.js 24.20.0** (see [`.nvmrc`](./.nvmrc)) and **Yarn Classic 1.22.22**.
+With nvm installed, run `nvm install && nvm use` in this directory.
+If Yarn is not already available, install it outside the repository without a
+system-wide install:
+
+```bash
+npm install --prefix "$HOME/.local/share/openpai-yarn" --no-audit --no-fund yarn@1.22.22
+export PATH="$HOME/.local/share/openpai-yarn/node_modules/.bin:$PATH"
+node --version
+yarn --version
+```
+
+Node 24 is the maintained LTS baseline (supported until April 30, 2028).
+The portal Docker image and CI use the same Node and Yarn versions. Keep these
+pins aligned when updating the toolchain. Other OpenPAI services retain their
+own runtime requirements.
+
+The portal uses Dart Sass instead of the obsolete native `node-sass` binding,
+and webpack 4.47.0 for Node/OpenSSL compatibility. The Terser 1.x disk cache
+is disabled because it hardcodes MD4; production minification remains enabled.
+Do not disable engine checks
+or enable the legacy OpenSSL provider. This is a compatibility prerequisite,
+not a general dependency/security refresh or a webpack 5 migration.
+
 To run web portal, the following services should be started:
 
 - REST Server
@@ -53,12 +77,12 @@ All these values in .env file will be imported as global object [`window.ENV`](.
 
 ### Development Mode
 
-- Run ```yarn install``` to install all the dependencies
+- Run ```yarn install --frozen-lockfile --production=false``` to install all the dependencies
 - Run ```yarn dev``` to start a webpack dev server
 
 ### Production Mode
 
-- Run ```yarn install``` to install all dependencies
+- Run ```yarn install --frozen-lockfile --production=false``` to install all dependencies
 - Run ```yarn build``` to build static files
 - Run ```yarn start``` to start webportal's static file host server
 
