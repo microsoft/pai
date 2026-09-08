@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM node:carbon
+FROM node:24.20.0-bookworm
 
 WORKDIR /usr/src/app
 
@@ -25,12 +25,10 @@ ENV NODE_ENV=production \
 COPY dependency/ ../../
 COPY . .
 
-RUN yarn --no-git-tag-version --new-version version \
-    "$(cat version/PAI.VERSION)"
-RUN npm install json -g
-RUN json -I -f package.json -e "this.commitVersion=\"`cat version/COMMIT.VERSION`\""
-# Install dev-dependencies when building image
-RUN yarn install --production=false
+RUN node -e "const fs = require('fs'); const p = require('./package.json'); p.version = fs.readFileSync('version/PAI.VERSION', 'utf8').trim(); p.commitVersion = fs.readFileSync('version/COMMIT.VERSION', 'utf8').trim(); fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');"
+# Include build dependencies; keep engine validation and the lockfile enforced.
+RUN test "$(yarn --version)" = "1.22.22" \
+    && yarn install --frozen-lockfile --non-interactive --production=false
 RUN npm run build
 
 EXPOSE ${SERVER_PORT}

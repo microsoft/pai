@@ -175,6 +175,7 @@ const config = (env, argv) => ({
           {
             loader: 'sass-loader',
             options: {
+              implementation: require('sass'),
               sourceMap: true,
             },
           },
@@ -215,6 +216,7 @@ const config = (env, argv) => ({
           {
             loader: 'sass-loader',
             options: {
+              implementation: require('sass'),
               sourceMap: true,
             },
           },
@@ -388,7 +390,9 @@ const config = (env, argv) => ({
     runtimeChunk: 'single',
     minimizer: [
       new TerserPlugin({
-        cache: true,
+        // TerserPlugin 1.x hardcodes OpenSSL-disabled MD4 for its disk cache.
+        // Keep minification enabled without requiring the legacy provider.
+        cache: false,
         parallel: true,
       }),
     ],
