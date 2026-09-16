@@ -20,7 +20,7 @@
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
-    "test": "npm run lint && node test/browserslist-security.js",
+    "test": "npm run lint && node test/browserslist-security.js && npm run test:parsers",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --progress --profile --mode production",
@@ -28,7 +28,8 @@
     "analyze": "webpack-bundle-analyzer bundle.profile.json dist",
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist && envsub --env-file .env --system src/app/env.js.template dist/env.js",
-    "start": "node server"
+    "start": "node server",
+    "test:parsers": "node ../../tests/http-parser-security.js"
   },
   "dependencies": {
     "@hapi/joi": "~15.1.0",
@@ -39,6 +40,7 @@
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
     "blueimp-file-upload": "~9.22.1",
+    "body-parser": "~1.20.8",
     "bootstrap": "~3.4.0",
     "c3": "^0.7.2",
     "classnames": "^2.2.6",
@@ -52,7 +54,7 @@
     "datatables.net-responsive-bs": "^2.2.3",
     "datatables.net-select-bs": "^1.2.7",
     "dotenv": "~4.0.0",
-    "express": "~4.16.2",
+    "express": "~4.22.3",
     "font-awesome": "~4.7.0",
     "fs-extra": "~5.0.0",
     "handlebars": "^4.7.7",
@@ -145,6 +147,7 @@
   },
   "packageManager": "yarn@1.22.22",
   "resolutions": {
-    "browserslist": "4.28.9"
+    "browserslist": "4.28.9",
+    "express": "4.22.3"
   }
 }
