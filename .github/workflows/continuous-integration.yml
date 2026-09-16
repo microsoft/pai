@@ -21,9 +21,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
     - name: Use Python ${{ matrix.python }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@0f07f7f756721ebd886c2462646a35f78a8bc4de # v1.2.4
       with:
         python-version: ${{ matrix.python }}
         architecture: x64
@@ -49,9 +49,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
     - name: Use Python ${{ matrix.python }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@0f07f7f756721ebd886c2462646a35f78a8bc4de # v1.2.4
       with:
         python-version: ${{ matrix.python }}
         architecture: x64
@@ -74,9 +74,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
     - name: Use Go ${{ matrix.go }}
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@0caeaed6fd66a828038c2da3c0f662a42862658f # v1.1.3
       with:
         go-version: ${{ matrix.go }}
         architecture: x64
@@ -99,9 +99,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
     - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
       with:
         node-version: ${{ matrix.node }}
     - name: yarn install and test
@@ -120,9 +120,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
     - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
       with:
         node-version: ${{ matrix.node }}
     - name: yarn install and test
@@ -134,7 +134,7 @@ jobs:
         yarn run coveralls
 
     - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v1.1.1
+      uses: coverallsapp/github-action@348853a262cc37fa2f8abe2827729d193cbb00dc # v1.1.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Path to lcov file
@@ -146,9 +146,9 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
     - name: Use portal Node version
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: src/webportal/.nvmrc
     - name: Install task-local Yarn
@@ -173,9 +173,9 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
     - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
       with:
         node-version: ${{ matrix.node }}
     - name: Test contrib/submit-job-v2
