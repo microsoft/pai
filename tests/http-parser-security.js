@@ -25,7 +25,7 @@ async function requests() {
     res.status(err.status || 500).json({ type: err.type })
   );
   const server = app.listen(0, "127.0.0.1");
-  await new Promise((resolve) => server.once("listening", done));
+  await new Promise((resolve) => server.once("listening", resolve));
   const post = (body, type) =>
     new Promise((resolve, reject) => {
       const req = http.request(
