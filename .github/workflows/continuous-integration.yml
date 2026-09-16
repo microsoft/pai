@@ -90,54 +90,63 @@ jobs:
         go test -cover ./pkg/watchdog
 
   rest-server:
-    name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: [10]
-        os: [ubuntu-18.04, ubuntu-latest]
-
+    name: Test rest server on Node 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
-    - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
+      uses: actions/checkout@v4
+    - name: Use existing REST runtime
+      uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node }}
-    - name: yarn install and test
+        node-version: 10.24.1
+    - name: Install task-local Yarn and SDK copy helper
       run: |
-        cd src/rest-server
-        yarn install --frozen-lockfiles
+        npm install --prefix "$RUNNER_TEMP/rest-tools" --no-audit --no-fund yarn@1.22.22 ncp@2.0.0
+        echo "$RUNNER_TEMP/rest-tools/node_modules/.bin" >> "$GITHUB_PATH"
+    - name: Strict lifecycle install and tests
+      working-directory: src/rest-server
+      run: |
+        test "$(yarn --version)" = "1.22.22"
+        sha256sum yarn.lock > "$RUNNER_TEMP/rest-lock.sha256"
+        yarn install --no-default-rc --frozen-lockfile --non-interactive --production=false
+        sha256sum -c "$RUNNER_TEMP/rest-lock.sha256"
+        test -f node_modules/openpaidbsdk/index.js
+        test ! -d openpaidbsdk
         yarn test
 
   code-coverage:
-    name: Run code coverage of rest-server on node-${{ matrix.node }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: [10]
-        os: [ubuntu-latest]
-
+    name: Run code coverage of rest-server on Node 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
+      uses: actions/checkout@v4
+    - name: Use existing REST runtime
+      uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node }}
-    - name: yarn install and test
+        node-version: 10.24.1
+    - name: Install task-local Yarn and SDK copy helper
       run: |
-        cd src/rest-server
-        yarn install --frozen-lockfiles
+        npm install --prefix "$RUNNER_TEMP/rest-tools" --no-audit --no-fund yarn@1.22.22 ncp@2.0.0
+        echo "$RUNNER_TEMP/rest-tools/node_modules/.bin" >> "$GITHUB_PATH"
+    - name: Strict lifecycle install, tests and coverage
+      working-directory: src/rest-server
+      run: |
+        test "$(yarn --version)" = "1.22.22"
+        sha256sum yarn.lock > "$RUNNER_TEMP/rest-lock.sha256"
+        yarn install --no-default-rc --frozen-lockfile --non-interactive --production=false
+        sha256sum -c "$RUNNER_TEMP/rest-lock.sha256"
+        test -f node_modules/openpaidbsdk/index.js
+        test ! -d openpaidbsdk
         yarn test
-        mkdir ./coverage
+        mkdir -p coverage
         yarn run coveralls
 
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.1.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        # Path to lcov file
         path-to-lcov: ./src/rest-server/coverage/lcov.info
 
   webportal:
