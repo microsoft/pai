@@ -20,7 +20,7 @@
   },
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
-    "test": "npm run lint && node test/browserslist-security.js && npm run test:parsers",
+    "test": "npm run lint && node test/browserslist-security.js && npm run test:parsers && npm run test:yaml",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --progress --profile --mode production",
@@ -29,7 +29,8 @@
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
     "prestart": "mkdirp dist && envsub --env-file .env --system src/app/env.js.template dist/env.js",
     "start": "node server",
-    "test:parsers": "node ../../tests/http-parser-security.js"
+    "test:parsers": "node ../../tests/http-parser-security.js",
+    "test:yaml": "node ../../tests/yaml-parser-security.js"
   },
   "dependencies": {
     "@hapi/joi": "~15.1.0",
@@ -61,7 +62,7 @@
     "joi-browser": "^13.4.0",
     "jquery": "~3.5.0",
     "js-cookie": "~2.2.0",
-    "js-yaml": "~3.13.1",
+    "js-yaml": "~3.15.2",
     "json-editor": "~0.7.28",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^1.24.1",
@@ -148,6 +149,7 @@
   "packageManager": "yarn@1.22.22",
   "resolutions": {
     "browserslist": "4.28.9",
-    "express": "4.22.3"
+    "express": "4.22.3",
+    "js-yaml": "3.15.2"
   }
 }
