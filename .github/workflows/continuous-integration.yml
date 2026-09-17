@@ -90,54 +90,68 @@ jobs:
         go test -cover ./pkg/watchdog
 
   rest-server:
-    name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: [10]
-        os: [ubuntu-18.04, ubuntu-latest]
-
+    name: Test rest server on Node 10
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
     - name: Checkout
-      uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-    - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - name: Use existing REST runtime
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
-        node-version: ${{ matrix.node }}
-    - name: yarn install and test
+        node-version: 10.24.1
+    - name: Install task-local Yarn and SDK copy helper
       run: |
-        cd src/rest-server
-        yarn install --frozen-lockfiles
+        npm install --prefix "$RUNNER_TEMP/rest-tools" --no-audit --no-fund yarn@1.22.22 ncp@2.0.0
+        echo "$RUNNER_TEMP/rest-tools/node_modules/.bin" >> "$GITHUB_PATH"
+    - name: Strict lifecycle install and tests
+      working-directory: src/rest-server
+      run: |
+        test "$(yarn --version)" = "1.22.22"
+        sha256sum yarn.lock > "$RUNNER_TEMP/rest-lock.sha256"
+        yarn install --no-default-rc --frozen-lockfile --non-interactive --production=false
+        sha256sum -c "$RUNNER_TEMP/rest-lock.sha256"
+        test -f node_modules/openpaidbsdk/index.js
+        test ! -d openpaidbsdk
         yarn test
 
   code-coverage:
-    name: Run code coverage of rest-server on node-${{ matrix.node }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: [10]
-        os: [ubuntu-latest]
-
+    name: Run code coverage of rest-server on Node 10
+    permissions:
+      contents: read
+      checks: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
     - name: Checkout
-      uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
-    - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - name: Use existing REST runtime
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
-        node-version: ${{ matrix.node }}
-    - name: yarn install and test
+        node-version: 10.24.1
+    - name: Install task-local Yarn and SDK copy helper
       run: |
-        cd src/rest-server
-        yarn install --frozen-lockfiles
+        npm install --prefix "$RUNNER_TEMP/rest-tools" --no-audit --no-fund yarn@1.22.22 ncp@2.0.0
+        echo "$RUNNER_TEMP/rest-tools/node_modules/.bin" >> "$GITHUB_PATH"
+    - name: Strict lifecycle install, tests and coverage
+      working-directory: src/rest-server
+      run: |
+        test "$(yarn --version)" = "1.22.22"
+        sha256sum yarn.lock > "$RUNNER_TEMP/rest-lock.sha256"
+        yarn install --no-default-rc --frozen-lockfile --non-interactive --production=false
+        sha256sum -c "$RUNNER_TEMP/rest-lock.sha256"
+        test -f node_modules/openpaidbsdk/index.js
+        test ! -d openpaidbsdk
         yarn test
-        mkdir ./coverage
+        mkdir -p coverage
         yarn run coveralls
 
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@348853a262cc37fa2f8abe2827729d193cbb00dc # v1.1.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        # Path to lcov file
         path-to-lcov: ./src/rest-server/coverage/lcov.info
 
   webportal:

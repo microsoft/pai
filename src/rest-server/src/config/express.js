@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const fs = require('fs');
 const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
