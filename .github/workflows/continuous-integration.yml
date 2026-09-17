@@ -91,6 +91,8 @@ jobs:
 
   rest-server:
     name: Test rest server on Node 10
+    permissions:
+      contents: read
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -117,6 +119,9 @@ jobs:
 
   code-coverage:
     name: Run code coverage of rest-server on Node 10
+    permissions:
+      contents: read
+      checks: write
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
