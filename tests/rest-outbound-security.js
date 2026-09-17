@@ -8,6 +8,7 @@ const Module = require("module");
 const path = require("path");
 const { Readable } = require("stream");
 const { spawnSync } = require("child_process");
+const { createGzip } = require("zlib");
 
 const root = process.cwd();
 const load = (name) => require(require.resolve(name, { paths: [root] }));
@@ -320,23 +321,37 @@ const cases = {
 
   async streamedResponses() {
     await origins(async ([a], handlers) => {
-      handlers[0] = (req, res) => stream(Number(req.url.slice(1))).pipe(res);
-      for (const responseType of ["stream", "arraybuffer"]) {
-        const config = { responseType, maxContentLength: 32 };
-        const good = await axios.get(a + "/32", config);
-        assert.strictEqual(
-          responseType === "stream"
-            ? await consume(good.data)
-            : good.data.length,
-          32
-        );
-        await rejects(
-          async () => {
-            const response = await axios.get(a + "/33", config);
-            if (responseType === "stream") await consume(response.data);
-          },
-          (error) => assert(/maxContentLength/.test(error.message))
-        );
+      handlers[0] = (req, res) => {
+        const [, encoding, size] = req.url.split("/");
+        const source = stream(Number(size));
+        if (encoding === "gzip") {
+          res.setHeader("Content-Encoding", "gzip");
+          source.pipe(createGzip()).pipe(res);
+        } else {
+          source.pipe(res);
+        }
+      };
+      for (const encoding of ["identity", "gzip"]) {
+        for (const responseType of ["stream", "arraybuffer"]) {
+          const config = { responseType, maxContentLength: 32 };
+          const good = await axios.get(a + "/" + encoding + "/32", config);
+          assert.strictEqual(
+            responseType === "stream"
+              ? await consume(good.data)
+              : good.data.length,
+            32
+          );
+          await rejects(
+            async () => {
+              const response = await axios.get(
+                a + "/" + encoding + "/33",
+                config
+              );
+              if (responseType === "stream") await consume(response.data);
+            },
+            (error) => assert(/maxContentLength/.test(error.message))
+          );
+        }
       }
     });
   },
@@ -421,6 +436,38 @@ const cases = {
         () => graph.getUserGroupList("alice", config),
         (error) => assert.strictEqual(error.response.status, 503)
       );
+    });
+  },
+
+  async groupAdapterRedirects() {
+    await origins(async ([a, b], handlers) => {
+      const graph = adapter("utils/manager/group/adapter/msGraphAdapter.js");
+      const config = graph.initConfig(a + "/", "fixture-token");
+      let otherRequests = 0;
+      handlers[0] = (req, res) => {
+        if (req.url === "/v1.0/me/transitiveMemberOf") {
+          assert.strictEqual(req.headers.authorization, config.Authorization);
+          return redirect(res, b + "/groups");
+        }
+        assert(req.url.startsWith("/GetUserId?"));
+        redirect(res, b + "/groups");
+      };
+      handlers[1] = (req, res) => {
+        otherRequests++;
+        assert.strictEqual(req.url, "/groups");
+        assert.strictEqual(req.headers.authorization, undefined);
+        json(res, { value: [{ mailNickname: "team-a" }] });
+      };
+      assert.deepStrictEqual(await graph.getUserGroupList("alice", config), [
+        "team-a",
+      ]);
+      assert.strictEqual(otherRequests, 1);
+      const winbind = adapter("utils/manager/group/adapter/winbindAdapter.js");
+      await rejects(
+        () => winbind.getUserGroupList("alice", winbind.initConfig(a)),
+        (error) => assert.strictEqual(error.response.status, 302)
+      );
+      assert.strictEqual(otherRequests, 1);
     });
   },
 
@@ -564,12 +611,25 @@ const cases = {
         (error) => assert.strictEqual(error.code, "ECONNABORTED")
       );
       const source = axios.CancelToken.source();
-      const request = axios.get(a, { cancelToken: source.token });
-      source.cancel("local cancellation");
-      await rejects(
+      let arrived;
+      const received = new Promise((resolve) => {
+        arrived = resolve;
+      });
+      handlers[0] = (req) => {
+        assert.strictEqual(req.url, "/cancel");
+        arrived();
+      };
+      const request = axios.get(a + "/cancel", { cancelToken: source.token });
+      const cancelled = rejects(
         () => request,
-        (error) => assert(axios.isCancel(error))
+        (error) => {
+          assert(axios.isCancel(error));
+          assert.strictEqual(error.message, "local cancellation");
+        }
       );
+      await received;
+      source.cancel("local cancellation");
+      await cancelled;
     });
   },
 };
