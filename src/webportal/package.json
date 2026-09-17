@@ -68,7 +68,7 @@
     "luxon": "^1.24.1",
     "marked": "^4.0.10",
     "monaco-editor": "~0.16.1",
-    "morgan": "~1.9.0",
+    "morgan": "~1.12.0",
     "node-rsa": "^1.0.5",
     "normalize.css": "^8.0.1",
     "office-ui-fabric-react": "^6.189.0",
