@@ -49,7 +49,7 @@
     "lodash": "^4.17.21",
     "mocha": "~5.0.0",
     "module-alias": "^2.2.0",
-    "morgan": "~1.9.0",
+    "morgan": "~1.12.0",
     "mustache": "~2.3.0",
     "nock": "~9.1.6",
     "node-cache": "~4.2.0",
