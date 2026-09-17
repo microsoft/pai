@@ -135,9 +135,16 @@ function routeBacktracking() {
 }
 
 const cases = { requests, qsRoundTrip, routeBacktracking };
-if (process.argv[2]) {
+if (process.argv[2] !== undefined) {
   Promise.resolve()
-    .then(cases[process.argv[2]])
+    .then(() => {
+      const name = process.argv[2];
+      assert(
+        Object.prototype.hasOwnProperty.call(cases, name),
+        "Unknown HTTP parser security case: " + name
+      );
+      return cases[name]();
+    })
     .catch((err) => {
       console.error(err);
       process.exitCode = 1;
@@ -148,7 +155,9 @@ if (process.argv[2]) {
       encoding: "utf8",
       timeout: 10000,
     });
-    assert.ifError(child.error);
+    if (child.error) {
+      throw new Error(name + ": " + child.error.message);
+    }
     assert.strictEqual(child.status, 0, name + ": " + child.stderr);
     console.log("HTTP parser security: " + name + " passed");
   }
