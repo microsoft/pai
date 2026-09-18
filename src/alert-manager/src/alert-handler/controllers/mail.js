@@ -136,7 +136,7 @@ const sendEmailToUser = async (req, res) => {
       Object.keys(alertsGrouped).map(async (username) => {
         const userEmail = await getUserEmail(username, req.token);
         if (userEmail) {
-          email.send({
+          await email.send({
             template: path.join('/etc/alerthandler/templates/', template),
             message: {
               to: userEmail,
