@@ -420,16 +420,37 @@ async function run(t) {
         (item) => item.url === '/api/v2/users/alice',
       );
       assert.equal(lookup.headers.authorization, 'Bearer fixture-user-token');
-      // The existing controller acknowledges before its mail promise settles.
-      const deadline = Date.now() + 3000;
-      let current;
-      do {
-        current = await state();
-        if (current.mail.length === 2) break;
-        await new Promise((resolve) => setTimeout(resolve, 20));
-      } while (Date.now() < deadline);
+      const current = await state();
       assert.equal(current.mail.length, 2);
       assert.deepEqual(current.mail[1].envelope.to, ['user@example.test']);
+    },
+  );
+  await t.test(
+    'user-mail failure returns 500 and the same service handles a later delivery',
+    async () => {
+      const headers = { authorization: 'Bearer fixture-recovery-token' };
+      const pid = child.pid;
+      const before = (await state('fail-mail', true)).mail.length;
+      const failed = await post('send-email-to-user', payload, headers);
+      assert.equal(failed.status, 500, output);
+      assert.deepEqual(JSON.parse(failed.text), {
+        message: 'alert-handler failed to send email to users',
+      });
+      assert.equal((await state()).mail.length, before);
+      assert.equal(child.exitCode, null, output);
+      assert.equal(child.signalCode, null, output);
+      await state('fail-mail', false);
+      const succeeded = await post('send-email-to-user', payload, headers);
+      assert.equal(succeeded.status, 200, output);
+      assert.deepEqual(JSON.parse(succeeded.text), {
+        message: 'alert-handler successfully send emails to users',
+      });
+      const current = await state();
+      assert.equal(current.mail.length, before + 1);
+      assert.deepEqual(current.mail.at(-1).envelope.to, ['user@example.test']);
+      assert.equal(child.pid, pid);
+      assert.equal(child.exitCode, null, output);
+      assert.equal(child.signalCode, null, output);
     },
   );
   await t.test(
