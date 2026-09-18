@@ -16,7 +16,7 @@
     "url": "https://github.com/Microsoft/pai/issues"
   },
   "engines": {
-    "node": "^10"
+    "node": "^24.20.0"
   },
   "_moduleAliases": {
     "@alert-handler": "."
@@ -46,6 +46,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "test": "node ../../../../tests/alert-handler-runtime.js",
     "start": "node index.js"
   }
 }
