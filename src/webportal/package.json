@@ -45,7 +45,7 @@
     "bootstrap": "~3.4.0",
     "c3": "^0.7.2",
     "classnames": "^2.2.6",
-    "compression": "~1.7.1",
+    "compression": "~1.8.2",
     "cookie-parser": "~1.4.3",
     "copy-to-clipboard": "^3.2.0",
     "core-js": "^3.0.1",
