@@ -21,7 +21,7 @@
     "express": "^4.22.3",
     "http-errors": "^1.8.0",
     "interval-promise": "^1.4.0",
-    "joi": "^14.3.1",
+    "joi": "^17.13.8",
     "js-yaml": "^3.15.2",
     "json-merge-patch": "^1.0.0",
     "lodash": "^4.17.21",
