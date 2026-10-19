@@ -58,7 +58,7 @@
     "express": "~4.22.3",
     "font-awesome": "~4.7.0",
     "fs-extra": "~5.0.0",
-    "handlebars": "^4.7.7",
+    "handlebars": "^4.7.10",
     "joi-browser": "^13.4.0",
     "jquery": "~3.5.0",
     "js-cookie": "~2.2.0",
